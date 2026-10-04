@@ -1,2 +1,7 @@
 node_modules/
+.claude/
+.cursor/
+.devin/
+.agents/
 .env
+/src/generated/prisma
