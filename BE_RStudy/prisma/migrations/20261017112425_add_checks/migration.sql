@@ -1,0 +1,12 @@
+ALTER TABLE "Course" ADD CONSTRAINT course_dates_chk CHECK ("endDate" > "startDate");
+ALTER TABLE "Course" ADD CONSTRAINT course_price_chk CHECK ("price" >= 0);
+ALTER TABLE "CourseRegistration" ADD CONSTRAINT reg_amount_chk CHECK ("amountPaid" >= 0);
+ALTER TABLE "DiscountCode" ADD CONSTRAINT discount_dates_chk CHECK ("endDate" > "startDate");
+ALTER TABLE "DiscountCode" ADD CONSTRAINT discount_usage_chk CHECK ("usageLimit" >= 0 AND "usedCount" >= 0);
+ALTER TABLE "DiscountCode" ADD CONSTRAINT discount_percent_chk CHECK ("discountPercentage" IS NULL OR ("discountPercentage" > 0 AND "discountPercentage" <= 100));
+ALTER TABLE "DiscountCode" ADD CONSTRAINT discount_one_type_chk CHECK (("discountAmount" IS NOT NULL AND "discountPercentage" IS NULL) OR ("discountAmount" IS NULL AND "discountPercentage" IS NOT NULL));
+ALTER TABLE "Invoice" ADD CONSTRAINT invoice_amount_chk CHECK ("subtotal" >= 0 AND "discountAmountApplied" >= 0 AND "totalAmount" >= 0 AND "totalAmount" = "subtotal" - "discountAmountApplied");
+ALTER TABLE "Review" ADD CONSTRAINT review_rating_chk CHECK ("rating" BETWEEN 1 AND 5);
+ALTER TABLE "Exam" ADD CONSTRAINT exam_duration_chk CHECK ("durationMinutes" > 0);
+ALTER TABLE "ExamQuestion" ADD CONSTRAINT question_chk CHECK ("score" >= 0 AND "questionOrder" > 0);
+CREATE UNIQUE INDEX one_correct_option_per_question ON "AnswerOption" ("questionId") WHERE "isCorrect" = true;
