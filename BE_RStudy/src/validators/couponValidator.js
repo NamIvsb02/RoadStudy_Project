@@ -1,5 +1,11 @@
 const { z } = require("zod");
 
+// Message riêng cho trường không được phép gửi (vd: usedCount)
+const unknownKeysError = (issue) =>
+    issue.code === "unrecognized_keys"
+        ? `Không được gửi các trường: ${issue.keys.join(", ")}`
+        : undefined; // các lỗi khác dùng message mặc định
+
 const base = z.object({
     code: z
         .string()
@@ -18,7 +24,9 @@ const base = z.object({
     endDate: z.coerce.date(),
     usageLimit: z.coerce.number().int().min(1, "Số lượt tối đa phải từ 1 trở lên"),
     status: z.enum(["HOAT_DONG", "TAM_NGUNG"]).optional(),
-});
+},
+    { error: unknownKeysError }
+);
 
 // usedCount không có trong schema nên client không thể tự gửi lên (strict sẽ báo lỗi)
 const createCouponSchema = base.strict();
