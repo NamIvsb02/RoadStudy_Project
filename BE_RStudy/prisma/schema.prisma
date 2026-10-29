@@ -147,6 +147,8 @@ model Account {
   reviewResponses ReviewResponse[]
   reportsSent     ViolationReport[] @relation("ReportReporter")
   reportsReceived ViolationReport[] @relation("ReportReported")
+  otpCodes        OtpCode[]
+  refreshTokens   RefreshToken[]
 }
 
 model Student {
@@ -163,6 +165,7 @@ model Student {
   reviews       Review[]
   attempts      ExamAttempt[]
   conversations AiConversation[]
+  supportRequests SupportRequest[]
 }
 
 model Teacher {
@@ -270,6 +273,7 @@ model CourseRegistration {
   student  Student   @relation(fields: [studentId], references: [id])
   course   Course    @relation(fields: [courseId], references: [id])
   invoices Invoice[]
+  supportRequests SupportRequest[]
 
   @@unique([studentId, courseId]) // mỗi học viên chỉ đăng ký 1 lần/khóa (không cho hủy, không đăng ký lại)
 }
@@ -492,4 +496,64 @@ model ViolationReport {
   review          Review?  @relation(fields: [reviewId], references: [id])
   comment         Comment? @relation(fields: [commentId], references: [id])
   reply           Reply?   @relation(fields: [replyId], references: [id])
+}
+
+enum SupportRequestType {
+  HOAN_TIEN_KHOA_HOC
+}
+
+enum SupportRequestStatus {
+  CHO_XU_LY
+  DA_XU_LY
+  TU_CHOI
+}
+
+model SupportRequest {
+  id             String               @id @default(uuid()) @db.VarChar(36)
+  type           SupportRequestType
+  description    String               @db.Text
+  status         SupportRequestStatus @default(CHO_XU_LY)
+  adminNote      String?              @db.Text
+  createdAt      DateTime             @default(now())
+  handledAt      DateTime?
+  studentId      String               @db.VarChar(36)
+  registrationId String               @db.VarChar(36)
+
+  student      Student            @relation(fields: [studentId], references: [id])
+  registration CourseRegistration @relation(fields: [registrationId], references: [id])
+
+  @@index([registrationId])
+}
+
+enum OtpPurpose {
+  XAC_MINH_EMAIL
+  QUEN_MAT_KHAU
+}
+
+model OtpCode {
+  id         String     @id @default(uuid()) @db.VarChar(36)
+  purpose    OtpPurpose
+  codeHash   String     @db.VarChar(255)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime   @default(now())
+  accountId  String     @db.VarChar(36)
+
+  account Account @relation(fields: [accountId], references: [id])
+  attempts   Int        @default(0)
+
+  @@index([accountId, purpose])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.VarChar(36)
+  tokenHash String    @unique @db.VarChar(64) // sha256 hex = 64 ký tự
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  accountId String    @db.VarChar(36)
+
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
 }
