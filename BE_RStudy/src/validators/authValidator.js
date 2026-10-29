@@ -22,8 +22,6 @@ const teacherRegisterSchema = z.object({
   teachingExperience: z.string().min(1),
 });
 
-// Đăng ký chỉ nhận STUDENT hoặc TEACHER — tài khoản ADMINISTRATOR
-// không tạo qua route công khai này (tạo qua seed hoặc module Admin sau).
 const registerSchema = z.discriminatedUnion("role", [studentRegisterSchema, teacherRegisterSchema]);
 
 const loginSchema = z.object({
@@ -31,4 +29,42 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-module.exports = { registerSchema, loginSchema };
+const verifyEmailSchema = z.object({
+  email: z.string().email(),
+  code: z.string().length(6),
+});
+
+const resendOtpSchema = z.object({
+  email: z.string().email(),
+  purpose: z.enum(["XAC_MINH_EMAIL", "QUEN_MAT_KHAU"]),
+});
+
+const forgotPasswordSchema = z.object({
+  email: z.string().email(),
+});
+
+const resetPasswordSchema = z.object({
+  email: z.string().email(),
+  code: z.string().length(6),
+  newPassword: z.string().min(8),
+});
+
+const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1),
+  newPassword: z.string().min(8),
+});
+
+const refreshTokenSchema = z.object({
+  refreshToken: z.string().min(1),
+});
+
+module.exports = {
+  registerSchema,
+  loginSchema,
+  verifyEmailSchema,
+  resendOtpSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  changePasswordSchema,
+  refreshTokenSchema,
+};
