@@ -1,0 +1,789 @@
+===== src/routes/authRoutes.js =====
+const express = require("express");
+const router = express.Router();
+
+const controller = require("../controllers/authController");
+const validate = require("../middlewares/validateMiddleware");
+const { authenticate } = require("../middlewares/authMiddleware");
+const { registerSchema, loginSchema } = require("../validators/authValidator");
+
+router.post("/register", validate(registerSchema), controller.register);
+router.post("/login", validate(loginSchema), controller.login);
+router.get("/me", authenticate, controller.me);
+
+module.exports = router;
+===== src/controllers/authController.js =====
+const authService = require("../services/authService");
+const { formatResponse } = require("../utils/response");
+
+const register = async (req, res, next) => {
+  try {
+    const account = await authService.register(req.body);
+    return res.status(201).json(formatResponse(true, account, "Đăng ký thành công"));
+  } catch (err) {
+    next(err);
+  }
+};
+
+const login = async (req, res, next) => {
+  try {
+    const result = await authService.login(req.body.email, req.body.password);
+    return res.status(200).json(formatResponse(true, result, "Đăng nhập thành công"));
+  } catch (err) {
+    next(err);
+  }
+};
+
+const me = async (req, res, next) => {
+  try {
+    const account = await authService.getMe(req.user.id);
+    return res.status(200).json(formatResponse(true, account));
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { register, login, me };
+===== src/services/authService.js =====
+const authRepository = require("../repositories/authRepository");
+const { hashPassword, comparePassword } = require("../utils/hash");
+const { signAccessToken } = require("../utils/jwt");
+const AppError = require("../utils/AppError");
+
+const register = async (payload) => {
+  const existing = await authRepository.findByEmail(payload.email);
+  if (existing) throw new AppError("Email đã được sử dụng", 409);
+
+  const passwordHash = await hashPassword(payload.password);
+  const data = { ...payload, passwordHash };
+
+  return payload.role === "TEACHER" ? authRepository.createTeacherAccount(data) : authRepository.createStudentAccount(data);
+};
+
+const login = async (email, password) => {
+  const account = await authRepository.findByEmail(email);
+  if (!account) throw new AppError("Email hoặc mật khẩu không đúng", 401);
+
+  const match = await comparePassword(password, account.passwordHash);
+  if (!match) throw new AppError("Email hoặc mật khẩu không đúng", 401);
+
+  if (account.status === "BI_KHOA") throw new AppError("Tài khoản đã bị khóa", 403);
+
+  // CHO_XAC_MINH vẫn được đăng nhập (OTP xác minh mail chưa làm — STT 14)
+  const accessToken = signAccessToken({ sub: account.id, role: account.role });
+
+  const { passwordHash, ...safeAccount } = account;
+  return { accessToken, account: safeAccount };
+};
+
+const getMe = async (accountId) => {
+  const account = await authRepository.findByIdSafe(accountId);
+  if (!account) throw new AppError("Không tìm thấy tài khoản", 404);
+  return account;
+};
+
+module.exports = { register, login, getMe };
+===== src/repositories/authRepository.js =====
+const prisma = require("../config/database");
+
+// Chọn field an toàn — KHÔNG bao giờ lấy passwordHash ra ngoài
+const ACCOUNT_SAFE_SELECT = {
+  id: true,
+  fullName: true,
+  email: true,
+  phoneNumber: true,
+  avatarUrl: true,
+  role: true,
+  status: true,
+  createdAt: true,
+  student: true,
+  teacher: true,
+  administrator: true,
+};
+
+const findByEmail = (email) => prisma.account.findUnique({ where: { email } });
+
+const findByIdSafe = (id) => prisma.account.findUnique({ where: { id }, select: ACCOUNT_SAFE_SELECT });
+
+const createStudentAccount = (data) =>
+  prisma.account.create({
+    data: {
+      fullName: data.fullName,
+      email: data.email,
+      passwordHash: data.passwordHash,
+      phoneNumber: data.phoneNumber,
+      role: "STUDENT",
+      student: {
+        create: {
+          dateOfBirth: data.dateOfBirth,
+          gender: data.gender,
+          address: data.address,
+        },
+      },
+    },
+    select: ACCOUNT_SAFE_SELECT,
+  });
+
+const createTeacherAccount = (data) =>
+  prisma.account.create({
+    data: {
+      fullName: data.fullName,
+      email: data.email,
+      passwordHash: data.passwordHash,
+      phoneNumber: data.phoneNumber,
+      role: "TEACHER",
+      teacher: {
+        create: {
+          specialization: data.specialization,
+          biography: data.biography,
+          teachingExperience: data.teachingExperience,
+        },
+      },
+    },
+    select: ACCOUNT_SAFE_SELECT,
+  });
+
+module.exports = { findByEmail, findByIdSafe, createStudentAccount, createTeacherAccount };
+===== src/validators/authValidator.js =====
+const { z } = require("zod");
+
+const studentRegisterSchema = z.object({
+  role: z.literal("STUDENT"),
+  fullName: z.string().min(1).max(100),
+  email: z.string().email().max(254),
+  password: z.string().min(8, "Mật khẩu tối thiểu 8 ký tự"),
+  phoneNumber: z.string().max(15).optional(),
+  dateOfBirth: z.coerce.date().optional(),
+  gender: z.enum(["NAM", "NU", "KHAC", "KHONG_TIET_LO"]).optional(),
+  address: z.string().max(255).optional(),
+});
+
+const teacherRegisterSchema = z.object({
+  role: z.literal("TEACHER"),
+  fullName: z.string().min(1).max(100),
+  email: z.string().email().max(254),
+  password: z.string().min(8, "Mật khẩu tối thiểu 8 ký tự"),
+  phoneNumber: z.string().max(15).optional(),
+  specialization: z.string().min(1).max(150),
+  biography: z.string().min(1),
+  teachingExperience: z.string().min(1),
+});
+
+// Đăng ký chỉ nhận STUDENT hoặc TEACHER — tài khoản ADMINISTRATOR
+// không tạo qua route công khai này (tạo qua seed hoặc module Admin sau).
+const registerSchema = z.discriminatedUnion("role", [studentRegisterSchema, teacherRegisterSchema]);
+
+const loginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+});
+
+module.exports = { registerSchema, loginSchema };
+===== src/middlewares/authMiddleware.js =====
+const { verifyAccessToken } = require("../utils/jwt");
+const AppError = require("../utils/AppError");
+
+// authenticate: xác định req.user = { id, role }
+// Khi DEV_AUTH_BYPASS=true và KHÔNG có header Authorization, tạo user giả
+// qua header x-dev-role (STUDENT/TEACHER/ADMIN), mặc định STUDENT — để các
+// module khác test được API cần đăng nhập trước khi Auth thật xong.
+const authenticate = (req, res, next) => {
+  const header = req.headers.authorization;
+
+  if (!header) {
+    if (process.env.DEV_AUTH_BYPASS === "true") {
+      req.user = {
+        id: req.headers["x-dev-user-id"] || "dev-user-id",
+        role: req.headers["x-dev-role"] || "STUDENT",
+      };
+      return next();
+    }
+    return next(new AppError("Thiếu token xác thực", 401));
+  }
+
+  const token = header.replace("Bearer ", "");
+  try {
+    const payload = verifyAccessToken(token);
+    req.user = { id: payload.sub, role: payload.role };
+    next();
+  } catch (err) {
+    next(new AppError("Token không hợp lệ hoặc hết hạn", 401));
+  }
+};
+
+// authorize('TEACHER', 'ADMIN') — chặn nếu role không nằm trong danh sách
+const authorize =
+  (...roles) =>
+  (req, res, next) => {
+    if (!req.user) return next(new AppError("Chưa xác thực", 401));
+    if (!roles.includes(req.user.role)) {
+      return next(new AppError("Không đủ quyền truy cập", 403));
+    }
+    next();
+  };
+
+module.exports = { authenticate, authorize };
+===== src/utils/jwt.js =====
+const jwt = require("jsonwebtoken");
+
+const signAccessToken = (payload) =>
+  jwt.sign(payload, process.env.JWT_ACCESS_SECRET, {
+    expiresIn: process.env.JWT_ACCESS_EXPIRES || "15m",
+  });
+
+const signRefreshToken = (payload) =>
+  jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: process.env.JWT_REFRESH_EXPIRES || "7d",
+  });
+
+const verifyAccessToken = (token) => jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+const verifyRefreshToken = (token) => jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+module.exports = { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken };
+===== src/utils/hash.js =====
+const bcrypt = require("bcrypt");
+const SALT_ROUNDS = 10;
+
+const hashPassword = (plain) => bcrypt.hash(plain, SALT_ROUNDS);
+const comparePassword = (plain, hashed) => bcrypt.compare(plain, hashed);
+
+module.exports = { hashPassword, comparePassword };
+===== src/utils/otp.js =====
+(THIẾU FILE)
+===== src/config/mail.js =====
+===== prisma/schema.prisma =====
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ================= ENUMS =================
+enum Role {
+  STUDENT
+  TEACHER
+  ADMINISTRATOR
+}
+
+enum AccountStatus {
+  HOAT_DONG
+  BI_KHOA
+  CHO_XAC_MINH
+}
+
+enum Gender {
+  NAM
+  NU
+  KHAC
+  KHONG_TIET_LO
+}
+
+enum ApprovalStatus {
+  CHO_DUYET
+  DA_DUYET
+  TU_CHOI
+}
+
+enum FunctionStatus {
+  HOAT_DONG
+  NGUNG_HOAT_DONG
+}
+
+enum CategoryStatus {
+  HOAT_DONG
+  AN
+}
+
+enum CourseStatus {
+  BAN_NHAP
+  CHO_DUYET
+  DA_PHE_DUYET
+  DANG_MO
+  TAM_NGUNG
+  DA_KET_THUC
+}
+
+enum RegistrationStatus {
+  CHO_THANH_TOAN
+  DA_THANH_TOAN
+  HOAN_THANH
+  HOAN_TIEN
+}
+
+enum DiscountStatus {
+  HOAT_DONG
+  TAM_NGUNG
+  HET_HAN
+}
+
+enum PaymentMethod {
+  TIEN_MAT
+  CHUYEN_KHOAN
+  THE
+  VI_DIEN_TU
+  CONG_THANH_TOAN_KHAC
+}
+
+enum InvoiceStatus {
+  CHO_THANH_TOAN
+  DA_THANH_TOAN
+  THAT_BAI
+  DA_HUY
+  HOAN_TIEN
+}
+
+enum ReviewStatus {
+  CHO_DUYET
+  HIEN_THI
+  AN
+  VI_PHAM
+}
+
+// Dùng chung cho Comment, Reply, ReviewResponse
+enum ContentStatus {
+  HIEN_THI
+  AN
+  VI_PHAM
+}
+
+enum ExamStatus {
+  BAN_NHAP
+  DA_PHE_DUYET
+  DANG_MO
+  TAM_NGUNG
+}
+
+enum AttemptStatus {
+  DANG_LAM
+  DA_NOP
+  DA_CHAM
+  HUY
+}
+
+enum SenderType {
+  STUDENT
+  AI
+}
+
+enum ReportStatus {
+  CHO_XU_LY
+  DANG_XU_LY
+  DA_XU_LY
+  TU_CHOI
+}
+
+// ================= NGƯỜI DÙNG & PHÂN QUYỀN =================
+model Account {
+  id           String        @id @default(uuid()) @db.VarChar(36)
+  fullName     String        @db.VarChar(100)
+  email        String        @unique @db.VarChar(254)
+  passwordHash String        @db.VarChar(255)
+  phoneNumber  String?       @db.VarChar(15)
+  avatarUrl    String?       @db.VarChar(2048)
+  role         Role
+  status       AccountStatus @default(CHO_XAC_MINH)
+  createdAt    DateTime      @default(now())
+
+  student         Student?
+  teacher         Teacher?
+  administrator   Administrator?
+  comments        Comment[]
+  replies         Reply[]
+  reviewResponses ReviewResponse[]
+  reportsSent     ViolationReport[] @relation("ReportReporter")
+  reportsReceived ViolationReport[] @relation("ReportReported")
+}
+
+model Student {
+  id          String    @id @default(uuid()) @db.VarChar(36)
+  dateOfBirth DateTime? @db.Date
+  gender      Gender?
+  address     String?   @db.VarChar(255)
+  joinedAt    DateTime  @default(now())
+  accountId   String    @unique @db.VarChar(36)
+
+  account       Account              @relation(fields: [accountId], references: [id])
+  registrations CourseRegistration[]
+  invoices      Invoice[]
+  reviews       Review[]
+  attempts      ExamAttempt[]
+  conversations AiConversation[]
+}
+
+model Teacher {
+  id                 String         @id @default(uuid()) @db.VarChar(36)
+  specialization     String         @db.VarChar(150)
+  biography          String         @db.Text
+  teachingExperience String         @db.Text
+  approvalStatus     ApprovalStatus @default(CHO_DUYET)
+  accountId          String         @unique @db.VarChar(36)
+
+  account   Account    @relation(fields: [accountId], references: [id])
+  courses   Course[]
+  resources Resource[]
+}
+
+model Administrator {
+  id        String  @id @default(uuid()) @db.VarChar(36)
+  accountId String  @unique @db.VarChar(36)
+  isLeader  Boolean @default(false)
+
+  account     Account                @relation(fields: [accountId], references: [id])
+  permissions PermissionAssignment[]
+}
+
+model SystemFunction {
+  id           String         @id @default(uuid()) @db.VarChar(36)
+  functionName String         @unique @db.VarChar(100)
+  description  String         @db.VarChar(500)
+  status       FunctionStatus @default(HOAT_DONG)
+
+  permissions PermissionAssignment[]
+}
+
+model PermissionAssignment {
+  id              String   @id @default(uuid()) @db.VarChar(36)
+  administratorId String   @db.VarChar(36)
+  functionId      String   @db.VarChar(36)
+  grantedAt       DateTime @default(now())
+
+  administrator Administrator  @relation(fields: [administratorId], references: [id])
+  function      SystemFunction @relation(fields: [functionId], references: [id])
+
+  @@unique([administratorId, functionId])
+}
+
+// ================= KHÓA HỌC =================
+model Category {
+  id           String         @id @default(uuid()) @db.VarChar(36)
+  categoryName String         @db.VarChar(100)
+  description  String?        @db.VarChar(500)
+  status       CategoryStatus @default(HOAT_DONG)
+
+  courses   Course[]
+  resources Resource[]
+}
+
+model Course {
+  id            String       @id @default(uuid()) @db.VarChar(36)
+  courseName    String       @db.VarChar(200)
+  description   String       @db.Text
+  price         Decimal      @default(0) @db.Decimal(12, 2)
+  coverImageUrl String?      @db.VarChar(2048)
+  status        CourseStatus @default(BAN_NHAP)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  startDate     DateTime
+  endDate       DateTime
+  categoryId    String       @db.VarChar(36)
+  teacherId     String       @db.VarChar(36)
+
+  category        Category               @relation(fields: [categoryId], references: [id])
+  teacher         Teacher                @relation(fields: [teacherId], references: [id])
+  registrations   CourseRegistration[]
+  reviews         Review[]
+  comments        Comment[]
+  exams           Exam[]
+  recommendations CourseRecommendation[]
+
+  @@index([categoryId])
+  @@index([teacherId])
+  @@index([status])
+}
+
+model Resource {
+  id                  String   @id @default(uuid()) @db.VarChar(36)
+  resourceName        String   @db.VarChar(200)
+  fileUrl             String   @db.VarChar(2048)
+  createdAt           DateTime @default(now())
+  uploadedByTeacherId String   @db.VarChar(36)
+  categoryId          String   @db.VarChar(36) // SỬA: bản gốc ghi dở
+
+  uploadedBy Teacher  @relation(fields: [uploadedByTeacherId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+}
+
+// ================= ĐĂNG KÝ & THANH TOÁN =================
+model CourseRegistration {
+  id           String             @id @default(uuid()) @db.VarChar(36)
+  registeredAt DateTime           @default(now())
+  status       RegistrationStatus @default(CHO_THANH_TOAN)
+  amountPaid   Decimal            @default(0) @db.Decimal(12, 2)
+  studentId    String             @db.VarChar(36)
+  courseId     String             @db.VarChar(36)
+
+  student  Student   @relation(fields: [studentId], references: [id])
+  course   Course    @relation(fields: [courseId], references: [id])
+  invoices Invoice[]
+
+  @@unique([studentId, courseId]) // mỗi học viên chỉ đăng ký 1 lần/khóa (không cho hủy, không đăng ký lại)
+}
+
+model DiscountCode {
+  id                 String         @id @default(uuid()) @db.VarChar(36)
+  code               String         @unique @db.VarChar(50)
+  discountAmount     Decimal?       @db.Decimal(12, 2)
+  discountPercentage Decimal?       @db.Decimal(5, 2) // THÊM MỚI: tài liệu có nhắc nhưng thiếu cột
+  startDate          DateTime
+  endDate            DateTime
+  usageLimit         Int
+  usedCount          Int            @default(0) // THÊM MỚI: đếm lượt đã dùng
+  status             DiscountStatus @default(HOAT_DONG)
+
+  invoices Invoice[]
+}
+
+model Invoice {
+  id                    String        @id @default(uuid()) @db.VarChar(36)
+  subtotal              Decimal       @db.Decimal(12, 2)
+  discountAmountApplied Decimal       @default(0) @db.Decimal(12, 2)
+  totalAmount           Decimal       @db.Decimal(12, 2)
+  paymentMethod         PaymentMethod
+  status                InvoiceStatus @default(CHO_THANH_TOAN)
+  paidAt                DateTime?
+  studentId             String        @db.VarChar(36)
+  registrationId        String        @db.VarChar(36)
+  discountCodeId        String?       @db.VarChar(36)
+
+  student      Student            @relation(fields: [studentId], references: [id])
+  registration CourseRegistration @relation(fields: [registrationId], references: [id])
+  discountCode DiscountCode?      @relation(fields: [discountCodeId], references: [id])
+
+  @@index([registrationId])
+}
+
+// ================= ĐÁNH GIÁ & BÌNH LUẬN =================
+model Review {
+  id         String       @id @default(uuid()) @db.VarChar(36)
+  rating     Int          @db.SmallInt
+  content    String?      @db.Text
+  reviewedAt DateTime     @default(now())
+  status     ReviewStatus @default(CHO_DUYET)
+  studentId  String       @db.VarChar(36)
+  courseId   String       @db.VarChar(36)
+
+  student   Student           @relation(fields: [studentId], references: [id])
+  course    Course            @relation(fields: [courseId], references: [id])
+  responses ReviewResponse[]
+  reports   ViolationReport[]
+
+  @@unique([studentId, courseId]) // mỗi học viên đánh giá 1 lần/khóa (bỏ dòng này nếu muốn cho đánh giá nhiều lần)
+  @@index([courseId])
+}
+
+model Comment {
+  id                 String        @id @default(uuid()) @db.VarChar(36)
+  content            String        @db.Text
+  commentedAt        DateTime      @default(now())
+  status             ContentStatus @default(HIEN_THI)
+  commenterAccountId String        @db.VarChar(36)
+  courseId           String        @db.VarChar(36)
+
+  commenter Account           @relation(fields: [commenterAccountId], references: [id])
+  course    Course            @relation(fields: [courseId], references: [id])
+  replies   Reply[]
+  reports   ViolationReport[]
+
+  @@index([courseId])
+}
+
+model Reply {
+  id               String        @id @default(uuid()) @db.VarChar(36)
+  content          String        @db.Text
+  repliedAt        DateTime      @default(now())
+  status           ContentStatus @default(HIEN_THI)
+  commentId        String        @db.VarChar(36)
+  replierAccountId String        @db.VarChar(36)
+
+  comment Comment           @relation(fields: [commentId], references: [id])
+  replier Account           @relation(fields: [replierAccountId], references: [id])
+  reports ViolationReport[]
+}
+
+model ReviewResponse {
+  id          String        @id @default(uuid()) @db.VarChar(36)
+  content     String        @db.Text
+  respondedAt DateTime      @default(now())
+  status      ContentStatus @default(HIEN_THI)
+  reviewId    String        @db.VarChar(36)
+  accountId   String        @db.VarChar(36)
+
+  review  Review  @relation(fields: [reviewId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+}
+
+// ================= THI =================
+model Exam {
+  id              String     @id @default(uuid()) @db.VarChar(36)
+  examName        String     @db.VarChar(200)
+  durationMinutes Int
+  passingScore    Decimal    @db.Decimal(5, 2)
+  status          ExamStatus @default(BAN_NHAP)
+  createdAt       DateTime   @default(now())
+  courseId        String     @db.VarChar(36)
+
+  course    Course         @relation(fields: [courseId], references: [id])
+  questions ExamQuestion[]
+  attempts  ExamAttempt[]
+
+  @@index([courseId])
+}
+
+model ExamQuestion {
+  id            String  @id @default(uuid()) @db.VarChar(36)
+  content       String  @db.Text
+  score         Decimal @db.Decimal(5, 2)
+  questionOrder Int
+  examId        String  @db.VarChar(36)
+
+  exam           Exam                @relation(fields: [examId], references: [id])
+  options        AnswerOption[]
+  attemptDetails ExamAttemptDetail[]
+
+  @@index([examId])
+}
+
+model AnswerOption {
+  id         String  @id @default(uuid()) @db.VarChar(36)
+  content    String  @db.Text
+  isCorrect  Boolean @default(false)
+  questionId String  @db.VarChar(36)
+
+  question       ExamQuestion        @relation(fields: [questionId], references: [id])
+  attemptDetails ExamAttemptDetail[]
+
+  @@index([questionId])
+}
+
+model ExamAttempt {
+  id        String        @id @default(uuid()) @db.VarChar(36)
+  score     Decimal?      @db.Decimal(5, 2)
+  startTime DateTime      @default(now())
+  endTime   DateTime?
+  status    AttemptStatus @default(DANG_LAM)
+  studentId String        @db.VarChar(36)
+  examId    String        @db.VarChar(36)
+
+  student Student             @relation(fields: [studentId], references: [id])
+  exam    Exam                @relation(fields: [examId], references: [id])
+  details ExamAttemptDetail[]
+
+  @@index([studentId, examId])
+}
+
+model ExamAttemptDetail {
+  id             String  @id @default(uuid()) @db.VarChar(36)
+  attemptId      String  @db.VarChar(36)
+  questionId     String  @db.VarChar(36)
+  answerOptionId String? @db.VarChar(36)
+
+  attempt      ExamAttempt   @relation(fields: [attemptId], references: [id])
+  question     ExamQuestion  @relation(fields: [questionId], references: [id])
+  answerOption AnswerOption? @relation(fields: [answerOptionId], references: [id])
+
+  @@unique([attemptId, questionId])
+}
+
+// ================= AI =================
+model AiConversation {
+  id        String    @id @default(uuid()) @db.VarChar(36)
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+  studentId String    @db.VarChar(36)
+
+  student  Student     @relation(fields: [studentId], references: [id])
+  messages AiMessage[]
+}
+
+model AiMessage {
+  id             String     @id @default(uuid()) @db.VarChar(36)
+  senderType     SenderType
+  content        String     @db.Text
+  sentAt         DateTime   @default(now())
+  conversationId String     @db.VarChar(36)
+
+  conversation    AiConversation         @relation(fields: [conversationId], references: [id])
+  recommendations CourseRecommendation[]
+
+  @@index([conversationId])
+}
+
+model CourseRecommendation {
+  id                   String  @id @default(uuid()) @db.VarChar(36)
+  recommendationReason String? @db.Text
+  messageId            String  @db.VarChar(36)
+  courseId             String  @db.VarChar(36)
+
+  message AiMessage @relation(fields: [messageId], references: [id])
+  course  Course    @relation(fields: [courseId], references: [id])
+}
+
+// ================= BÁO CÁO VI PHẠM =================
+model ViolationReport {
+  id                String       @id @default(uuid()) @db.VarChar(36)
+  content           String       @db.Text
+  reason            String       @db.VarChar(500)
+  reportedAt        DateTime     @default(now())
+  status            ReportStatus @default(CHO_XU_LY)
+  resolutionResult  String?      @db.Text
+  reporterAccountId String       @db.VarChar(36)
+  reportedAccountId String?      @db.VarChar(36)
+  reviewId          String?      @db.VarChar(36)
+  commentId         String?      @db.VarChar(36)
+  replyId           String?      @db.VarChar(36)
+
+  reporter        Account  @relation("ReportReporter", fields: [reporterAccountId], references: [id])
+  reportedAccount Account? @relation("ReportReported", fields: [reportedAccountId], references: [id])
+  review          Review?  @relation(fields: [reviewId], references: [id])
+  comment         Comment? @relation(fields: [commentId], references: [id])
+  reply           Reply?   @relation(fields: [replyId], references: [id])
+}
+
+enum SupportRequestType {
+  HOAN_TIEN_KHOA_HOC
+}
+
+enum SupportRequestStatus {
+  CHO_XU_LY
+  DA_XU_LY
+  TU_CHOI
+}
+
+model SupportRequest {
+  id             String               @id @default(uuid()) @db.VarChar(36)
+  type           SupportRequestType
+  description    String               @db.Text
+  status         SupportRequestStatus @default(CHO_XU_LY)
+  adminNote      String?              @db.Text
+  createdAt      DateTime             @default(now())
+  handledAt      DateTime?
+  studentId      String               @db.VarChar(36)
+  registrationId String               @db.VarChar(36)
+
+  student      Student            @relation(fields: [studentId], references: [id])
+  registration CourseRegistration @relation(fields: [registrationId], references: [id])
+
+  @@index([registrationId])
+}===== migrations =====
+20261017111941_init/
+20261017112425_add_checks/
+20261017121522_bo_education_level_va_unique_dang_ky/
+20261017124321_bo_da_huy_dang_ky/
+migration_lock.toml
+===== tên biến trong .env =====
+PORT=
+DATABASE_URL=
+JWT_ACCESS_SECRET=
+JWT_ACCESS_EXPIRES=
+JWT_REFRESH_SECRET=
+JWT_REFRESH_EXPIRES=
+DEV_AUTH_BYPASS=
