@@ -36,7 +36,11 @@ const register = async (payload) => {
 
   const account = payload.role === "TEACHER" ? await authRepository.createTeacherAccount(data) : await authRepository.createStudentAccount(data);
 
-  await sendOtp(account.id, account.email, "XAC_MINH_EMAIL");
+  try {
+    await sendOtp(account.id, account.email, "XAC_MINH_EMAIL");
+  } catch (err) {
+    console.error("Gửi OTP thất bại:", err.message);
+  }
   return account;
 };
 
