@@ -1,5 +1,6 @@
 require('dotenv').config();
 const prisma = require('../src/config/database');
+const { signAccessToken } = require('../src/utils/jwt');
 
 const API = process.env.API_URL || `http://localhost:${process.env.PORT || 5000}/api`;
 
@@ -8,12 +9,13 @@ let failed = 0;
 
 const call = async (method, path, { actor = {}, body } = {}) => {
     const { role, userId } = actor;
+    // Dùng JWT thật (không phụ thuộc DEV_AUTH_BYPASS): sub = id tài khoản, role = vai trò
+    const token = role ? signAccessToken({ sub: userId || `test-${role}`, role }) : null;
     const res = await fetch(API + path, {
         method,
         headers: {
             'Content-Type': 'application/json',
-            ...(role && { 'x-dev-role': role }),
-            ...(userId && { 'x-dev-user-id': userId }),
+            ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: body !== undefined ? JSON.stringify(body) : undefined,
     });
