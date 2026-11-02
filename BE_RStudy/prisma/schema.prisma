@@ -303,6 +303,8 @@ model Invoice {
   studentId             String        @db.VarChar(36)
   registrationId        String        @db.VarChar(36)
   discountCodeId        String?       @db.VarChar(36)
+  paymentProofUrl       String?       @db.VarChar(2048)
+  rejectionReason       String?       @db.VarChar(500)
 
   student      Student            @relation(fields: [studentId], references: [id])
   registration CourseRegistration @relation(fields: [registrationId], references: [id])
@@ -379,6 +381,7 @@ model Exam {
   passingScore    Decimal    @db.Decimal(5, 2)
   status          ExamStatus @default(BAN_NHAP)
   createdAt       DateTime   @default(now())
+  showAnswers     Boolean    @default(false)
   courseId        String     @db.VarChar(36)
 
   course    Course         @relation(fields: [courseId], references: [id])
