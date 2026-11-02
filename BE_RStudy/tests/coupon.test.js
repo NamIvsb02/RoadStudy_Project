@@ -1,6 +1,7 @@
 require('dotenv').config();
 const prisma = require('../src/config/database');
 const couponService = require('../src/services/couponService');
+const { signAccessToken } = require('../src/utils/jwt');
 
 const BASE = process.env.BASE_URL || `http://localhost:${process.env.PORT || 5000}/api/coupon`;
 const ADMIN = 'ADMINISTRATOR';
@@ -12,12 +13,13 @@ let passed = 0;
 let failed = 0;
 
 const call = async (method, path, { role, userId, body } = {}) => {
+    // Dùng JWT thật (không phụ thuộc DEV_AUTH_BYPASS): sub = id tài khoản, role = vai trò
+    const token = role ? signAccessToken({ sub: userId || `test-${role}`, role }) : null;
     const res = await fetch(BASE + path, {
         method,
         headers: {
             'Content-Type': 'application/json',
-            ...(role && { 'x-dev-role': role }),
-            ...(userId && { 'x-dev-user-id': userId }),
+            ...(token && { Authorization: `Bearer ${token}` }),
         },
         body: body !== undefined ? JSON.stringify(body) : undefined,
     });
@@ -231,7 +233,7 @@ async function main() {
         check('Mã chưa đến ngày bắt đầu -> 400', r.status === 400 && /chưa có hiệu lực/.test(r.json?.message || ''), r.json?.message);
 
         r = await call('POST', '/validate', { body: { code: codeA } });
-        check('Không gửi vai trò (mặc định học viên) vẫn validate được -> 200', r.status === 200, `status ${r.status}`);
+        check('Không gửi token -> 401', r.status === 401, `status ${r.status}`);
 
         // ---------- Mỗi học viên dùng 1 lần ----------
         console.log('\n[Mỗi học viên chỉ dùng mỗi mã 1 lần]');
