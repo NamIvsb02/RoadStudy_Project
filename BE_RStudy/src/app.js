@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const path = require("path");
 
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
@@ -53,6 +54,14 @@ app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/recommendation", recommendationRoutes);
 app.use("/api/report", reportRoutes);
 
+app.use(
+  "/uploads/avatars",
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(__dirname, "../uploads/avatars")),
+);
 app.use(notFound);
 app.use(errorHandler);
 

@@ -189,7 +189,157 @@ Mã OTP gồm 6 chữ số, hết hạn sau 10 phút. Khi server chưa cấu hì
 - Lỗi: 404 `Không tìm thấy tài khoản`
 - Ghi chú: **chưa trả danh sách quyền của admin thường.** Sẽ bổ sung cùng API Admin (04/11), spec sẽ cập nhật lúc đó.
 
+## 3. Account (`/api/account`) — Nam
+
+Hồ sơ của chính mình xem bằng `GET /auth/me`. Đổi mật khẩu xem mục Auth.
+
+`avatarUrl` là đường dẫn tương đối, ví dụ `/uploads/avatars/abc.jpg`. FE tự ghép với địa chỉ BE (`http://localhost:5000` + `avatarUrl`).
+
+### PATCH /account/profile
+
+- Quyền: đã đăng nhập
+- Body: tất cả đều không bắt buộc, nhưng phải gửi ít nhất 1 trường.
+
+| Trường             | Kiểu           | Ai được gửi | Ghi chú                              |
+| ------------------ | -------------- | ----------- | ------------------------------------ |
+| fullName           | string         | mọi vai trò | 1 đến 100 ký tự                      |
+| phoneNumber        | string \| null | mọi vai trò | tối đa 15, gửi `null` để xóa         |
+| dateOfBirth        | string \| null | học viên    | ngày, ví dụ `"2003-05-10"`           |
+| gender             | string \| null | học viên    | `NAM`, `NU`, `KHAC`, `KHONG_TIET_LO` |
+| address            | string \| null | học viên    | tối đa 255                           |
+| specialization     | string         | giáo viên   | 1 đến 150 ký tự                      |
+| biography          | string         | giáo viên   | 1 đến 5000 ký tự                     |
+| teachingExperience | string         | giáo viên   | 1 đến 5000 ký tự                     |
+
+- 200: `data` là tài khoản đầy đủ (cùng dạng với `GET /auth/me`), message `Cập nhật hồ sơ thành công`
+- Lỗi: 400 sai dữ liệu | 400 `Chỉ học viên mới có ngày sinh, giới tính, địa chỉ` | 400 `Chỉ giáo viên mới có chuyên môn, giới thiệu, kinh nghiệm`
+- Ghi chú: không cho đổi `email` và `role`, gửi các trường này sẽ bị 400. Giáo viên sửa hồ sơ không phải duyệt lại.
+
+### POST /account/avatar
+
+- Quyền: đã đăng nhập
+- Body: `multipart/form-data`, trường file tên `avatar`. Chỉ nhận jpg, png, webp, tối đa 2MB.
+- 200: `data` là tài khoản đầy đủ có `avatarUrl` mới, message `Cập nhật ảnh đại diện thành công`
+- Lỗi: 400 `Chưa chọn ảnh (trường tên "avatar")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 2MB`
+- Ghi chú: ảnh cũ bị xóa khỏi server.
+
+### GET /account
+
+- Quyền: ADMINISTRATOR
+- Query: `role` (`STUDENT`, `TEACHER`, `ADMINISTRATOR`), `status` (`HOAT_DONG`, `BI_KHOA`, `CHO_XAC_MINH`), `search` (tìm theo tên hoặc email), `page`, `limit`
+- 200: `data` theo dạng phân trang ở mục 1. Mỗi phần tử trong `items`:
+
+```json
+{
+  "id": "",
+  "fullName": "",
+  "email": "",
+  "phoneNumber": null,
+  "avatarUrl": null,
+  "role": "TEACHER",
+  "status": "HOAT_DONG",
+  "createdAt": "",
+  "teacher": { "id": "", "approvalStatus": "CHO_DUYET" }
+}
+```
+
+- Lỗi: 400 `role không hợp lệ` | 400 `status không hợp lệ`
+- Ghi chú: `teacher` là `null` nếu không phải giáo viên. Sắp xếp mới nhất trước.
+
+### PATCH /account/:id/status
+
+- Quyền: ADMINISTRATOR
+- Body: `{ "status": "HOAT_DONG" | "BI_KHOA" }`
+- 200: `data` là tài khoản đầy đủ. Message `Đã khóa tài khoản` hoặc `Đã mở khóa tài khoản`
+- Lỗi: 400 `Không thể tự khóa hoặc mở khóa tài khoản của mình` | 403 `Chỉ quản trị viên trưởng mới được khóa hoặc mở khóa quản trị viên` | 403 `Không thể khóa quản trị viên trưởng` | 404 `Không tìm thấy tài khoản`
+- Ghi chú: khóa tài khoản thì thu hồi luôn refresh token (người đó bị đăng xuất khi access token hết hạn). Không lưu lý do khóa. Mở khóa đưa về `HOAT_DONG`.
+
 ---
+
+## 4. Teacher (`/api/teacher`) — Nam
+
+Giáo viên `CHO_DUYET` hoặc `TU_CHOI` vẫn đăng nhập được nhưng chưa xuất hiện ở API công khai và chưa tạo được khóa học.
+
+### GET /teacher
+
+- Quyền: công khai
+- Query: `search` (tìm theo tên hoặc chuyên môn), `page`, `limit`
+- 200: `data` theo dạng phân trang ở mục 1. Mỗi phần tử trong `items`:
+
+```json
+{
+  "id": "",
+  "specialization": "",
+  "biography": "",
+  "account": { "fullName": "", "avatarUrl": null },
+  "_count": { "courses": 3 }
+}
+```
+
+- Ghi chú: chỉ trả giáo viên `DA_DUYET` và tài khoản đang `HOAT_DONG`. `_count.courses` là số khóa học `DANG_MO`. Sắp xếp theo tên A đến Z.
+
+### GET /teacher/:id
+
+- Quyền: công khai
+- 200: `data`:
+
+```json
+{
+  "id": "",
+  "specialization": "",
+  "biography": "",
+  "teachingExperience": "",
+  "account": { "fullName": "", "avatarUrl": null },
+  "courses": [
+    {
+      "id": "",
+      "courseName": "",
+      "price": "499000.00",
+      "coverImageUrl": null,
+      "startDate": "",
+      "endDate": "",
+      "category": { "id": "", "categoryName": "" }
+    }
+  ]
+}
+```
+
+- Lỗi: 404 `Không tìm thấy giáo viên`
+- Ghi chú: `courses` chỉ gồm khóa `DANG_MO`, mới nhất trước, tối đa 50. Giáo viên chưa duyệt hoặc bị khóa trả 404.
+
+### GET /teacher/admin/list
+
+- Quyền: ADMINISTRATOR
+- Query: `approvalStatus` (`CHO_DUYET`, `DA_DUYET`, `TU_CHOI`), `search` (tên, email, chuyên môn), `page`, `limit`
+- 200: `data` theo dạng phân trang ở mục 1. Mỗi phần tử trong `items`:
+
+```json
+{
+  "id": "",
+  "specialization": "",
+  "biography": "",
+  "teachingExperience": "",
+  "approvalStatus": "CHO_DUYET",
+  "account": { "id": "", "fullName": "", "email": "", "phoneNumber": null, "avatarUrl": null, "status": "HOAT_DONG", "createdAt": "" }
+}
+```
+
+- Lỗi: 400 `approvalStatus không hợp lệ`
+
+### PATCH /teacher/:id/approval
+
+- Quyền: ADMINISTRATOR
+- Body: `{ "approvalStatus": "DA_DUYET" | "TU_CHOI" }`
+- 200: message `Đã duyệt giáo viên` hoặc `Đã từ chối giáo viên`
+
+```json
+{ "id": "", "approvalStatus": "DA_DUYET", "account": { "id": "", "fullName": "", "email": "" } }
+```
+
+- Lỗi: 400 sai dữ liệu | 404 giáo viên không tồn tại
+- Ghi chú: `:id` là `teacher.id`, không phải `account.id`.
+
+> Quyền ADMINISTRATOR ở các API admin trên là tạm thời. Khi API Admin xong sẽ đổi sang quyền cụ thể (`QUAN_LY_TAI_KHOAN`, `DUYET_GIAO_VIEN`) và spec sẽ cập nhật lúc đó.
 
 ## 3. Các module khác
 
