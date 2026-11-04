@@ -32,7 +32,6 @@ async function main() {
     include: { administrator: true },
   });
 
-  // ===== SystemFunction mẫu =====
   const functionsData = [
     { functionName: "QUAN_LY_KHOA_HOC", description: "Quản lý khóa học" },
     { functionName: "QUAN_LY_TAI_KHOAN", description: "Quản lý tài khoản" },

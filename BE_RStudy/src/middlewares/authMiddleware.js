@@ -15,7 +15,6 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// authorize('TEACHER', 'ADMINISTRATOR'): chặn nếu role không nằm trong danh sách
 const authorize =
   (...roles) =>
   (req, res, next) => {
