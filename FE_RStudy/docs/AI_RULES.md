@@ -101,3 +101,43 @@ src/
 - Đường dẫn file upload (avatarUrl...) là đường dẫn tương đối: ghép với `import.meta.env.VITE_ASSET_URL`.
 - Tiền (Decimal) BE trả dạng chuỗi: ép số khi tính, định dạng VND khi hiển thị. Thời gian là ISO UTC: hiển thị giờ Việt Nam.
 - Trang riêng của role nào thì đặt trong `<ProtectedRoute allowedRoles={[ROLES.X]}>`.
+
+## Phân quyền admin ở FE
+
+- Sau khi đăng nhập, gọi `GET /api/auth/me` và lưu `role`, `isLeader`, `permissions` vào AuthContext. Không gọi `/api/admin/me` cho việc này.
+- Ẩn hiện menu, nút theo quyền chỉ để giao diện gọn. BE mới là nơi chặn thật, FE không được coi việc ẩn nút là bảo mật.
+- Tên quyền khai báo một chỗ duy nhất trong `src/constants/permissions.js`, trùng đúng với `functionName` của BE. Không gõ chuỗi quyền trực tiếp trong component.
+
+```javascript
+export const PERMISSIONS = {
+  QUAN_LY_KHOA_HOC: "QUAN_LY_KHOA_HOC",
+  QUAN_LY_TAI_KHOAN: "QUAN_LY_TAI_KHOAN",
+  QUAN_LY_MA_GIAM_GIA: "QUAN_LY_MA_GIAM_GIA",
+  QUAN_LY_BAI_THI: "QUAN_LY_BAI_THI",
+  XU_LY_BAO_CAO_VI_PHAM: "XU_LY_BAO_CAO_VI_PHAM",
+  XU_LY_HOAN_TIEN: "XU_LY_HOAN_TIEN",
+};
+```
+
+- Kiểm tra quyền bằng một hàm duy nhất trong `src/utils/permission.js`, dùng lại ở menu, route guard và nút:
+
+```javascript
+export const hasPermission = (user, name) => user?.role === "ADMINISTRATOR" && (user.isLeader === true || user.permissions?.includes(name) === true);
+```
+
+- Map menu admin với quyền:
+
+| Mục menu                  | Điều kiện hiện                                        |
+| ------------------------- | ----------------------------------------------------- |
+| Khóa học, danh mục        | `QUAN_LY_KHOA_HOC`                                    |
+| Tài khoản                 | `QUAN_LY_TAI_KHOAN`                                   |
+| Mã giảm giá               | `QUAN_LY_MA_GIAM_GIA`                                 |
+| Bài thi                   | `QUAN_LY_BAI_THI`                                     |
+| Báo cáo vi phạm           | `XU_LY_BAO_CAO_VI_PHAM`                               |
+| Hoàn tiền                 | `XU_LY_HOAN_TIEN`                                     |
+| Quản lý admin, phân quyền | `user.isLeader === true` (không dùng `hasPermission`) |
+
+- Route guard: vào trang admin mà thiếu quyền thì chuyển về trang "Không có quyền" (403), không đăng xuất.
+- Lỗi API: `401` thì thử refresh token, thất bại thì về trang đăng nhập. `403` thì hiện thông báo "Bạn không có quyền thực hiện chức năng này" và giữ nguyên phiên đăng nhập.
+- Màn hình gán quyền cho admin lấy danh sách chức năng từ `GET /api/admin/system-functions`, không hardcode danh sách. Gửi lên `PUT /api/admin/administrators/:id/permissions` mảng `functionIds` (ghi đè toàn bộ, gửi mảng rỗng để thu hồi hết).
+- Quyền của admin có thể được Leader đổi khi admin đang đăng nhập. Gọi lại `/api/auth/me` khi mở lại ứng dụng để lấy quyền mới nhất.
