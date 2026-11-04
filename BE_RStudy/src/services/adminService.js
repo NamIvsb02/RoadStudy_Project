@@ -46,6 +46,15 @@ const getMyAccess = async (admin) => {
   return { isLeader: false, permissions: admin.permissions };
 };
 
+const getAccessByAccountId = async (accountId) => {
+  const admin = await repo.findAccessByAccountId(accountId);
+  if (!admin) return { isLeader: false, permissions: [] };
+  return getMyAccess({
+    isLeader: admin.isLeader,
+    permissions: admin.permissions.map((p) => p.function.functionName),
+  });
+};
+
 const listSystemFunctions = () => repo.listSystemFunctions();
 
 const listAdministrators = async ({ page, limit, search }) => {
@@ -96,4 +105,5 @@ module.exports = {
   createAdministrator,
   setAdministratorStatus,
   setAdministratorPermissions,
+  getAccessByAccountId,
 };

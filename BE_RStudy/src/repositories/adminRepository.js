@@ -81,6 +81,18 @@ const replacePermissions = (administratorId, functionIds) =>
     }),
   ]);
 
+const findAccessByAccountId = (accountId) =>
+  prisma.administrator.findUnique({
+    where: { accountId },
+    select: {
+      isLeader: true,
+      permissions: {
+        where: { function: { status: "HOAT_DONG" } },
+        select: { function: { select: { functionName: true } } },
+      },
+    },
+  });
+
 module.exports = {
   listSystemFunctions,
   findFunctionsByIds,
@@ -89,4 +101,5 @@ module.exports = {
   createAdministrator,
   updateAccountStatus,
   replacePermissions,
+  findAccessByAccountId,
 };

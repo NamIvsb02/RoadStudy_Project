@@ -5,6 +5,7 @@ const { signAccessToken, signRefreshToken, verifyRefreshToken, parseDurationToMs
 const { generateOtpCode, hashOtp, compareOtp } = require("../utils/otp");
 const { sendMail } = require("../config/mail");
 const AppError = require("../utils/AppError");
+const adminService = require("./adminService");
 
 const OTP_EXPIRES_MINUTES = Number(process.env.OTP_EXPIRES_MINUTES) || 10;
 
@@ -149,7 +150,9 @@ const changePassword = async (accountId, oldPassword, newPassword) => {
 const getMe = async (accountId) => {
   const account = await authRepository.findByIdSafe(accountId);
   if (!account) throw new AppError("Không tìm thấy tài khoản", 404);
-  return account;
+  if (account.role !== "ADMINISTRATOR") return account;
+  const access = await adminService.getAccessByAccountId(accountId);
+  return { ...account, ...access };
 };
 
 module.exports = {
