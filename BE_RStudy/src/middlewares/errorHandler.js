@@ -15,12 +15,10 @@ module.exports = (err, req, res, next) => {
     }
   }
 
-  const statusCode = err.statusCode || 500;
-  const message = err.isOperational ? err.message : "Lỗi hệ thống, vui lòng thử lại sau";
+  const statusCode = err.statusCode || err.status || 500;
+  const message = err.isOperational ? err.message : statusCode >= 400 && statusCode < 500 ? "Yêu cầu không hợp lệ" : "Lỗi hệ thống, vui lòng thử lại sau";
 
-  if (!err.isOperational && !(err instanceof Prisma.PrismaClientKnownRequestError)) {
-    console.error(err);
-  }
+  if (statusCode >= 500) console.error(err);
 
   return res.status(statusCode).json(formatResponse(false, null, message));
 };

@@ -3,13 +3,14 @@ const router = express.Router();
 
 const controller = require("../controllers/teacherController");
 const validate = require("../middlewares/validateMiddleware");
-const { authenticate, authorize } = require("../middlewares/authMiddleware");
+const { authenticate } = require("../middlewares/authMiddleware");
+const { requirePermission } = require("../middlewares/permissionMiddleware");
+const { PERMISSIONS } = require("../constants/permissions");
 const { updateApprovalSchema } = require("../validators/teacherValidator");
 
 router.get("/", controller.listPublic);
-// TODO: thay authorize bằng requirePermission('DUYET_GIAO_VIEN') khi API Admin xong
-router.get("/admin/list", authenticate, authorize("ADMINISTRATOR"), controller.listForAdmin);
-router.patch("/:id/approval", authenticate, authorize("ADMINISTRATOR"), validate(updateApprovalSchema), controller.setApproval);
+router.get("/admin/list", authenticate, requirePermission(PERMISSIONS.QUAN_LY_TAI_KHOAN), controller.listForAdmin);
+router.patch("/:id/approval", authenticate, requirePermission(PERMISSIONS.QUAN_LY_TAI_KHOAN), validate(updateApprovalSchema), controller.setApproval);
 router.get("/:id", controller.getPublic);
 
 module.exports = router;
