@@ -1,0 +1,103 @@
+# AI_RULES.md
+
+## 1. Stack
+
+- React + Vite (JSX, không TypeScript)
+- React Router (src/routes/AppRoutes.jsx)
+- Axios (src/api/axiosClient.js)
+- Auth qua src/context/AuthContext.jsx
+- Icon: **chỉ dùng `lucide-react`**
+- Animation: **chỉ dùng `framer-motion`** (import từ `framer-motion`)
+- Styling: Tailwind CSS v4 (plugin @tailwindcss/vite, không có tailwind.config.js). Form: react-hook-form + zod
+- Thư viện UI khác: "không dùng"
+
+## 2. Quy tắc cứng
+
+1. **Không cài thêm package** nếu chưa được hỏi và đồng ý.
+2. **Chỉ làm đúng phần được giao** trong file spec. Không tự thêm trang, tính năng, nút.
+3. **Không sửa file ngoài phạm vi** (đặc biệt: axiosClient, AuthContext, ProtectedRoute) trừ khi được yêu cầu. Ngoại lệ: mỗi trang chỉ được thêm đúng 1 dòng vào AppRoutes.jsx và 1 hằng vào routes.js, không đụng dòng người khác (đỡ conflict git khi làm song song)
+4. Không viết cứng đường dẫn: dùng `ROUTES` từ `src/constants/routes.js`. Role dùng `ROLES`.
+5. Không gọi axios trực tiếp trong component: mọi request đi qua `src/api/*.js`.
+6. Không để `console.log`, code comment thừa, code chết.
+7. Không dùng dữ liệu giả hardcode trong trang nếu API đã có. Nếu API chưa có, ghi rõ `// TODO: nối API` và hỏi.
+8. Giao diện (text hiển thị) bằng tiếng Việt; tên biến/hàm/file bằng tiếng Anh.
+9. Không tự git commit / push / đổi branch. Làm xong chỉ báo danh sách file đã tạo/sửa.
+10. Biến môi trường chỉ đọc qua `import.meta.env.VITE_*`; không đọc, in hay sửa file .env.
+
+## 3. Icon
+
+- Chỉ import từ `lucide-react`, import theo tên: `import { Plus, Trash2 } from 'lucide-react'`.
+- Không dùng emoji làm icon, không dùng bộ icon khác, không tự vẽ SVG.
+- Icon nào dùng cho nút nào **phải ghi trong spec**. Spec không ghi thì không thêm icon.
+- Kích thước thống nhất: 16 (trong nút/text), 20 (mặc định), 24 (tiêu đề/empty state).
+
+## 4. Animation / hiệu ứng
+
+- Thư viện duy nhất: `framer-motion`. Không dùng GSAP, anime.js, AOS, react-spring hay CSS keyframes tự viết cho hiệu ứng.
+- **Mặc định: không animation.** Chỉ làm hiệu ứng có ghi trong spec (phần tử nào, hiệu ứng gì, bao lâu).
+- Hover/focus nhẹ của nút, link, input dùng CSS `transition` 150–200ms, không cần framer-motion.
+- Dùng chung các preset trong `src/constants/motion.js` (fadeIn, slideUp, stagger...), không tự bịa thông số mới trong từng component.
+- Thời lượng: 0.15–0.4s, easing `easeOut`. Không dùng spring nảy (bouncy), không `repeat: Infinity`.
+- Cấm: bounce, shake, pulse, gradient chuyển động, parallax, animation tự chạy khi load trang nếu spec không yêu cầu.
+- Chỉ animate `opacity` và `transform` (x, y, scale), không animate width/height/top/left.
+- Dùng `AnimatePresence` cho modal/toast/dropdown khi mount-unmount; danh sách dài (>20 item) không stagger.
+- Tôn trọng `prefers-reduced-motion` (dùng `useReducedMotion` hoặc `MotionConfig reducedMotion="user"` bọc ở gốc app).
+- Ngoại lệ: spinner = icon `Loader2` của lucide + class `animate-spin` của Tailwind.
+
+## 5. Cấu trúc thư mục
+
+```
+docs/
+  AI_RULES.md
+  specs/          spec từng trang (copy từ _TEMPLATE.md)
+  design/         ảnh thiết kế
+src/
+  api/            gọi backend (authApi, axiosClient, ...)
+  assets/         images/, icons/
+  components/
+    ui/           thành phần nhỏ tái sử dụng (Button, Input, Modal...)
+    common/       thành phần ghép dùng chung nhiều trang
+    Layout.jsx, ProtectedRoute.jsx
+  constants/      routes.js, roles.js, motion.js
+  context/        AuthContext
+  hooks/          custom hooks (useXxx)
+  pages/
+    auth/         đăng nhập, đăng ký, quên mật khẩu...
+    teacher/      trang riêng giáo viên
+    student/      trang riêng học sinh
+    admin/        trang riêng quản trị viên
+    (gốc)         trang dùng chung nhiều role: HomePage, ProfilePage...
+  routes/         AppRoutes.jsx
+  utils/          hàm tiện ích thuần, tokenStorage
+```
+
+- Component dùng ở ≥2 trang → `components/`. Chỉ dùng 1 trang → để cạnh trang đó.
+- Một file một component, tên file PascalCase trùng tên component. Hook: `useXxx.js`.
+
+## 6. Quy ước code
+
+- Function component + hooks, không class component.
+- Mỗi component tối đa ~150 dòng; dài hơn thì tách.
+- Mọi form/danh sách phải có đủ trạng thái: loading, empty, error.
+- Nút gọi API phải có `disabled` + trạng thái loading để tránh bấm đúp.
+- Thông báo lỗi lấy từ response backend, không tự bịa message.
+- Giao diện responsive theo spec; không tự đổi layout so với ảnh thiết kế.
+
+## 7. Quy trình làm việc
+
+1. Đọc spec của trang/component được giao và ảnh thiết kế đính kèm.
+2. Nếu spec thiếu thông tin (icon, hiệu ứng, API) → **hỏi, không đoán**.
+3. Code đúng phạm vi, báo lại danh sách file đã tạo/sửa.
+4. Chạy `npm run lint` trước khi báo xong.
+
+## 8. API (Backend) và đăng nhập
+
+- Nguồn sự thật về endpoint: `../BE_RStudy/docs/api-spec.md` (FE_RStudy và BE_RStudy nằm cạnh nhau trong repo). Không đọc được thì yêu cầu người dùng dán/đính kèm, không tự đoán.
+- Trước khi viết hàm gọi API: đọc api-spec để lấy đúng method, URL, body, response, mã lỗi, role được gọi. Endpoint chưa có hoặc chưa tick [x] → ghi `// TODO: nối API` và hỏi.
+- Mỗi module BE một file `src/api/<module>Api.js`, export object `<module>Api` (xem authApi.js), mỗi hàm một request. Kiểm tra `src/api/` trước để không tạo hàm trùng.
+- Hàm api trả về `{ success, message, data }`. Danh sách phân trang: `data.items` + `data.pagination`. Lỗi hiển thị lấy từ `err.message` (axiosClient đã chuẩn hóa).
+- Không tự xử lý 401 / refresh token trong trang hay component; axiosClient lo.
+- Người dùng hiện tại lấy qua `useAuth()` (`account`, `login`, `logout`, `updateAccount`). Không đọc/ghi localStorage trực tiếp. Chuyển trang theo role bằng `ROLE_HOME`.
+- Đường dẫn file upload (avatarUrl...) là đường dẫn tương đối: ghép với `import.meta.env.VITE_ASSET_URL`.
+- Tiền (Decimal) BE trả dạng chuỗi: ép số khi tính, định dạng VND khi hiển thị. Thời gian là ISO UTC: hiển thị giờ Việt Nam.
+- Trang riêng của role nào thì đặt trong `<ProtectedRoute allowedRoles={[ROLES.X]}>`.
