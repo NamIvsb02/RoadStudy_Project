@@ -38,6 +38,7 @@ async function main() {
     { functionName: "QUAN_LY_MA_GIAM_GIA", description: "Quản lý mã giảm giá" },
     { functionName: "XU_LY_BAO_CAO_VI_PHAM", description: "Xử lý báo cáo vi phạm" },
     { functionName: "XU_LY_HOAN_TIEN", description: "Xử lý yêu cầu hoàn tiền" },
+    { functionName: "QUAN_LY_BAI_THI", description: "Quản lý bài thi" },
   ];
   const functions = [];
   for (const f of functionsData) {
