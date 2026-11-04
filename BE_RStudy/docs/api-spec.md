@@ -345,13 +345,134 @@ Giáo viên `CHO_DUYET` hoặc `TU_CHOI` vẫn đăng nhập được nhưng ch�
 
 > Quyền ADMINISTRATOR ở các API admin trên là tạm thời. Khi API Admin xong sẽ đổi sang quyền cụ thể (`QUAN_LY_TAI_KHOAN`, `DUYET_GIAO_VIEN`) và spec sẽ cập nhật lúc đó.
 
+## Admin
+
+Base URL: `/api/admin`. Mọi endpoint cần header `Authorization: Bearer <accessToken>` của tài khoản ADMINISTRATOR đang hoạt động.
+
+Response thành công: `{ "success": true, "data": ... }`. Response lỗi: `{ "success": false, "message": "...", "data": null }`.
+
+| Method | Endpoint                                    | Quyền     | Mô tả                                  |
+| ------ | ------------------------------------------- | --------- | -------------------------------------- |
+| GET    | `/api/admin/me`                             | Mọi admin | Quyền của admin đang đăng nhập         |
+| GET    | `/api/admin/system-functions`               | Leader    | Danh sách chức năng hệ thống           |
+| GET    | `/api/admin/administrators`                 | Leader    | Danh sách admin (phân trang, tìm kiếm) |
+| POST   | `/api/admin/administrators`                 | Leader    | Tạo admin thường                       |
+| GET    | `/api/admin/administrators/:id`             | Leader    | Chi tiết 1 admin                       |
+| PATCH  | `/api/admin/administrators/:id/status`      | Leader    | Khóa hoặc mở khóa admin                |
+| PUT    | `/api/admin/administrators/:id/permissions` | Leader    | Gán lại toàn bộ quyền cho admin        |
+
+Leader mặc định có toàn quyền ở mọi chức năng. Admin thường chỉ vào được chức năng được gán (middleware `requirePermission`). `:id` là `Administrator.id`, không phải `Account.id`.
+
+### GET /api/admin/me
+
+```json
+{
+  "success": true,
+  "data": {
+    "isLeader": false,
+    "permissions": ["QUAN_LY_TAI_KHOAN", "QUAN_LY_KHOA_HOC"]
+  }
+}
+```
+
+Leader nhận `isLeader: true` và danh sách tất cả chức năng đang hoạt động.
+
+### GET /api/admin/system-functions
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "uuid",
+      "functionName": "QUAN_LY_MA_GIAM_GIA",
+      "description": "Quản lý mã giảm giá",
+      "status": "HOAT_DONG"
+    }
+  ]
+}
+```
+
+Các `functionName` hiện có: `QUAN_LY_KHOA_HOC`, `QUAN_LY_TAI_KHOAN`, `QUAN_LY_MA_GIAM_GIA`, `QUAN_LY_BAI_THI`, `XU_LY_BAO_CAO_VI_PHAM`, `XU_LY_HOAN_TIEN`.
+
+### GET /api/admin/administrators
+
+Query: `page` (mặc định 1), `limit` (mặc định 10, tối đa 100), `search` (tìm theo họ tên hoặc email).
+
+```json
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": "uuid",
+        "accountId": "uuid",
+        "fullName": "Khang - Admin",
+        "email": "admin@roadstudy.vn",
+        "phoneNumber": null,
+        "status": "HOAT_DONG",
+        "createdAt": "2026-11-04T10:00:00.000Z",
+        "isLeader": false,
+        "permissions": [
+          {
+            "id": "uuid",
+            "functionName": "QUAN_LY_KHOA_HOC",
+            "description": "Quản lý khóa học",
+            "status": "HOAT_DONG"
+          }
+        ]
+      }
+    ],
+    "pagination": { "page": 1, "limit": 10, "total": 2, "totalPages": 1 }
+  }
+}
+```
+
+### POST /api/admin/administrators
+
+Body:
+
+```json
+{
+  "fullName": "Nguyễn Văn A",
+  "email": "a@roadstudy.vn",
+  "password": "Password123!",
+  "phoneNumber": "0901234567",
+  "functionIds": ["uuid-chuc-nang"]
+}
+```
+
+`phoneNumber` và `functionIds` không bắt buộc. Mật khẩu từ 8 đến 72 ký tự, có chữ hoa, chữ thường và chữ số. Thành công trả `201` với dữ liệu admin vừa tạo (cùng dạng một phần tử `items` ở trên). Tài khoản tạo xong có trạng thái `HOAT_DONG`, đăng nhập được ngay.
+
+### GET /api/admin/administrators/:id
+
+Trả về một admin, cùng dạng một phần tử `items` ở trên.
+
+### PATCH /api/admin/administrators/:id/status
+
+Body: `{ "status": "HOAT_DONG" }` hoặc `{ "status": "BI_KHOA" }`. Khóa admin sẽ thu hồi toàn bộ refresh token của admin đó. Trả về admin sau khi cập nhật.
+
+### PUT /api/admin/administrators/:id/permissions
+
+Body: `{ "functionIds": ["uuid1", "uuid2"] }`. Danh sách này **ghi đè** quyền cũ, gửi mảng rỗng để thu hồi hết quyền. Trả về admin sau khi cập nhật.
+
+### Lỗi thường gặp
+
+| Mã  | Khi nào                                                                                                                               |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 400 | Dữ liệu sai (message dạng `tên_trường: lý do`), chức năng không tồn tại, đổi trạng thái hoặc gán quyền cho Leader, tự khóa chính mình |
+| 401 | Thiếu token, token sai hoặc hết hạn                                                                                                   |
+| 403 | Không phải ADMINISTRATOR, tài khoản bị khóa, hoặc không phải Leader ở endpoint chỉ dành cho Leader                                    |
+| 404 | Không tìm thấy admin                                                                                                                  |
+| 409 | Email đã tồn tại                                                                                                                      |
+
 ## 5. Các module khác
 
 Người phụ trách điền khi API xong, theo đúng khuôn của mục Auth (quyền, body, response, lỗi, ghi chú).
 
 - [x] Account / Student — Nam
 - [x] Teacher — Nam
-- [ ] Admin, phân quyền — Nam
+- [x] Admin, phân quyền — Nam
 - [ ] Resource — Nam
 - [ ] Report (báo cáo vi phạm) — Nam
 - [x] Category — Huynh (cần điền)
