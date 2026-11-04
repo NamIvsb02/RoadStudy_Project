@@ -1,6 +1,8 @@
 # API Spec RoadStudy
 
 Base URL: `http://localhost:5000/api` (FE đặt trong `VITE_API_URL`).
+Chốt hai biến:
+VITE_API_URL=http://localhost:5000/api và VITE_ASSET_URL=http://localhost:5000
 
 Quy tắc nhóm: **API chưa có trong file này thì chưa tính là xong.** Người viết API điền mục của mình trước khi báo Done. FE thấy spec sai hoặc thiếu thì báo người viết BE sửa spec, không tự đoán.
 
@@ -34,6 +36,8 @@ Lỗi: `success: false`, `data: null`, `message` là nội dung hiển thị đ�
 - Access token sống **15 phút**, refresh token sống **7 ngày**.
 - Khi gặp 401 "Token không hợp lệ hoặc hết hạn": gọi `POST /auth/refresh`. Refresh thành công thì gọi lại request cũ. Refresh cũng 401 thì xóa token và chuyển về trang đăng nhập.
 - Refresh token **xoay vòng**: mỗi lần refresh nhận cặp token mới, token cũ mất hiệu lực. FE phải lưu cặp mới.
+- Nhiều request cùng lúc gặp 401: chỉ gọi /auth/refresh MỘT lần, các request còn lại chờ rồi gọi lại. Refresh token xoay vòng nên gọi hai lần cùng một token sẽ bị 401 ở lần hai.
+- Không tự refresh khi chính /auth/login hoặc /auth/refresh trả 401 (tránh lặp vô hạn). Nhận biết theo URL, không theo nội dung message.
 - Lỗi thường gặp ở mọi API cần đăng nhập:
   - 401 `Thiếu token xác thực`
   - 401 `Token không hợp lệ hoặc hết hạn`
@@ -341,12 +345,12 @@ Giáo viên `CHO_DUYET` hoặc `TU_CHOI` vẫn đăng nhập được nhưng ch�
 
 > Quyền ADMINISTRATOR ở các API admin trên là tạm thời. Khi API Admin xong sẽ đổi sang quyền cụ thể (`QUAN_LY_TAI_KHOAN`, `DUYET_GIAO_VIEN`) và spec sẽ cập nhật lúc đó.
 
-## 3. Các module khác
+## 5. Các module khác
 
 Người phụ trách điền khi API xong, theo đúng khuôn của mục Auth (quyền, body, response, lỗi, ghi chú).
 
-- [ ] Account / Student — Nam
-- [ ] Teacher — Nam
+- [x] Account / Student — Nam
+- [x] Teacher — Nam
 - [ ] Admin, phân quyền — Nam
 - [ ] Resource — Nam
 - [ ] Report (báo cáo vi phạm) — Nam
