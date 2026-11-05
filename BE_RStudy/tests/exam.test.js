@@ -4,13 +4,14 @@ const { signAccessToken } = require('../src/utils/jwt');
 
 const API = process.env.API_URL || `http://localhost:${process.env.PORT || 5000}/api`;
 
+let LEADER_ID = null;
 let passed = 0;
 let failed = 0;
 
 const call = async (method, path, { actor = {}, body } = {}) => {
     const { role, userId } = actor;
     // Dùng JWT thật (không phụ thuộc DEV_AUTH_BYPASS): sub = id tài khoản, role = vai trò
-    const token = role ? signAccessToken({ sub: userId || `test-${role}`, role }) : null;
+    const token = role ? signAccessToken({ sub: userId || (role === 'ADMINISTRATOR' ? LEADER_ID : `test-${role}`), role }) : null;
     const res = await fetch(API + path, {
         method,
         headers: {
@@ -54,6 +55,12 @@ async function main() {
 
     try {
         // ---------- Dữ liệu nền ----------
+        // Admin mặc định trong test là Leader (có mọi quyền); admin thường (không có quyền) để kiểm tra bị chặn
+        const leader = await prisma.account.findUnique({ where: { email: 'leader@roadstudy.vn' } });
+        const adminNoPerm = await prisma.account.findUnique({ where: { email: 'admin@roadstudy.vn' } });
+        if (!leader || !adminNoPerm) throw new Error('Không thấy tài khoản seed leader@/admin@roadstudy.vn, hãy chạy: npx prisma migrate reset');
+        LEADER_ID = leader.id;
+
         const mkAccount = (name, role) =>
             prisma.account.create({
                 data: { fullName: name, email: `${name.replace(/\s/g, '').toLowerCase()}.${stamp}@example.com`, passwordHash: 'x', role, status: 'HOAT_DONG' },
@@ -141,6 +148,9 @@ async function main() {
 
         r = await call('POST', '/exam', { actor: S, body: examBody() });
         check('Học viên tạo đề -> 403', r.status === 403, `status ${r.status}`);
+
+        r = await call('POST', '/exam', { actor: { role: 'ADMINISTRATOR', userId: adminNoPerm.id }, body: examBody() });
+        check('Admin thường (không có QUAN_LY_BAI_THI) tạo đề -> 403', r.status === 403, `status ${r.status}`);
 
         r = await call('POST', '/exam', { actor: T, body: examBody({ courseId: 'khoa-hoc-khong-ton-tai' }) });
         check('Khóa học không tồn tại -> 404', r.status === 404, `status ${r.status}`);
