@@ -128,11 +128,14 @@ Học viên hủy được đơn khi đơn còn `CHO_THANH_TOAN` (admin chưa du
 
 ### SupportRequestStatus
 
-| Giá trị   | Nhãn      | Màu     |
-| --------- | --------- | ------- |
-| CHO_XU_LY | Chờ xử lý | vàng    |
-| DA_XU_LY  | Đã xử lý  | xanh lá |
-| TU_CHOI   | Từ chối   | đỏ      |
+| Giá trị       | Nhãn          | Màu        | Ghi chú                                                  |
+| ------------- | ------------- | ---------- | -------------------------------------------------------- |
+| CHO_XU_LY     | Chờ xử lý     | vàng       | Học viên đã gửi yêu cầu hoàn tiền, admin chưa quyết định |
+| CHO_HOAN_TIEN | Chờ hoàn tiền | xanh dương | Admin đã chấp thuận yêu cầu, đang chờ hoàn tiền thực tế  |
+| DA_XU_LY      | Đã xử lý      | xanh lá    | Đã hoàn tiền thành công                                  |
+| TU_CHOI       | Từ chối       | đỏ         | Admin từ chối yêu cầu, có lý do                          |
+
+**Quy tắc:** Yêu cầu hoàn tiền chỉ chuyển sang `DA_XU_LY` sau khi việc hoàn tiền thực tế hoàn tất. Không được chuyển `RegistrationStatus` và `InvoiceStatus` sang `HOAN_TIEN` chỉ vì admin đã chấp thuận yêu cầu.
 
 ## Đánh giá, bình luận, báo cáo
 
