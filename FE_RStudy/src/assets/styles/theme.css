@@ -1,0 +1,26 @@
+@theme {
+  --color-primary: #155e94;
+  --color-primary-dark: #0f4a75;
+  --color-primary-light: #3c79a6;
+  --color-surface: #f0f3f7;
+  --color-page: #f7f8f9;
+  --color-accent: #ff8a00;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-ink: #1f2937;
+  --color-muted: #6b7280;
+  --color-line: #e5e7eb;
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --shadow-card: 0 1px 3px rgb(16 24 40 / 0.08);
+  --shadow-card-hover: 0 6px 16px rgb(16 24 40 / 0.12);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-page);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+}
