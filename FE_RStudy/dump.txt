@@ -1,0 +1,483 @@
+]633;E;for f in package.json vite.config.js eslint.config.js index.html src/main.jsx src/App.jsx src/index.css src/routes/AppRoutes.jsx src/constants/*.js src/api/*.js src/context/* src/hooks/*.js src/utils/*.js src/components/*.jsx src/pages/*.jsx src/pages/auth/*.jsx docs/specs/_TEMPLATE.md\x3b do printf "\\n===== %s =====\\n" "$f"\x3b cat "$f"\x3b done > dump.txt;15c01797-60f3-4faf-ba57-95d5e6d79175]633;C
+===== package.json =====
+{
+  "name": "fe_rstudy",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^6.0.2",
+    "@tailwindcss/vite": "^4.3.3",
+    "axios": "^1.20.0",
+    "framer-motion": "^14.9.1",
+    "lucide-react": "^1.68.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.91.0",
+    "react-router-dom": "^7.18.4",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "vite": "^8.3.0"
+  }
+}
+
+===== vite.config.js =====
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+
+===== eslint.config.js =====
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      globals: globals.browser,
+      parserOptions: { ecmaFeatures: { jsx: true } },
+    },
+  },
+])
+
+===== index.html =====
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>fe_rstudy</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+===== src/main.jsx =====
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { MotionConfig } from 'framer-motion';
+import './index.css';
+import App from './App.jsx';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <MotionConfig reducedMotion="user">
+      <App />
+    </MotionConfig>
+  </StrictMode>,
+);
+
+===== src/App.jsx =====
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import AppRoutes from './routes/AppRoutes';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+===== src/index.css =====
+@import "tailwindcss";
+
+===== src/routes/AppRoutes.jsx =====
+import { Navigate, Route, Routes } from 'react-router-dom';
+import Layout from '../components/Layout';
+import ProtectedRoute from '../components/ProtectedRoute';
+import { ROUTES } from '../constants/routes';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
+import LoginPage from '../pages/auth/LoginPage';
+import RegisterPage from '../pages/auth/RegisterPage';
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
+import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
+import HomePage from '../pages/HomePage';
+import ProfilePage from '../pages/ProfilePage';
+
+export default function AppRoutes() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+        <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
+        <Route path={ROUTES.VERIFY_EMAIL} element={<VerifyEmailPage />} />
+        <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage />} />
+        <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+    </Routes>
+  );
+}
+
+===== src/constants/motion.js =====
+const ease = 'easeOut';
+
+export const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.2, ease } },
+  exit: { opacity: 0, transition: { duration: 0.15, ease } },
+};
+
+export const slideUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease } },
+  exit: { opacity: 0, y: 12, transition: { duration: 0.2, ease } },
+};
+
+export const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.05 } },
+};
+
+===== src/constants/roles.js =====
+export const ROLES = {
+  STUDENT: 'STUDENT',
+  TEACHER: 'TEACHER',
+  ADMINISTRATOR: 'ADMINISTRATOR',
+};
+
+===== src/constants/routes.js =====
+import { ROLES } from './roles';
+
+export const ROUTES = {
+  HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+  VERIFY_EMAIL: '/verify-email',
+  FORGOT_PASSWORD: '/forgot-password',
+  RESET_PASSWORD: '/reset-password',
+  PROFILE: '/profile',
+  STUDENT: { ROOT: '/student' },
+  TEACHER: { ROOT: '/teacher' },
+  ADMIN: { ROOT: '/admin' },
+};
+
+export const ROLE_HOME = {
+  [ROLES.STUDENT]: ROUTES.HOME,
+  [ROLES.TEACHER]: ROUTES.TEACHER.ROOT,
+  [ROLES.ADMINISTRATOR]: ROUTES.ADMIN.ROOT,
+};
+
+===== src/api/authApi.js =====
+import axiosClient from './axiosClient';
+
+export const authApi = {
+  register: (body) => axiosClient.post('/auth/register', body),
+  verifyEmail: (body) => axiosClient.post('/auth/verify-email', body),
+  resendOtp: (body) => axiosClient.post('/auth/resend-otp', body),
+  login: (body) => axiosClient.post('/auth/login', body),
+  logout: (refreshToken) => axiosClient.post('/auth/logout', { refreshToken }),
+  forgotPassword: (body) => axiosClient.post('/auth/forgot-password', body),
+  resetPassword: (body) => axiosClient.post('/auth/reset-password', body),
+  changePassword: (body) => axiosClient.post('/auth/change-password', body),
+  getMe: () => axiosClient.get('/auth/me'),
+};
+
+===== src/api/axiosClient.js =====
+import axios from 'axios';
+import { tokenStorage } from '../utils/tokenStorage';
+
+export const AUTH_LOGOUT_EVENT = 'auth:logout';
+
+const baseURL = import.meta.env.VITE_API_URL;
+const NO_REFRESH_URLS = ['/auth/login', '/auth/refresh'];
+
+const axiosClient = axios.create({
+  baseURL,
+  headers: { 'Content-Type': 'application/json' },
+});
+
+let refreshPromise = null;
+
+const refreshTokens = () => {
+  if (!refreshPromise) {
+    refreshPromise = axios
+      .post(`${baseURL}/auth/refresh`, { refreshToken: tokenStorage.getRefresh() })
+      .then((res) => {
+        const { accessToken, refreshToken } = res.data.data;
+        tokenStorage.set(accessToken, refreshToken);
+        return accessToken;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+};
+
+axiosClient.interceptors.request.use((config) => {
+  const accessToken = tokenStorage.getAccess();
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
+
+axiosClient.interceptors.response.use(
+  (response) => response.data,
+  async (error) => {
+    const original = error.config;
+    const isNoRefreshUrl = NO_REFRESH_URLS.some((url) => original?.url?.startsWith(url));
+
+    if (
+      error.response?.status === 401 &&
+      original &&
+      !original._retry &&
+      !isNoRefreshUrl &&
+      tokenStorage.getRefresh()
+    ) {
+      original._retry = true;
+      try {
+        const accessToken = await refreshTokens();
+        original.headers.Authorization = `Bearer ${accessToken}`;
+        return axiosClient(original);
+      } catch {
+        tokenStorage.clear();
+        window.dispatchEvent(new Event(AUTH_LOGOUT_EVENT));
+      }
+    }
+
+    error.message = error.response?.data?.message || 'Không thể kết nối máy chủ';
+    return Promise.reject(error);
+  },
+);
+
+export default axiosClient;
+
+===== src/context/AuthContext.jsx =====
+import { useEffect, useState } from 'react';
+import { authApi } from '../api/authApi';
+import { AUTH_LOGOUT_EVENT } from '../api/axiosClient';
+import { tokenStorage } from '../utils/tokenStorage';
+import { AuthContext } from './authContextValue';
+
+export function AuthProvider({ children }) {
+  const [account, setAccount] = useState(null);
+  const [loading, setLoading] = useState(() => Boolean(tokenStorage.getRefresh()));
+
+  useEffect(() => {
+    if (!tokenStorage.getRefresh()) return undefined;
+    let active = true;
+    authApi
+      .getMe()
+      .then((res) => {
+        if (active) setAccount(res.data);
+      })
+      .catch(() => {
+        tokenStorage.clear();
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleLogout = () => setAccount(null);
+    window.addEventListener(AUTH_LOGOUT_EVENT, handleLogout);
+    return () => window.removeEventListener(AUTH_LOGOUT_EVENT, handleLogout);
+  }, []);
+
+  const login = async (credentials) => {
+    const loginRes = await authApi.login(credentials);
+    tokenStorage.set(loginRes.data.accessToken, loginRes.data.refreshToken);
+    try {
+      const meRes = await authApi.getMe();
+      setAccount(meRes.data);
+      return meRes.data;
+    } catch (error) {
+      tokenStorage.clear();
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    const refreshToken = tokenStorage.getRefresh();
+    if (refreshToken) await authApi.logout(refreshToken).catch(() => null);
+    tokenStorage.clear();
+    setAccount(null);
+  };
+
+  const value = { account, loading, login, logout, updateAccount: setAccount };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+===== src/context/authContextValue.js =====
+import { createContext } from 'react';
+
+export const AuthContext = createContext(null);
+
+===== src/hooks/useAuth.js =====
+import { useContext } from 'react';
+import { AuthContext } from '../context/authContextValue';
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth phải được dùng bên trong AuthProvider');
+  return context;
+}
+
+===== src/utils/tokenStorage.js =====
+const ACCESS_KEY = 'accessToken';
+const REFRESH_KEY = 'refreshToken';
+
+export const tokenStorage = {
+  getAccess: () => localStorage.getItem(ACCESS_KEY),
+  getRefresh: () => localStorage.getItem(REFRESH_KEY),
+  set: (accessToken, refreshToken) => {
+    localStorage.setItem(ACCESS_KEY, accessToken);
+    localStorage.setItem(REFRESH_KEY, refreshToken);
+  },
+  clear: () => {
+    localStorage.removeItem(ACCESS_KEY);
+    localStorage.removeItem(REFRESH_KEY);
+  },
+};
+
+===== src/components/Layout.jsx =====
+import { Outlet } from 'react-router-dom';
+
+export default function Layout() {
+  return (
+    <div className="min-h-screen">
+      <Outlet />
+    </div>
+  );
+}
+
+===== src/components/ProtectedRoute.jsx =====
+import { Loader2 } from 'lucide-react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { ROLE_HOME, ROUTES } from '../constants/routes';
+import { useAuth } from '../hooks/useAuth';
+
+export default function ProtectedRoute({ allowedRoles }) {
+  const { account, loading } = useAuth();
+  const location = useLocation();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 size={24} className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (!account) {
+    return <Navigate to={ROUTES.LOGIN} replace state={{ from: location }} />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(account.role)) {
+    return <Navigate to={ROLE_HOME[account.role] ?? ROUTES.HOME} replace />;
+  }
+
+  return <Outlet />;
+}
+
+===== src/pages/HomePage.jsx =====
+export default function HomePage() {
+  return <div>HomePage</div>;
+}
+
+===== src/pages/ProfilePage.jsx =====
+export default function ProfilePage() {
+  return <div>ProfilePage</div>;
+}
+
+===== src/pages/auth/ForgotPasswordPage.jsx =====
+export default function ForgotPasswordPage() {
+  return <div>ForgotPasswordPage</div>;
+}
+
+===== src/pages/auth/LoginPage.jsx =====
+export default function LoginPage() {
+  return <div>LoginPage</div>;
+}
+
+===== src/pages/auth/RegisterPage.jsx =====
+export default function RegisterPage() {
+  return <div>RegisterPage</div>;
+}
+
+===== src/pages/auth/ResetPasswordPage.jsx =====
+export default function ResetPasswordPage() {
+  return <div>ResetPasswordPage</div>;
+}
+
+===== src/pages/auth/VerifyEmailPage.jsx =====
+export default function VerifyEmailPage() {
+  return <div>VerifyEmailPage</div>;
+}
+
+===== docs/specs/_TEMPLATE.md =====
+# <Tên component / trang>
+ 
+- Vị trí file: src/...
+- Role truy cập: teacher | student | cả hai
+- Ảnh thiết kế: docs/design/<tên-ảnh>
+ 
+## Mục đích
+(1-2 câu)
+ 
+## Thành phần & chức năng
+| Thành phần | Chức năng | API gọi | Ghi chú |
+|---|---|---|---|
+ 
+## Nút / hành động
+| Nút | Icon (lucide) | Hành động | Trạng thái (loading/disabled) |
+|---|---|---|---|
+ 
+## Hiệu ứng (chỉ liệt kê cái được duyệt)
+| Phần tử | Hiệu ứng | Thời lượng |
+|---|---|---|
+ 
+## Trạng thái giao diện
+- Loading:
+- Empty:
+- Error:
+ 
+## Validate / thông báo
