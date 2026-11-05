@@ -508,6 +508,7 @@ enum SupportRequestType {
 
 enum SupportRequestStatus {
   CHO_XU_LY
+  CHO_HOAN_TIEN
   DA_XU_LY
   TU_CHOI
 }
