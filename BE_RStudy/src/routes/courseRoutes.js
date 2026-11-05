@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const courseController = require('../controllers/courseController');
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
+const { requirePermission } = require('../middlewares/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 const validate = require('../middlewares/validateMiddleware');
 const {
   idParamSchema,
@@ -10,8 +12,7 @@ const {
 } = require('../validators/courseValidator');
 
 const teacherOnly = [authenticate, authorize('TEACHER')];
-const adminOnly = [authenticate, authorize('ADMINISTRATOR')];
-
+const adminOnly = [authenticate, requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC)];
 
 //GIÁO VIÊN
 router.post('/', ...teacherOnly, validate(createCourseSchema), courseController.create);
@@ -39,6 +40,7 @@ router.patch(
   courseController.changeStatus
 );
 
+//CÔNG KHAI
 router.get('/', courseController.getPublicList);
 router.get('/:id', validate(idParamSchema, 'params'), courseController.getPublicById);
 

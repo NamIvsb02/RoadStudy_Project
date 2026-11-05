@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const categoryController = require('../controllers/categoryController');
-const { authenticate, authorize } = require('../middlewares/authMiddleware');
+const { authenticate } = require('../middlewares/authMiddleware');
+const { requirePermission } = require('../middlewares/permissionMiddleware');
+const { PERMISSIONS } = require('../constants/permissions');
 const validate = require('../middlewares/validateMiddleware');
 const {
   idParamSchema,
@@ -9,9 +11,9 @@ const {
   changeStatusSchema,
 } = require('../validators/categoryValidator');
 
-const adminOnly = [authenticate, authorize('ADMINISTRATOR')];
 
-//ADMIN (đặt TRƯỚC '/:id' để '/manage' không bị coi là id)
+const adminOnly = [authenticate, requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC)];
+
 router.get('/manage', ...adminOnly, categoryController.getAdminList);
 router.get('/manage/:id', ...adminOnly, validate(idParamSchema, 'params'), categoryController.getAdminById);
 
