@@ -6,3 +6,4 @@
     --color-page: #f7f8f9;
     --color-accent: #ff8a00;
 }
+@import "./assets/styles/theme.css";

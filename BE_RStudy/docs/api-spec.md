@@ -466,6 +466,47 @@ Body: `{ "functionIds": ["uuid1", "uuid2"] }`. Danh sách này **ghi đè** quy�
 | 404 | Không tìm thấy admin                                                                                                                  |
 | 409 | Email đã tồn tại                                                                                                                      |
 
+### Quy tắc nghiệp vụ đăng ký và hoàn tiền (dùng chung cho Enrollment và Invoice)
+
+**1. Học viên hủy đăng ký trước khi thanh toán**
+
+- Chỉ áp dụng khi đăng ký có `RegistrationStatus = CHO_THANH_TOAN`.
+- Nếu chưa gửi minh chứng thanh toán (`paymentProofUrl = null`), học viên được hủy trực tiếp.
+- Cập nhật `RegistrationStatus = DA_HUY` và `InvoiceStatus = DA_HUY`.
+- Không tạo `SupportRequest` hoàn tiền vì chưa có khoản tiền cần hoàn.
+- Giữ lại bản ghi đăng ký và hóa đơn cũ.
+
+**2. Học viên hủy sau khi gửi minh chứng nhưng admin chưa duyệt**
+
+- Nếu `paymentProofUrl` đã tồn tại và đăng ký vẫn ở `CHO_THANH_TOAN`, học viên gửi yêu cầu hủy kèm yêu cầu hoàn tiền.
+- Tạo `SupportRequest` với:
+  - `type = HOAN_TIEN_KHOA_HOC`
+  - `status = CHO_XU_LY`
+- Admin phải kiểm tra minh chứng và giao dịch thực tế trước khi quyết định.
+- Nếu chấp thuận hoàn tiền, chuyển `SupportRequestStatus` sang `CHO_HOAN_TIEN`.
+- Khi tiền đã được hoàn thực tế, chuyển yêu cầu sang `DA_XU_LY`, đăng ký sang `HOAN_TIEN` và hóa đơn sang `HOAN_TIEN`.
+- Nếu không có giao dịch thanh toán thực tế, admin có thể từ chối yêu cầu hoàn tiền và xử lý việc hủy đăng ký, hóa đơn theo kết quả kiểm tra.
+
+**3. Học viên yêu cầu hoàn tiền sau khi đã thanh toán**
+
+- Chỉ được gửi yêu cầu hoàn tiền trong vòng 24 giờ kể từ `Invoice.paidAt`.
+- Thời hạn 24 giờ được kiểm tra tại thời điểm học viên gửi yêu cầu, không phải thời điểm admin xử lý.
+- Tạo `SupportRequest` với `type = HOAN_TIEN_KHOA_HOC`, `status = CHO_XU_LY`.
+- Admin chấp thuận: chuyển sang `CHO_HOAN_TIEN`.
+- Hoàn tiền thực tế thành công: chuyển sang `DA_XU_LY`, đồng thời cập nhật `RegistrationStatus = HOAN_TIEN` và `InvoiceStatus = HOAN_TIEN`.
+
+**4. Ngăn đăng ký trùng trong khi chờ xử lý hoàn tiền**
+
+- Không cho học viên đăng ký lại cùng khóa học khi đang có yêu cầu hoàn tiền chưa được giải quyết (`CHO_XU_LY` hoặc `CHO_HOAN_TIEN`).
+- Đơn đăng ký và hóa đơn phải được giữ lại để đối chiếu lịch sử giao dịch.
+- Không đánh dấu `HOAN_TIEN` trước khi xác nhận đã hoàn tiền thực tế.
+
+**5. Quy tắc chung**
+
+- `paymentProofUrl` chỉ thể hiện học viên đã gửi minh chứng, không đồng nghĩa admin đã xác nhận nhận được tiền.
+- Mọi thao tác cập nhật đồng thời `SupportRequest`, `Registration` và `Invoice` phải được thực hiện trong Prisma transaction khi phù hợp.
+- Yêu cầu hoàn tiền phải có thông tin lý do từ chối nếu admin không chấp thuận.
+
 ## 5. Các module khác
 
 Người phụ trách điền khi API xong, theo đúng khuôn của mục Auth (quyền, body, response, lỗi, ghi chú).
