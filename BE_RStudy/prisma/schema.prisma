@@ -63,6 +63,7 @@ enum RegistrationStatus {
   DA_THANH_TOAN
   HOAN_THANH
   HOAN_TIEN
+  DA_HUY
 }
 
 enum DiscountStatus {
@@ -275,7 +276,7 @@ model CourseRegistration {
   invoices Invoice[]
   supportRequests SupportRequest[]
 
-  @@unique([studentId, courseId]) // mỗi học viên chỉ đăng ký 1 lần/khóa (không cho hủy, không đăng ký lại)
+  @@index([studentId, courseId]) // nhiều đơn cùng khóa: các đơn cũ DA_HUY được giữ lại. Chặn trùng đơn đang hiệu lực làm ở service
 }
 
 model DiscountCode {
@@ -507,6 +508,7 @@ enum SupportRequestType {
 
 enum SupportRequestStatus {
   CHO_XU_LY
+  CHO_HOAN_TIEN
   DA_XU_LY
   TU_CHOI
 }

@@ -1,29 +1,43 @@
-const TIME_ZONE = 'Asia/Ho_Chi_Minh';
-const priceFormatter = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
+const VN_TIME_ZONE = "Asia/Ho_Chi_Minh";
+
+const dateFormatter = new Intl.DateTimeFormat("vi-VN", {
+  timeZone: VN_TIME_ZONE,
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+});
+
+const timeFormatter = new Intl.DateTimeFormat("vi-VN", {
+  timeZone: VN_TIME_ZONE,
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+const moneyFormatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
   maximumFractionDigits: 0,
 });
 
-export const formatPrice = (value) => {
-  const amount = Number(value);
-  return amount > 0 ? priceFormatter.format(amount) : 'Miễn phí';
+const toDate = (iso) => {
+  if (!iso) return null;
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? null : date;
 };
 
-export const formatDate = (iso) =>
-  iso ? new Date(iso).toLocaleDateString('vi-VN', { timeZone: TIME_ZONE }) : '';
+export const formatVND = (value) => {
+  if (value === null || value === undefined || value === "") return "";
+  const amount = Number(value);
+  return Number.isNaN(amount) ? "" : moneyFormatter.format(amount);
+};
 
-export const formatDateTime = (iso) =>
-  iso
-    ? new Date(iso).toLocaleString('vi-VN', {
-        timeZone: TIME_ZONE,
-        dateStyle: 'short',
-        timeStyle: 'short',
-      })
-    : '';
+export const formatDate = (iso) => {
+  const date = toDate(iso);
+  return date ? dateFormatter.format(date) : "";
+};
 
-export const assetUrl = (path) => {
-  if (!path) return '';
-  if (/^https?:\/\//.test(path)) return path;
-  return `${import.meta.env.VITE_ASSET_URL ?? ''}${path}`;
+export const formatDateTime = (iso) => {
+  const date = toDate(iso);
+  return date ? `${timeFormatter.format(date)} ${dateFormatter.format(date)}` : "";
 };

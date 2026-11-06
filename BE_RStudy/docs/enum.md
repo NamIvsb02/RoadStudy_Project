@@ -82,14 +82,15 @@ Quy ước:
 
 ### RegistrationStatus
 
-| Giá trị        | Nhãn           | Màu     | Ghi chú                                                       |
-| -------------- | -------------- | ------- | ------------------------------------------------------------- |
-| CHO_THANH_TOAN | Chờ thanh toán | vàng    | Cả khi đã gửi minh chứng mà admin chưa duyệt, hoặc bị từ chối |
-| DA_THANH_TOAN  | Đã thanh toán  | xanh lá | Được học, bình luận, đánh giá, thi                            |
-| HOAN_TIEN      | Đã hoàn tiền   | xám     | Trong 24 giờ kể từ `paidAt`                                   |
-| HOAN_THANH     | (không dùng)   |         | Có trong enum nhưng hệ thống không dùng, FE bỏ qua            |
+| Giá trị        | Nhãn           | Màu     | Ghi chú                                                                          |
+| -------------- | -------------- | ------- | -------------------------------------------------------------------------------- |
+| CHO_THANH_TOAN | Chờ thanh toán | vàng    | Cả khi đã gửi minh chứng mà admin chưa duyệt, hoặc bị từ chối. Học viên hủy được |
+| DA_THANH_TOAN  | Đã thanh toán  | xanh lá | Được học, bình luận, đánh giá, thi                                               |
+| HOAN_TIEN      | Đã hoàn tiền   | xám     | Trong 24 giờ kể từ `paidAt`. Không đăng ký lại được khóa này                     |
+| DA_HUY         | Đã hủy         | xám     | Học viên tự hủy khi chưa được duyệt. Được đăng ký lại (tạo đơn mới)              |
+| HOAN_THANH     | (không dùng)   |         | Có trong enum nhưng hệ thống không dùng, FE bỏ qua                               |
 
-Không có trạng thái hủy: học viên không được hủy đăng ký.
+Học viên hủy được đơn khi đơn còn `CHO_THANH_TOAN` (admin chưa duyệt). Hủy xong đăng ký lại cùng khóa được, hệ thống tạo đơn mới và giữ đơn cũ. Đơn `HOAN_TIEN` thì không đăng ký lại được.
 
 ### InvoiceStatus
 
@@ -99,7 +100,7 @@ Không có trạng thái hủy: học viên không được hủy đăng ký.
 | DA_THANH_TOAN  | Đã thanh toán  | xanh lá | Có `paidAt`                                                     |
 | THAT_BAI       | Bị từ chối     | đỏ      | Admin từ chối, có lý do. Học viên gửi lại thì về CHO_THANH_TOAN |
 | HOAN_TIEN      | Đã hoàn tiền   | xám     |                                                                 |
-| DA_HUY         | Đã hủy         | xám     | Có trong enum, luồng hiện tại chưa dùng                         |
+| DA_HUY         | Đã hủy         | xám     | Hóa đơn của đơn đã hủy, giữ lại `paymentProofUrl`               |
 
 ### PaymentMethod
 
@@ -127,11 +128,14 @@ Không có trạng thái hủy: học viên không được hủy đăng ký.
 
 ### SupportRequestStatus
 
-| Giá trị   | Nhãn      | Màu     |
-| --------- | --------- | ------- |
-| CHO_XU_LY | Chờ xử lý | vàng    |
-| DA_XU_LY  | Đã xử lý  | xanh lá |
-| TU_CHOI   | Từ chối   | đỏ      |
+| Giá trị       | Nhãn          | Màu        | Ghi chú                                                  |
+| ------------- | ------------- | ---------- | -------------------------------------------------------- |
+| CHO_XU_LY     | Chờ xử lý     | vàng       | Học viên đã gửi yêu cầu hoàn tiền, admin chưa quyết định |
+| CHO_HOAN_TIEN | Chờ hoàn tiền | xanh dương | Admin đã chấp thuận yêu cầu, đang chờ hoàn tiền thực tế  |
+| DA_XU_LY      | Đã xử lý      | xanh lá    | Đã hoàn tiền thành công                                  |
+| TU_CHOI       | Từ chối       | đỏ         | Admin từ chối yêu cầu, có lý do                          |
+
+**Quy tắc:** Yêu cầu hoàn tiền chỉ chuyển sang `DA_XU_LY` sau khi việc hoàn tiền thực tế hoàn tất. Không được chuyển `RegistrationStatus` và `InvoiceStatus` sang `HOAN_TIEN` chỉ vì admin đã chấp thuận yêu cầu.
 
 ## Đánh giá, bình luận, báo cáo
 
