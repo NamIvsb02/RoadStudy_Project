@@ -1,6 +1,6 @@
 const prisma = require("../config/database");
 
-const CONFIRMED_REGISTRATION = ["DA_THANH_TOAN", "HOAN_THANH"];
+const CONFIRMED_REGISTRATION = ["DA_THANH_TOAN"]; // nhóm chốt: chỉ DA_THANH_TOAN mới được xem đề và làm bài
 
 // Đề đầy đủ (kèm isCorrect) - CHỈ dùng cho giáo viên/admin
 const fullInclude = {
