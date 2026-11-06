@@ -47,7 +47,15 @@ const incrementUsedCount = async (id, usageLimit, tx) => {
     return result.count === 1;
 };
 
+// Trả lại 1 lượt dùng (khi học viên hủy đăng ký). Không để usedCount âm.
+const decrementUsedCount = (id, tx) =>
+    db(tx).discountCode.updateMany({
+        where: { id, usedCount: { gt: 0 } },
+        data: { usedCount: { decrement: 1 } },
+    });
+
 module.exports = {
+    decrementUsedCount,
     findMany,
     findById,
     findByCode,
