@@ -1,4 +1,5 @@
 const VN_TIME_ZONE = "Asia/Ho_Chi_Minh";
+const ASSET_URL = (import.meta.env.VITE_ASSET_URL ?? "").replace(/\/$/, "");
 
 const dateFormatter = new Intl.DateTimeFormat("vi-VN", {
   timeZone: VN_TIME_ZONE,
@@ -40,4 +41,18 @@ export const formatDate = (iso) => {
 export const formatDateTime = (iso) => {
   const date = toDate(iso);
   return date ? `${timeFormatter.format(date)} ${dateFormatter.format(date)}` : "";
+};
+
+export const assetUrl = (path) => {
+  if (!path) return "";
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${ASSET_URL}/${path.replace(/^\//, "")}`;
+};
+
+export const getInitials = (name) => {
+  const words = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  return words
+    .slice(-2)
+    .map((word) => word[0].toUpperCase())
+    .join("");
 };

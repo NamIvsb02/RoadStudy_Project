@@ -191,7 +191,7 @@ Mã OTP gồm 6 chữ số, hết hạn sau 10 phút. Khi server chưa cấu hì
   - `teacher`: `id, specialization, biography, teachingExperience, approvalStatus, accountId`
   - `administrator`: `id, accountId, isLeader`
 - Lỗi: 404 `Không tìm thấy tài khoản`
-- Ghi chú: **chưa trả danh sách quyền của admin thường.** Sẽ bổ sung cùng API Admin (04/11), spec sẽ cập nhật lúc đó.
+- Ghi chú: không có danh sách quyền. Quyền của admin lấy ở `GET /api/admin/me`.
 
 ## 3. Account (`/api/account`) — Nam
 
@@ -313,7 +313,7 @@ Giáo viên `CHO_DUYET` hoặc `TU_CHOI` vẫn đăng nhập được nhưng ch�
 
 ### GET /teacher/admin/list
 
-- Quyền: ADMINISTRATOR
+- Quyền: ADMINISTRATOR có quyền `DUYET_GIAO_VIEN` (Leader luôn có)
 - Query: `approvalStatus` (`CHO_DUYET`, `DA_DUYET`, `TU_CHOI`), `search` (tên, email, chuyên môn), `page`, `limit`
 - 200: `data` theo dạng phân trang ở mục 1. Mỗi phần tử trong `items`:
 
@@ -343,7 +343,7 @@ Giáo viên `CHO_DUYET` hoặc `TU_CHOI` vẫn đăng nhập được nhưng ch�
 - Lỗi: 400 sai dữ liệu | 404 giáo viên không tồn tại
 - Ghi chú: `:id` là `teacher.id`, không phải `account.id`.
 
-> Quyền ADMINISTRATOR ở các API admin trên là tạm thời. Khi API Admin xong sẽ đổi sang quyền cụ thể (`QUAN_LY_TAI_KHOAN`, `DUYET_GIAO_VIEN`) và spec sẽ cập nhật lúc đó.
+> `GET /teacher/admin/list` và `PATCH /teacher/:id/approval` yêu cầu quyền `DUYET_GIAO_VIEN` (Leader có sẵn). Các API admin của Account (`GET /account`, `PATCH /account/:id/status`) vẫn tạm dùng quyền ADMINISTRATOR, sẽ đổi sang `QUAN_LY_TAI_KHOAN`.
 
 ## Admin
 
@@ -393,7 +393,7 @@ Leader nhận `isLeader: true` và danh sách tất cả chức năng đang ho�
 }
 ```
 
-Các `functionName` hiện có: `QUAN_LY_KHOA_HOC`, `QUAN_LY_TAI_KHOAN`, `QUAN_LY_MA_GIAM_GIA`, `QUAN_LY_BAI_THI`, `XU_LY_BAO_CAO_VI_PHAM`, `XU_LY_HOAN_TIEN`.
+Các `functionName` hiện có: `QUAN_LY_KHOA_HOC`, `QUAN_LY_TAI_KHOAN`, `QUAN_LY_MA_GIAM_GIA`, `QUAN_LY_BAI_THI`, `XU_LY_BAO_CAO_VI_PHAM`, `XU_LY_HOAN_TIEN`, `DUYET_GIAO_VIEN`.
 
 ### GET /api/admin/administrators
 

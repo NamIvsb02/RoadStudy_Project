@@ -1,8 +1,18 @@
-import { useEffect, useState } from 'react';
-import { authApi } from '../api/authApi';
-import { AUTH_LOGOUT_EVENT } from '../api/axiosClient';
-import { tokenStorage } from '../utils/tokenStorage';
-import { AuthContext } from './authContextValue';
+import { useEffect, useState } from "react";
+import { authApi } from "../api/authApi";
+import { AUTH_LOGOUT_EVENT } from "../api/axiosClient";
+import { tokenStorage } from "../utils/tokenStorage";
+import { AuthContext } from "./authContextValue";
+import { adminApi } from "../api/adminApi";
+import { ROLES } from "../constants/roles";
+
+const fetchAccount = async () => {
+  const meRes = await authApi.getMe();
+  const me = meRes.data;
+  if (me.role !== ROLES.ADMINISTRATOR) return me;
+  const adminRes = await adminApi.getMe();
+  return { ...me, isLeader: adminRes.data.isLeader, permissions: adminRes.data.permissions };
+};
 
 export function AuthProvider({ children }) {
   const [account, setAccount] = useState(null);
@@ -11,10 +21,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!tokenStorage.getRefresh()) return undefined;
     let active = true;
-    authApi
-      .getMe()
-      .then((res) => {
-        if (active) setAccount(res.data);
+    fetchAccount()
+      .then((data) => {
+        if (active) setAccount(data);
       })
       .catch(() => {
         tokenStorage.clear();
@@ -37,9 +46,9 @@ export function AuthProvider({ children }) {
     const loginRes = await authApi.login(credentials);
     tokenStorage.set(loginRes.data.accessToken, loginRes.data.refreshToken);
     try {
-      const meRes = await authApi.getMe();
-      setAccount(meRes.data);
-      return meRes.data;
+      const data = await fetchAccount();
+      setAccount(data);
+      return data;
     } catch (error) {
       tokenStorage.clear();
       throw error;
@@ -53,7 +62,8 @@ export function AuthProvider({ children }) {
     setAccount(null);
   };
 
-  const value = { account, loading, login, logout, updateAccount: setAccount };
+  const updateAccount = (next) => setAccount((prev) => ({ ...prev, ...next }));
+  const value = { account, loading, login, logout, updateAccount };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

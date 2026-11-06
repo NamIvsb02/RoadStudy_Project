@@ -39,10 +39,17 @@ async function main() {
     { functionName: "XU_LY_BAO_CAO_VI_PHAM", description: "Xử lý báo cáo vi phạm" },
     { functionName: "XU_LY_HOAN_TIEN", description: "Xử lý yêu cầu hoàn tiền" },
     { functionName: "QUAN_LY_BAI_THI", description: "Quản lý bài thi" },
+    { functionName: "DUYET_GIAO_VIEN", description: "Duyệt giáo viên" },
   ];
   const functions = [];
   for (const f of functionsData) {
-    functions.push(await prisma.systemFunction.create({ data: f }));
+    functions.push(
+      await prisma.systemFunction.upsert({
+        where: { functionName: f.functionName },
+        create: f,
+        update: {},
+      }),
+    );
   }
 
   // Cấp 2 quyền đầu cho admin thường (để test requirePermission sau này)
