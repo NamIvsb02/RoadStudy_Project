@@ -86,7 +86,7 @@ Quy ước:
 | -------------- | -------------- | ------- | -------------------------------------------------------------------------------- |
 | CHO_THANH_TOAN | Chờ thanh toán | vàng    | Cả khi đã gửi minh chứng mà admin chưa duyệt, hoặc bị từ chối. Học viên hủy được |
 | DA_THANH_TOAN  | Đã thanh toán  | xanh lá | Được học, bình luận, đánh giá, thi                                               |
-| HOAN_TIEN      | Đã hoàn tiền   | xám     | Trong 24 giờ kể từ `paidAt`. Không đăng ký lại được khóa này                     |
+| HOAN_TIEN      | Đã hoàn tiền   | xám     | Trong 24 giờ kể từ `paidAt`. Sau khi đã hoàn tiền được đăng ký lại được khóa này |
 | DA_HUY         | Đã hủy         | xám     | Học viên tự hủy khi chưa được duyệt. Được đăng ký lại (tạo đơn mới)              |
 | HOAN_THANH     | (không dùng)   |         | Có trong enum nhưng hệ thống không dùng, FE bỏ qua                               |
 

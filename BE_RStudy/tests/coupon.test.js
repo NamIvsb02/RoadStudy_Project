@@ -9,12 +9,13 @@ const STUDENT = 'STUDENT';
 const prefix = `TEST_${Date.now()}`; // mọi mã test đều bắt đầu bằng prefix này để dọn dữ liệu
 const COURSE_PRICE = 1000000;
 
+let LEADER_ID = null;
 let passed = 0;
 let failed = 0;
 
 const call = async (method, path, { role, userId, body } = {}) => {
     // Dùng JWT thật (không phụ thuộc DEV_AUTH_BYPASS): sub = id tài khoản, role = vai trò
-    const token = role ? signAccessToken({ sub: userId || `test-${role}`, role }) : null;
+    const token = role ? signAccessToken({ sub: userId || (role === 'ADMINISTRATOR' ? LEADER_ID : `test-${role}`), role }) : null;
     const res = await fetch(BASE + path, {
         method,
         headers: {
@@ -50,6 +51,12 @@ async function main() {
 
     try {
         // ---------- Dữ liệu nền ----------
+        // Admin mặc định trong test là Leader (có mọi quyền); admin thường (không có quyền) để kiểm tra bị chặn
+        const leader = await prisma.account.findUnique({ where: { email: 'leader@roadstudy.vn' } });
+        const adminNoPerm = await prisma.account.findUnique({ where: { email: 'admin@roadstudy.vn' } });
+        if (!leader || !adminNoPerm) throw new Error('Không thấy tài khoản seed leader@/admin@roadstudy.vn, hãy chạy: npx prisma migrate reset');
+        LEADER_ID = leader.id;
+
         const stamp = Date.now();
         fx.category = await prisma.category.create({ data: { categoryName: `Coupon test ${stamp}` } });
         fx.teacherAcc = await prisma.account.create({
@@ -127,6 +134,9 @@ async function main() {
 
         r = await call('POST', '', { role: STUDENT, body: { code: `${prefix}_X7`, discountPercentage: 5, ...valid } });
         check('Học viên tạo -> 403', r.status === 403, `status ${r.status}`);
+
+        r = await call('POST', '', { role: ADMIN, userId: adminNoPerm.id, body: { code: `${prefix}_X8`, discountPercentage: 5, ...valid } });
+        check('Admin thường (không có QUAN_LY_MA_GIAM_GIA) tạo mã -> 403', r.status === 403, `status ${r.status}`);
 
         // ---------- Xem ----------
         console.log('\n[Xem danh sách / chi tiết]');

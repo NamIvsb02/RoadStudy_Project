@@ -119,6 +119,11 @@ async function consumeCoupon(tx, coupon) {
     if (!ok) throw new AppError("Mã giảm giá đã hết lượt sử dụng", 400);
 }
 
+// Gọi TRONG transaction khi hủy đăng ký/hóa đơn: trả lại lượt dùng
+async function releaseCoupon(tx, discountCodeId) {
+    await repo.decrementUsedCount(discountCodeId, tx);
+}
+
 // API xem trước giá khi học viên nhập mã (chưa tăng usedCount)
 async function validateCoupon({ code, courseId }, accountId) {
     const studentId = await repo.findStudentIdByAccountId(accountId); // admin test: null -> bỏ qua kiểm tra theo học viên
@@ -154,4 +159,5 @@ module.exports = {
     getUsableCoupon,
     calculateDiscount,
     consumeCoupon,
+    releaseCoupon,
 };
