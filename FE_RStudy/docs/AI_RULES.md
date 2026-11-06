@@ -104,7 +104,7 @@ src/
 
 ## Phân quyền admin ở FE
 
-- Sau khi đăng nhập, gọi `GET /api/auth/me` và lưu `role`, `isLeader`, `permissions` vào AuthContext. Không gọi `/api/admin/me` cho việc này.
+- Sau khi đăng nhập hoặc mở lại app, AuthContext gọi `GET /api/auth/me`. Nếu `role` là ADMINISTRATOR thì gọi thêm `GET /api/admin/me` và gộp `isLeader`, `permissions` vào `account`. Component chỉ đọc `account.isLeader` và `account.permissions` qua `useAuth()`, không tự gọi `/admin/me`.
 - Ẩn hiện menu, nút theo quyền chỉ để giao diện gọn. BE mới là nơi chặn thật, FE không được coi việc ẩn nút là bảo mật.
 - Tên quyền khai báo một chỗ duy nhất trong `src/constants/permissions.js`, trùng đúng với `functionName` của BE. Không gõ chuỗi quyền trực tiếp trong component.
 
@@ -133,6 +133,7 @@ export const hasPermission = (user, name) => user?.role === "ADMINISTRATOR" && (
 | Tài khoản                 | `QUAN_LY_TAI_KHOAN`                                   |
 | Mã giảm giá               | `QUAN_LY_MA_GIAM_GIA`                                 |
 | Bài thi                   | `QUAN_LY_BAI_THI`                                     |
+| Duyệt giáo viên           | `DUYET_GIAO_VIEN`                                     |
 | Báo cáo vi phạm           | `XU_LY_BAO_CAO_VI_PHAM`                               |
 | Hoàn tiền                 | `XU_LY_HOAN_TIEN`                                     |
 | Quản lý admin, phân quyền | `user.isLeader === true` (không dùng `hasPermission`) |
