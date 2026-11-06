@@ -10,12 +10,18 @@ import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import VerifyEmailPage from "../pages/auth/VerifyEmailPage";
 import HomePage from "../pages/HomePage";
 import ProfilePage from "../pages/ProfilePage";
+import CourseListPage from "../pages/CourseListPage";
+import CourseDetailPage from "../pages/CourseDetailPage";
+import TeacherProfilePage from "../pages/TeacherProfilePage";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={ROUTES.COURSES} element={<CourseListPage />} />
+        <Route path={ROUTES.COURSE_DETAIL} element={<CourseDetailPage />} />
+        <Route path={ROUTES.TEACHER_PROFILE} element={<TeacherProfilePage />} />
         <Route element={<ProtectedRoute />}>
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
         </Route>

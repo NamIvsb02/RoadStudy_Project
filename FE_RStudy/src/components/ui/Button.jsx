@@ -3,6 +3,8 @@ import { Loader2 } from "lucide-react";
 const VARIANTS = {
   primary: "bg-primary text-white hover:bg-primary-dark",
   secondary: "border border-line bg-white text-ink hover:bg-primary/10",
+  outline: "border border-primary text-primary hover:bg-primary/10",
+  ghost: "text-ink hover:bg-primary/10",
   danger: "bg-danger text-white hover:bg-danger/90",
 };
 

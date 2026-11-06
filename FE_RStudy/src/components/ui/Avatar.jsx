@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { assetUrl, getInitials } from "../../utils/format";
 
-const SIZES = { sm: "size-8 text-xs", md: "size-10 text-sm", lg: "size-16 text-lg" };
+const SIZES = { sm: "size-8 text-xs", md: "size-10 text-sm", lg: "size-20 text-2xl" };
 
 export default function Avatar({ name, src, size = "md", className = "" }) {
   const [failedUrl, setFailedUrl] = useState(null);
