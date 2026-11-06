@@ -9,8 +9,8 @@ const { PERMISSIONS } = require("../constants/permissions");
 const { updateApprovalSchema } = require("../validators/teacherValidator");
 
 router.get("/", controller.listPublic);
-router.get("/admin/list", authenticate, requirePermission(PERMISSIONS.QUAN_LY_TAI_KHOAN), controller.listForAdmin);
-router.patch("/:id/approval", authenticate, requirePermission(PERMISSIONS.QUAN_LY_TAI_KHOAN), validate(updateApprovalSchema), controller.setApproval);
+router.get("/admin/list", authenticate, requirePermission(PERMISSIONS.DUYET_GIAO_VIEN), controller.listForAdmin);
+router.patch("/:id/approval", authenticate, requirePermission(PERMISSIONS.DUYET_GIAO_VIEN), validate(updateApprovalSchema), controller.setApproval);
 router.get("/:id", controller.getPublic);
 
 module.exports = router;

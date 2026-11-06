@@ -1,27 +1,20 @@
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from "lucide-react";
 
 const VARIANTS = {
-  primary: 'bg-primary text-white hover:bg-primary/90',
-  outline: 'border border-primary text-primary hover:bg-soft',
-  ghost: 'text-slate-600 hover:bg-soft',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
+  primary: "bg-primary text-white hover:bg-primary-dark",
+  secondary: "border border-line bg-white text-ink hover:bg-primary/10",
+  outline: "border border-primary text-primary hover:bg-primary/10",
+  ghost: "text-ink hover:bg-primary/10",
+  danger: "bg-danger text-white hover:bg-danger/90",
 };
 
-export default function Button({
-  variant = 'primary',
-  loading = false,
-  disabled = false,
-  type = 'button',
-  className = '',
-  children,
-  ...rest
-}) {
+export default function Button({ variant = "primary", loading = false, disabled = false, type = "button", className = "", children, ...props }) {
   return (
     <button
       type={type}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${className}`}
-      {...rest}
+      className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg px-5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${VARIANTS[variant]} ${className}`}
+      {...props}
     >
       {loading && <Loader2 size={16} className="animate-spin" />}
       {children}
