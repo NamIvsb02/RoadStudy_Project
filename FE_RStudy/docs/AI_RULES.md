@@ -122,7 +122,9 @@ export const PERMISSIONS = {
 - Kiểm tra quyền bằng một hàm duy nhất trong `src/utils/permission.js`, dùng lại ở menu, route guard và nút:
 
 ```javascript
-export const hasPermission = (user, name) => user?.role === "ADMINISTRATOR" && (user.isLeader === true || user.permissions?.includes(name) === true);
+export const hasPermission = (user, name) =>
+  user?.role === "ADMINISTRATOR" &&
+  (user.isLeader === true || user.permissions?.includes(name) === true);
 ```
 
 - Map menu admin với quyền:
@@ -135,6 +137,7 @@ export const hasPermission = (user, name) => user?.role === "ADMINISTRATOR" && (
 | Bài thi                   | `QUAN_LY_BAI_THI`                                     |
 | Duyệt giáo viên           | `DUYET_GIAO_VIEN`                                     |
 | Báo cáo vi phạm           | `XU_LY_BAO_CAO_VI_PHAM`                               |
+| Thanh toán                | `QUAN_LY_THANH_TOAN`                                  |
 | Hoàn tiền                 | `XU_LY_HOAN_TIEN`                                     |
 | Quản lý admin, phân quyền | `user.isLeader === true` (không dùng `hasPermission`) |
 

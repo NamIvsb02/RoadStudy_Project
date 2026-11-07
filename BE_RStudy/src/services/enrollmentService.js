@@ -97,6 +97,7 @@ async function listMine(accountId, query, { skip, take }) {
     const student = await requireStudent(accountId);
     const where = { studentId: student.id };
     if (REGISTRATION_STATUSES.includes(query.status)) where.status = query.status;
+    if (query.courseId) where.courseId = String(query.courseId);
     const [rows, total] = await repo.findMine(where, { skip, take });
     return { items: rows.map(toDto), total };
 }

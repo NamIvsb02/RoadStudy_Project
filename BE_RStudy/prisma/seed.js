@@ -37,6 +37,7 @@ async function main() {
     { functionName: "QUAN_LY_TAI_KHOAN", description: "Quản lý tài khoản" },
     { functionName: "QUAN_LY_MA_GIAM_GIA", description: "Quản lý mã giảm giá" },
     { functionName: "XU_LY_BAO_CAO_VI_PHAM", description: "Xử lý báo cáo vi phạm" },
+    { functionName: "QUAN_LY_THANH_TOAN", description: "Quản lý duyệt hoặc từ chối thanh toán" },
     { functionName: "XU_LY_HOAN_TIEN", description: "Xử lý yêu cầu hoàn tiền" },
     { functionName: "QUAN_LY_BAI_THI", description: "Quản lý bài thi" },
     { functionName: "DUYET_GIAO_VIEN", description: "Duyệt giáo viên" },
