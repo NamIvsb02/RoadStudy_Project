@@ -137,6 +137,7 @@ export const hasPermission = (user, name) =>
 | Bài thi                   | `QUAN_LY_BAI_THI`                                     |
 | Duyệt giáo viên           | `DUYET_GIAO_VIEN`                                     |
 | Báo cáo vi phạm           | `XU_LY_BAO_CAO_VI_PHAM`                               |
+| Thanh toán                | `QUAN_LY_THANH_TOAN`                                  |
 | Hoàn tiền                 | `XU_LY_HOAN_TIEN`                                     |
 | Quản lý admin, phân quyền | `user.isLeader === true` (không dùng `hasPermission`) |
 
