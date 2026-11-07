@@ -414,7 +414,7 @@ Leader nhận `isLeader: true` và danh sách tất cả chức năng đang ho�
 }
 ```
 
-Các `functionName` hiện có: `QUAN_LY_KHOA_HOC`, `QUAN_LY_TAI_KHOAN`, `QUAN_LY_MA_GIAM_GIA`, `QUAN_LY_BAI_THI`, `XU_LY_BAO_CAO_VI_PHAM`, `XU_LY_HOAN_TIEN`, `DUYET_GIAO_VIEN`.
+Các `functionName` hiện có: `QUAN_LY_KHOA_HOC`, `QUAN_LY_TAI_KHOAN`, `QUAN_LY_MA_GIAM_GIA`, `QUAN_LY_BAI_THI`, `XU_LY_BAO_CAO_VI_PHAM`, `QUAN_LY_THANH_TOAN`, `XU_LY_HOAN_TIEN`, `DUYET_GIAO_VIEN`.
 
 ### GET /api/admin/administrators
 
@@ -994,7 +994,7 @@ Phân quyền: các API của admin cần quyền `XU_LY_HOAN_TIEN` (Leader mặ
 
 ### GET /invoice/:id
 
-- Quyền: `STUDENT` (hóa đơn của mình), admin có quyền `XU_LY_HOAN_TIEN`
+- Quyền: `STUDENT` (hóa đơn của mình), admin có quyền `QUAN_LY_THANH_TOAN` hoặc `XU_LY_HOAN_TIEN`
 - 200: message `Lấy hóa đơn thành công`, `data` là `Invoice` kèm `paymentInfo` (xem mục Enrollment; `null` nếu hóa đơn không còn `CHO_THANH_TOAN`)
 - Lỗi: 404 `Hóa đơn không tồn tại` (cũng trả khi học viên xem hóa đơn người khác)
 
@@ -1008,7 +1008,7 @@ Phân quyền: các API của admin cần quyền `XU_LY_HOAN_TIEN` (Leader mặ
 
 ### GET /invoice/:id/proof
 
-- Quyền: `STUDENT` (chủ hóa đơn), admin có quyền `XU_LY_HOAN_TIEN`
+- Quyền: `STUDENT` (chủ hóa đơn), admin có quyền `QUAN_LY_THANH_TOAN` hoặc `XU_LY_HOAN_TIEN`
 - 200: trả về **tệp ảnh** (không phải JSON)
 - Lỗi: 404 `Hóa đơn không tồn tại` | 404 `Hóa đơn chưa có minh chứng thanh toán`
 
@@ -1027,20 +1027,20 @@ Phân quyền: các API của admin cần quyền `XU_LY_HOAN_TIEN` (Leader mặ
 
 ### GET /invoice
 
-- Quyền: admin có quyền `XU_LY_HOAN_TIEN`
+- Quyền: admin có quyền `QUAN_LY_THANH_TOAN`
 - Query: `page`, `limit`, `status` (không bắt buộc), `pending=true` (chỉ hóa đơn chờ duyệt: `CHO_THANH_TOAN` và đã có minh chứng), `q` (tìm theo tên hoặc email học viên)
 - 200: message `Lấy danh sách hóa đơn thành công`, `data: { items: [Invoice], pagination }`
 
 ### PATCH /invoice/:id/approve
 
-- Quyền: admin có quyền `XU_LY_HOAN_TIEN`
+- Quyền: admin có quyền `QUAN_LY_THANH_TOAN`
 - Không có body.
 - 200: message `Đã xác nhận thanh toán`, `data` là `Invoice` (`DA_THANH_TOAN`, có `paidAt`). Đơn đăng ký chuyển `DA_THANH_TOAN`, `amountPaid` bằng `totalAmount`. Học viên nhận email thông báo.
 - Lỗi: 400 `Chỉ xử lý được hóa đơn đang chờ thanh toán` | 400 `Học viên chưa gửi minh chứng thanh toán` | 404 `Hóa đơn không tồn tại` | 409 `Đơn đang có yêu cầu hủy/hoàn tiền chờ xử lý` | 409 `Hóa đơn đã được xử lý bởi người khác`
 
 ### PATCH /invoice/:id/reject
 
-- Quyền: admin có quyền `XU_LY_HOAN_TIEN`
+- Quyền: admin có quyền `QUAN_LY_THANH_TOAN`
 - Body: `{ "reason": string }` (1 đến 500 ký tự)
 - 200: message `Đã từ chối thanh toán`, `data` là `Invoice` (`THAT_BAI`, có `rejectionReason`). Đơn đăng ký vẫn `CHO_THANH_TOAN`. Học viên nhận email.
 - Lỗi: như `approve`.

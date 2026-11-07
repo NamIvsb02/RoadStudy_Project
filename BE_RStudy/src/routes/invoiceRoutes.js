@@ -15,11 +15,13 @@ const uploadProof = buildUploader({
     field: "proof",
 });
 
-// Quyền duyệt thanh toán: tạm dùng XU_LY_HOAN_TIEN. Nếu nhóm thêm quyền riêng (vd QUAN_LY_THANH_TOAN) thì chỉ cần đổi ở đây.
-const canHandlePayment = requirePermission(PERMISSIONS.XU_LY_HOAN_TIEN);
+// Duyệt thanh toán cần QUAN_LY_THANH_TOAN; xử lý hoàn tiền cần XU_LY_HOAN_TIEN.
+// Xem hóa đơn và ảnh minh chứng: cần một trong hai quyền (admin xử lý hoàn tiền cũng phải đối chiếu minh chứng).
+const canHandlePayment = requirePermission(PERMISSIONS.QUAN_LY_THANH_TOAN);
 const canHandleRefund = requirePermission(PERMISSIONS.XU_LY_HOAN_TIEN);
+const canViewInvoice = requirePermission(PERMISSIONS.QUAN_LY_THANH_TOAN, PERMISSIONS.XU_LY_HOAN_TIEN);
 const adminNeedsPermission = (req, res, next) =>
-    req.user.role === "ADMINISTRATOR" ? canHandlePayment(req, res, next) : next();
+    req.user.role === "ADMINISTRATOR" ? canViewInvoice(req, res, next) : next();
 
 router.use(authenticate);
 
