@@ -3,6 +3,8 @@ import { ROLES } from "./roles";
 export const ROUTES = {
   HOME: "/",
   COURSES: "/courses",
+  COURSE_DETAIL: "/courses/:id",
+  TEACHER_PROFILE: "/teachers/:id",
   EXAMS: "/exams",
   RESOURCES: "/resources",
   BOOKS: "/books",

@@ -69,6 +69,13 @@ const resendOtp = async (email, purpose) => {
   return { message: "Mã xác thực đã được gửi tới email" };
 };
 
+const assertTeacherApproved = (account) => {
+  if (account.role !== "TEACHER") return;
+  const approvalStatus = account.teacher?.approvalStatus;
+  if (approvalStatus === "TU_CHOI") throw new AppError("Tài khoản giáo viên đã bị từ chối", 403);
+  if (approvalStatus !== "DA_DUYET") throw new AppError("Tài khoản giáo viên đang chờ quản trị viên duyệt", 403);
+};
+
 const login = async (email, password) => {
   const account = await authRepository.findByEmail(email);
   if (!account) throw new AppError("Email hoặc mật khẩu không đúng", 401);
@@ -79,9 +86,10 @@ const login = async (email, password) => {
   if (account.status === "CHO_XAC_MINH") {
     throw new AppError("Tài khoản chưa xác minh email, vui lòng kiểm tra email hoặc yêu cầu gửi lại mã", 403);
   }
+  assertTeacherApproved(account);
 
   const tokens = await issueTokenPair(account);
-  const { passwordHash, ...safeAccount } = account;
+  const { passwordHash, teacher, ...safeAccount } = account;
   return { ...tokens, account: safeAccount };
 };
 
@@ -101,7 +109,7 @@ const refreshAccessToken = async (refreshTokenValue) => {
 
   const account = await authRepository.findByIdSafe(payload.sub);
   if (!account || account.status === "BI_KHOA") throw new AppError("Tài khoản không khả dụng", 403);
-
+  assertTeacherApproved(account);
   return issueTokenPair(account);
 };
 

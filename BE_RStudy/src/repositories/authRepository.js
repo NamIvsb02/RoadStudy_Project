@@ -14,7 +14,7 @@ const ACCOUNT_SAFE_SELECT = {
   administrator: true,
 };
 
-const findByEmail = (email) => prisma.account.findUnique({ where: { email } });
+const findByEmail = (email) => prisma.account.findUnique({ where: { email }, include: { teacher: { select: { approvalStatus: true } } } });
 const findById = (id) => prisma.account.findUnique({ where: { id } });
 const findByIdSafe = (id) => prisma.account.findUnique({ where: { id }, select: ACCOUNT_SAFE_SELECT });
 
