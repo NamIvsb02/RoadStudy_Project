@@ -1,4 +1,5 @@
 const entry = (label, tone) => ({ label, tone });
+import { ROLES } from "./roles";
 
 export const STATUS_MAPS = {
   AccountStatus: {
@@ -80,4 +81,10 @@ export const STATUS_MAPS = {
     DA_CHAM: entry("Đã chấm", "green"),
     HUY: entry("Đã hủy", "gray"),
   },
+};
+
+export const ROLE_LABELS = {
+  [ROLES.STUDENT]: "Học viên",
+  [ROLES.TEACHER]: "Giáo viên",
+  [ROLES.ADMINISTRATOR]: "Quản trị viên",
 };

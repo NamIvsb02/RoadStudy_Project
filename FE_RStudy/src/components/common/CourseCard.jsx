@@ -1,7 +1,7 @@
 import { Star } from 'lucide-react';
 import { generatePath, Link } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes';
-import { assetUrl, formatPrice } from '../../utils/format';
+import { assetUrl, formatVND } from '../../utils/format';
 import Avatar from '../ui/Avatar';
 
 export default function CourseCard({ course }) {
@@ -32,7 +32,7 @@ export default function CourseCard({ course }) {
           </div>
         )}
         <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="font-semibold text-primary">{formatPrice(price)}</span>
+          <span className="font-semibold text-primary">{formatVND(price)}</span>
           {reviewCount > 0 && (
             <span className="flex items-center gap-1 text-sm text-slate-600">
               <Star size={16} className="text-accent" fill="currentColor" />

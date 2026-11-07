@@ -1,9 +1,9 @@
-import { useLocation, useNavigate } from 'react-router-dom';
-import Button from '../../components/ui/Button';
-import { ROLES } from '../../constants/roles';
-import { ROUTES } from '../../constants/routes';
-import { useAuth } from '../../hooks/useAuth';
-import { formatDate, formatPrice } from '../../utils/format';
+import { useLocation, useNavigate } from "react-router-dom";
+import Button from "../../components/ui/Button";
+import { ROLES } from "../../constants/roles";
+import { ROUTES } from "../../constants/routes";
+import { useAuth } from "../../hooks/useAuth";
+import { formatDate, formatVND } from "../../utils/format";
 
 export default function CourseEnrollBox({ course }) {
   const { account } = useAuth();
@@ -21,7 +21,7 @@ export default function CourseEnrollBox({ course }) {
 
   return (
     <div className="space-y-4 rounded-xl bg-white p-5 shadow-sm">
-      <p className="text-3xl font-bold text-primary">{formatPrice(course.price)}</p>
+      <p className="text-3xl font-bold text-primary">{formatVND(course.price)}</p>
       <dl className="space-y-2 text-sm">
         <div className="flex justify-between">
           <dt className="text-slate-500">Khai giảng</dt>
