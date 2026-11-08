@@ -61,16 +61,3 @@ export const resetPasswordSchema = matchPassword(
     confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
   }),
 );
-
-export const forgotPasswordSchema = z.object({
-  email: z.string().trim().min(1, "Vui lòng nhập email").email("Email không hợp lệ"),
-});
-
-export const resetPasswordSchema = matchPassword(
-  z.object({
-    email: z.string().trim().min(1, "Vui lòng nhập email").email("Email không hợp lệ"),
-    code: z.string().trim().regex(/^\d{6}$/, "Mã xác thực gồm 6 chữ số"),
-    password: z.string().min(8, "Mật khẩu tối thiểu 8 ký tự"),
-    confirmPassword: z.string().min(1, "Vui lòng xác nhận mật khẩu"),
-  }),
-);
