@@ -41,8 +41,13 @@ const buildUploader = ({ folder, allowedMimes, maxSizeMB, field }) => {
 };
 
 const IMAGE_MIMES = { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp" };
+const DOC_MIMES = {
+  "application/pdf": ".pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+};
 
 module.exports = {
   buildUploader,
   uploadAvatar: buildUploader({ folder: "avatars", allowedMimes: IMAGE_MIMES, maxSizeMB: 2, field: "avatar" }),
+  uploadResource: buildUploader({ folder: "resources", allowedMimes: DOC_MIMES, maxSizeMB: 10, field: "file" }),
 };
