@@ -13,6 +13,8 @@ import ProfilePage from "../pages/ProfilePage";
 import CourseListPage from "../pages/CourseListPage";
 import CourseDetailPage from "../pages/CourseDetailPage";
 import TeacherProfilePage from "../pages/TeacherProfilePage";
+import MyCoursesPage from "../pages/student/MyCoursesPage";
+import { ROLES } from "../constants/roles";
 
 export default function AppRoutes() {
   return (
@@ -24,6 +26,9 @@ export default function AppRoutes() {
         <Route path={ROUTES.TEACHER_PROFILE} element={<TeacherProfilePage />} />
         <Route element={<ProtectedRoute />}>
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+        </Route>
+        <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
+          <Route path={ROUTES.STUDENT.MY_COURSES} element={<MyCoursesPage />} />
         </Route>
       </Route>
       <Route element={<AuthLayout />}>
