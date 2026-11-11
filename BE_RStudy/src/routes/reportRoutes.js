@@ -4,9 +4,10 @@ const { authenticate, authorize } = require("../middlewares/authMiddleware");
 const validate = require("../middlewares/validateMiddleware");
 const { idParamSchema, createReportSchema, processReportSchema, rejectReportSchema } = require("../validators/reportValidator");
 
-// TODO: thay authorize bằng requirePermission('XU_LY_BAO_CAO_VI_PHAM') khi API Admin xong
-const adminOnly = [authenticate, authorize("ADMINISTRATOR")];
+const { requirePermission } = require("../middlewares/permissionMiddleware");
+const { PERMISSIONS } = require("../constants/permissions");
 
+const adminOnly = [authenticate, requirePermission(PERMISSIONS.XU_LY_BAO_CAO_VI_PHAM)];
 // HỌC VIÊN / GIÁO VIÊN gửi báo cáo
 router.post("/", authenticate, authorize("STUDENT", "TEACHER"), validate(createReportSchema), reportController.create);
 
