@@ -29,7 +29,7 @@ const transferContent = (invoice) => `RS${invoice.id.replace(/-/g, "").slice(0, 
 
 // Thông tin chuyển khoản + link mã QR (VietQR). Cấu hình tài khoản nhận tiền trong .env
 function buildPaymentInfo(invoice) {
-    if (invoice.status !== "CHO_THANH_TOAN") return null;
+    if (!["CHO_THANH_TOAN", "THAT_BAI"].includes(invoice.status)) return null;
     const bankId = process.env.PAYMENT_BANK_ID || null;
     const accountNo = process.env.PAYMENT_ACCOUNT_NO || null;
     const accountName = process.env.PAYMENT_ACCOUNT_NAME || null;
