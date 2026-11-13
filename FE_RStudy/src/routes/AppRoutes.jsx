@@ -22,6 +22,9 @@ import { PERMISSIONS } from "../constants/permissions";
 import ForbiddenPage from "../pages/ForbiddenPage";
 import AccountsPage from "../pages/admin/AccountsPage";
 import TeacherApprovalPage from "../pages/admin/teacherApproval/TeacherApprovalPage";
+import LeaderRoute from "../components/LeaderRoute";
+import PermissionsPage from "../pages/admin/PermissionsPage";
+import TeacherDashboardPage from "../pages/teacher/TeacherDashboardPage";
 
 export default function AppRoutes() {
   return (
@@ -45,7 +48,7 @@ export default function AppRoutes() {
       </Route>
       <Route element={<ProtectedRoute allowedRoles={[ROLES.TEACHER]} />}>
         <Route path={ROUTES.TEACHER.ROOT} element={<ManageLayout />}>
-          <Route index element={<ComingSoonPage title="Tổng quan" />} />
+          <Route index element={<TeacherDashboardPage />} />
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
       </Route>
@@ -57,6 +60,9 @@ export default function AppRoutes() {
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.DUYET_GIAO_VIEN} />}>
             <Route path={ROUTES.ADMIN.TEACHER_APPROVAL} element={<TeacherApprovalPage />} />
+          </Route>
+          <Route element={<LeaderRoute />}>
+            <Route path={ROUTES.ADMIN.PERMISSIONS} element={<PermissionsPage />} />
           </Route>
           <Route path="*" element={<ComingSoonPage />} />
         </Route>

@@ -5,4 +5,5 @@ export const teacherApi = {
   getPublicById: (id) => axiosClient.get(`/teacher/${id}`),
   getAdminList: (params) => axiosClient.get("/teacher/admin/list", { params }),
   setApproval: (id, approvalStatus) => axiosClient.patch(`/teacher/${id}/approval`, { approvalStatus }),
+  getMyStats: () => axiosClient.get("/teacher/me/stats"),
 };

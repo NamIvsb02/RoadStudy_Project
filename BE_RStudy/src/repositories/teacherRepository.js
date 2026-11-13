@@ -86,5 +86,34 @@ const updateApproval = (id, approvalStatus) =>
     data: { approvalStatus },
     select: { id: true, approvalStatus: true, account: { select: { id: true, fullName: true, email: true } } },
   });
+const findByAccountId = (accountId) => prisma.teacher.findUnique({ where: { accountId }, select: { id: true } });
 
-module.exports = { listPublic, findPublicById, listForAdmin, updateApproval };
+const getStats = (teacherId, since) => {
+  const ofTeacher = { course: { teacherId } };
+  return prisma.$transaction([
+    prisma.course.count({ where: { teacherId, status: "DANG_MO" } }),
+    prisma.exam.count({ where: { ...ofTeacher, status: "DANG_MO" } }),
+    prisma.exam.count({ where: { ...ofTeacher, status: "BAN_NHAP" } }),
+    prisma.examAttempt.count({ where: { exam: ofTeacher, status: { not: "HUY" }, startTime: { gte: since } } }),
+    prisma.examAttempt.findMany({
+      where: { exam: ofTeacher, status: { not: "HUY" } },
+      orderBy: { startTime: "desc" },
+      take: 5,
+      select: {
+        id: true,
+        score: true,
+        status: true,
+        student: { select: { account: { select: { fullName: true } } } },
+        exam: { select: { examName: true, passingScore: true } },
+      },
+    }),
+    prisma.course.findMany({
+      where: { teacherId },
+      orderBy: { updatedAt: "desc" },
+      take: 3,
+      select: { id: true, courseName: true, status: true, _count: { select: { exams: true } } },
+    }),
+  ]);
+};
+
+module.exports = { listPublic, findPublicById, listForAdmin, updateApproval, findByAccountId, getStats };
