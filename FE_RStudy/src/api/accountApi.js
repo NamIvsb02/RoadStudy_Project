@@ -9,4 +9,6 @@ export const accountApi = {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
+  getList: (params) => axiosClient.get("/account", { params }),
+  changeStatus: (id, status) => axiosClient.patch(`/account/${id}/status`, { status }),
 };

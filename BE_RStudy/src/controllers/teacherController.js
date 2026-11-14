@@ -35,4 +35,12 @@ const setApproval = async (req, res, next) => {
   }
 };
 
-module.exports = { listPublic, getPublic, listForAdmin, setApproval };
+const getMyStats = async (req, res, next) => {
+  try {
+    res.status(200).json(formatResponse(true, await teacherService.getMyStats(req.user.id)));
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { listPublic, getPublic, listForAdmin, setApproval, getMyStats };
