@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { commentApi } from '../../api/commentApi';
-import ContentForm from '../../components/common/ContentForm';
-import InlineConfirmDelete from '../../components/common/InlineConfirmDelete';
-import Avatar from '../../components/ui/Avatar';
-import { ROLES } from '../../constants/roles';
-import { formatDateTime } from '../../utils/format';
+import { useState } from "react";
+import { commentApi } from "../../api/commentApi";
+import ContentForm from "../../components/common/ContentForm";
+import InlineConfirmDelete from "../../components/common/InlineConfirmDelete";
+import Avatar from "../../components/ui/Avatar";
+import { ROLES } from "../../constants/roles";
+import { formatDateTime } from "../../utils/format";
+import ReportButton from "../../components/common/ReportButton";
 
 export default function ReplyItem({ reply, onChanged }) {
   const [editing, setEditing] = useState(false);
@@ -27,19 +28,12 @@ export default function ReplyItem({ reply, onChanged }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-slate-800">
           {replier.fullName}
-          {replier.role === ROLES.TEACHER && (
-            <span className="ml-2 rounded bg-accent/10 px-1.5 text-xs text-accent">Giáo viên</span>
-          )}
+          {replier.role === ROLES.TEACHER && <span className="ml-2 rounded bg-accent/10 px-1.5 text-xs text-accent">Giáo viên</span>}
           <span className="ml-2 text-xs font-normal text-slate-500">{formatDateTime(reply.repliedAt)}</span>
         </p>
         {editing ? (
           <div className="mt-2">
-            <ContentForm
-              defaultValue={reply.content}
-              submitLabel="Lưu thay đổi"
-              onSubmit={save}
-              onCancel={() => setEditing(false)}
-            />
+            <ContentForm defaultValue={reply.content} submitLabel="Lưu thay đổi" onSubmit={save} onCancel={() => setEditing(false)} />
           </div>
         ) : (
           <p className="whitespace-pre-line text-sm text-slate-700">{reply.content}</p>
@@ -50,6 +44,11 @@ export default function ReplyItem({ reply, onChanged }) {
               Sửa
             </button>
             <InlineConfirmDelete onConfirm={remove} />
+          </div>
+        )}
+        {!reply.isMine && !editing && (
+          <div className="mt-1">
+            <ReportButton target={{ replyId: reply.id }} />
           </div>
         )}
       </div>
