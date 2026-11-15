@@ -1,7 +1,7 @@
 const prisma = require("../config/database");
 
 const attemptInclude = {
-  exam: { select: { id: true, examName: true, durationMinutes: true, passingScore: true, courseId: true } },
+  exam: { select: { id: true, examName: true, durationMinutes: true, passingScore: true, courseId: true, showAnswers: true } },
   details: { select: { questionId: true, answerOptionId: true } },
 };
 

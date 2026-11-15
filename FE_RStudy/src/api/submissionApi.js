@@ -6,4 +6,5 @@ export const submissionApi = {
   submit: (id, body) => axiosClient.post(`/submission/${id}/submit`, body),
   getMine: (params) => axiosClient.get("/submission/me", { params }),
   getById: (id) => axiosClient.get(`/submission/${id}`),
+  listByExam: (examId, params) => axiosClient.get(`/submission/exam/${examId}`, { params }),
 };

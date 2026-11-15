@@ -2,7 +2,7 @@ const { Prisma } = require("@prisma/client");
 const AppError = require("../utils/AppError");
 const repo = require("../repositories/submissionRepository");
 const examRepo = require("../repositories/examRepository");
-const { MAX_ATTEMPTS, assertCanManageCourse } = require("./examService");
+const { assertCanManageCourse } = require("./examService");
 
 const { Decimal } = Prisma;
 const GRACE_MS = 10 * 1000; // cho phép trễ nhẹ do mạng khi lưu/nộp bài
@@ -59,6 +59,7 @@ function toAttemptDto(attempt, totalScore) {
 
 // Chi tiết từng câu. Học viên: chỉ thấy đáp án ĐÃ CHỌN, không thấy đáp án đúng. Giáo viên/admin: thấy đầy đủ.
 async function buildQuestionDetails(attempt, { staff }) {
+  const reveal = staff || attempt.exam.showAnswers;
   const questions = await repo.findQuestionsWithOptions(attempt.examId);
   const chosen = new Map(attempt.details.map((d) => [d.questionId, d.answerOptionId]));
 
@@ -71,7 +72,7 @@ async function buildQuestionDetails(attempt, { staff }) {
       questionOrder: q.questionOrder,
       selectedAnswerOptionId,
     };
-    if (!staff) {
+    if (!reveal) {
       return { ...base, options: q.options.map((o) => ({ id: o.id, content: o.content })) };
     }
     const correct = q.options.some((o) => o.id === selectedAnswerOptionId && o.isCorrect);
@@ -142,8 +143,8 @@ async function start(accountId, examId) {
       current = null;
     }
     if (!current) {
-      if ((await repo.countAttempts(studentId, examId)) >= MAX_ATTEMPTS) {
-        throw new AppError(`Bạn đã làm đủ ${MAX_ATTEMPTS} lần cho đề thi này`, 400);
+      if ((await repo.countAttempts(studentId, examId)) >= exam.maxAttempts) {
+        throw new AppError(`Bạn đã làm đủ ${exam.maxAttempts} lần cho đề thi này`, 400);
       }
       current = await repo.createAttempt(studentId, examId);
     }
