@@ -383,6 +383,7 @@ model Exam {
   status          ExamStatus @default(BAN_NHAP)
   createdAt       DateTime   @default(now())
   showAnswers     Boolean    @default(false)
+  maxAttempts     Int        @default(3)
   courseId        String     @db.VarChar(36)
 
   course    Course         @relation(fields: [courseId], references: [id])

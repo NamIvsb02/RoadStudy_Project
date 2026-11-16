@@ -25,6 +25,16 @@ import TeacherApprovalPage from "../pages/admin/teacherApproval/TeacherApprovalP
 import LeaderRoute from "../components/LeaderRoute";
 import PermissionsPage from "../pages/admin/PermissionsPage";
 import TeacherDashboardPage from "../pages/teacher/TeacherDashboardPage";
+import ExamLayout from "../components/ExamLayout";
+import ExamDetailPage from "../pages/exam/ExamDetailPage";
+import ExamTakePage from "../pages/exam/ExamTakePage";
+import ExamListPage from "../pages/exam/ExamListPage";
+import ExamReviewPage from "../pages/exam/ExamReviewPage";
+import ReportsPage from "../pages/admin/ReportsPage";
+import ExamNewPage from "../pages/teacher/ExamNewPage";
+import ExamSubmissionsPage from "../pages/teacher/ExamSubmissionsPage";
+import TeacherAttemptPage from "../pages/teacher/TeacherAttemptPage";
+import TeacherExamsPage from "../pages/teacher/TeacherExamsPage";
 
 export default function AppRoutes() {
   return (
@@ -34,6 +44,11 @@ export default function AppRoutes() {
         <Route path={ROUTES.COURSES} element={<CourseListPage />} />
         <Route path={ROUTES.COURSE_DETAIL} element={<CourseDetailPage />} />
         <Route path={ROUTES.TEACHER_PROFILE} element={<TeacherProfilePage />} />
+        <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
+          <Route path={ROUTES.EXAM_DETAIL} element={<ExamDetailPage />} />
+          <Route path={ROUTES.EXAMS} element={<ExamListPage />} />
+          <Route path={ROUTES.ATTEMPT_DETAIL} element={<ExamReviewPage />} />
+        </Route>
         <Route path={ROUTES.FORBIDDEN} element={<ForbiddenPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
@@ -49,6 +64,10 @@ export default function AppRoutes() {
       <Route element={<ProtectedRoute allowedRoles={[ROLES.TEACHER]} />}>
         <Route path={ROUTES.TEACHER.ROOT} element={<ManageLayout />}>
           <Route index element={<TeacherDashboardPage />} />
+          <Route path={ROUTES.TEACHER.EXAM_NEW} element={<ExamNewPage />} />
+          <Route path={ROUTES.TEACHER.EXAM_SUBMISSIONS} element={<ExamSubmissionsPage />} />
+          <Route path={ROUTES.TEACHER.ATTEMPT} element={<TeacherAttemptPage />} />
+          <Route path={ROUTES.TEACHER.EXAMS} element={<TeacherExamsPage />} />
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
       </Route>
@@ -64,7 +83,15 @@ export default function AppRoutes() {
           <Route element={<LeaderRoute />}>
             <Route path={ROUTES.ADMIN.PERMISSIONS} element={<PermissionsPage />} />
           </Route>
+          <Route element={<PermissionRoute permission={PERMISSIONS.XU_LY_BAO_CAO_VI_PHAM} />}>
+            <Route path={ROUTES.ADMIN.REPORTS} element={<ReportsPage />} />
+          </Route>
           <Route path="*" element={<ComingSoonPage />} />
+        </Route>
+      </Route>
+      <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
+        <Route element={<ExamLayout />}>
+          <Route path={ROUTES.EXAM_TAKE} element={<ExamTakePage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
