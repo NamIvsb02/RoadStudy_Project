@@ -1,15 +1,10 @@
-const { CourseStatus, CategoryStatus, ApprovalStatus } = require('@prisma/client');
-const AppError = require('../utils/AppError');
-const courseRepository = require('../repositories/courseRepository');
-const categoryRepository = require('../repositories/categoryRepository');
+const { CourseStatus, CategoryStatus, ApprovalStatus } = require("@prisma/client");
+const AppError = require("../utils/AppError");
+const courseRepository = require("../repositories/courseRepository");
+const categoryRepository = require("../repositories/categoryRepository");
+const notificationService = require("./notificationService");
 
-
-const TEACHER_EDITABLE = [
-  CourseStatus.BAN_NHAP,
-  CourseStatus.DA_PHE_DUYET,
-  CourseStatus.DANG_MO,
-  CourseStatus.TAM_NGUNG,
-];
+const TEACHER_EDITABLE = [CourseStatus.BAN_NHAP, CourseStatus.DA_PHE_DUYET, CourseStatus.DANG_MO, CourseStatus.TAM_NGUNG];
 
 const ADMIN_TRANSITIONS = {
   [CourseStatus.CHO_DUYET]: [CourseStatus.DA_PHE_DUYET, CourseStatus.BAN_NHAP],
@@ -28,24 +23,24 @@ const buildPagination = ({ page, limit }, total) => ({
 // ---------- hàm dùng chung ----------
 const getTeacherOrThrow = async (accountId) => {
   const teacher = await courseRepository.findTeacherByAccountId(accountId);
-  if (!teacher) throw new AppError('Tài khoản này không phải giáo viên', 403);
+  if (!teacher) throw new AppError("Tài khoản này không phải giáo viên", 403);
   if (teacher.approvalStatus !== ApprovalStatus.DA_DUYET) {
-    throw new AppError('Tài khoản giáo viên chưa được quản trị viên duyệt', 403);
+    throw new AppError("Tài khoản giáo viên chưa được quản trị viên duyệt", 403);
   }
   return teacher;
 };
 
 const getOwnCourseOrThrow = async (id, teacherId) => {
   const course = await courseRepository.findOwnById(id, teacherId);
-  if (!course) throw new AppError('Khóa học không tồn tại', 404);
+  if (!course) throw new AppError("Khóa học không tồn tại", 404);
   return course;
 };
 
 const assertCategoryUsable = async (categoryId) => {
   const category = await categoryRepository.findById(categoryId);
-  if (!category) throw new AppError('Danh mục không tồn tại', 400);
+  if (!category) throw new AppError("Danh mục không tồn tại", 400);
   if (category.status !== CategoryStatus.HOAT_DONG) {
-    throw new AppError('Danh mục đang bị ẩn, không thể dùng cho khóa học', 400);
+    throw new AppError("Danh mục đang bị ẩn, không thể dùng cho khóa học", 400);
   }
 };
 
@@ -63,7 +58,7 @@ const createByTeacher = async (accountId, data) => {
 
 const getMyList = async (accountId, { q, status, ...pg }) => {
   if (status && !Object.values(CourseStatus).includes(status)) {
-    throw new AppError('Trạng thái lọc không hợp lệ', 400);
+    throw new AppError("Trạng thái lọc không hợp lệ", 400);
   }
   const teacher = await getTeacherOrThrow(accountId);
   const { items, total } = await courseRepository.findAndCount({
@@ -86,7 +81,7 @@ const updateByTeacher = async (accountId, id, data) => {
   const course = await getOwnCourseOrThrow(id, teacher.id);
 
   if (!TEACHER_EDITABLE.includes(course.status)) {
-    throw new AppError('Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa', 409);
+    throw new AppError("Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa", 409);
   }
 
   if (data.categoryId !== undefined && data.categoryId !== course.categoryId) {
@@ -95,7 +90,7 @@ const updateByTeacher = async (accountId, id, data) => {
 
   const start = data.startDate ?? course.startDate;
   const end = data.endDate ?? course.endDate;
-  if (end <= start) throw new AppError('Ngày kết thúc phải sau ngày bắt đầu', 400);
+  if (end <= start) throw new AppError("Ngày kết thúc phải sau ngày bắt đầu", 400);
 
   return courseRepository.update(id, data);
 };
@@ -105,23 +100,19 @@ const submitForApproval = async (accountId, id) => {
   const course = await getOwnCourseOrThrow(id, teacher.id);
 
   if (course.status !== CourseStatus.BAN_NHAP) {
-    throw new AppError('Chỉ khóa học ở trạng thái nháp mới được gửi duyệt', 409);
+    throw new AppError("Chỉ khóa học ở trạng thái nháp mới được gửi duyệt", 409);
   }
   await assertCategoryUsable(course.categoryId);
 
-  const changed = await courseRepository.transition(
-    id,
-    [CourseStatus.BAN_NHAP],
-    CourseStatus.CHO_DUYET
-  );
-  if (!changed) throw new AppError('Trạng thái khóa học vừa thay đổi, vui lòng tải lại', 409);
+  const changed = await courseRepository.transition(id, [CourseStatus.BAN_NHAP], CourseStatus.CHO_DUYET);
+  if (!changed) throw new AppError("Trạng thái khóa học vừa thay đổi, vui lòng tải lại", 409);
   return courseRepository.findById(id);
 };
 
 //QUẢN TRỊ VIÊN
 const getAdminList = async ({ q, status, categoryId, teacherId, ...pg }) => {
   if (status && !Object.values(CourseStatus).includes(status)) {
-    throw new AppError('Trạng thái lọc không hợp lệ', 400);
+    throw new AppError("Trạng thái lọc không hợp lệ", 400);
   }
   const { items, total } = await courseRepository.findAndCount({
     q,
@@ -136,7 +127,7 @@ const getAdminList = async ({ q, status, categoryId, teacherId, ...pg }) => {
 
 const getAdminById = async (id) => {
   const course = await courseRepository.findById(id);
-  if (!course) throw new AppError('Khóa học không tồn tại', 404);
+  if (!course) throw new AppError("Khóa học không tồn tại", 404);
   return course;
 };
 
@@ -150,13 +141,22 @@ const changeStatusByAdmin = async (id, toStatus) => {
   // Khi mở đăng ký: giáo viên phải đã được duyệt và danh mục phải đang hiển thị
   if (toStatus === CourseStatus.DANG_MO) {
     if (course.teacher.approvalStatus !== ApprovalStatus.DA_DUYET) {
-      throw new AppError('Giáo viên phụ trách chưa được duyệt, không thể mở khóa học', 409);
+      throw new AppError("Giáo viên phụ trách chưa được duyệt, không thể mở khóa học", 409);
     }
     await assertCategoryUsable(course.categoryId);
   }
 
   const changed = await courseRepository.transition(id, [course.status], toStatus);
-  if (!changed) throw new AppError('Trạng thái khóa học vừa thay đổi, vui lòng tải lại', 409);
+  if (!changed) throw new AppError("Trạng thái khóa học vừa thay đổi, vui lòng tải lại", 409);
+  if (course.status === CourseStatus.CHO_DUYET) {
+    const approved = toStatus === CourseStatus.DA_PHE_DUYET;
+    await notificationService.notifyTeacher(course.teacherId, {
+      type: approved ? "COURSE_APPROVED" : "COURSE_REJECTED",
+      title: approved ? "Khóa học đã được duyệt" : "Khóa học bị từ chối, cần chỉnh sửa",
+      body: course.courseName,
+      link: "/teacher/courses",
+    });
+  }
   return courseRepository.findById(id);
 };
 
@@ -191,7 +191,7 @@ const getPublicList = async ({ q, categoryId, teacherId, minPrice, maxPrice, sor
 // Khóa chưa mở, đã ngưng/kết thúc hoặc thuộc danh mục ẩn đều trả 404 như không tồn tại
 const getPublicById = async (id) => {
   const course = await courseRepository.findPublicById(id);
-  if (!course) throw new AppError('Khóa học không tồn tại', 404);
+  if (!course) throw new AppError("Khóa học không tồn tại", 404);
   const stats = await courseRepository.getRatingStats([course.id]);
   return attachRating(course, stats);
 };

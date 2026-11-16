@@ -1,3 +1,9 @@
+import dayjs from "dayjs";
+import "dayjs/locale/vi";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
+dayjs.locale("vi");
 const VN_TIME_ZONE = "Asia/Ho_Chi_Minh";
 const ASSET_URL = (import.meta.env.VITE_ASSET_URL ?? "").replace(/\/$/, "");
 
@@ -56,3 +62,5 @@ export const getInitials = (name) => {
     .map((word) => word[0].toUpperCase())
     .join("");
 };
+
+export const timeAgo = (iso) => (toDate(iso) ? dayjs(iso).fromNow() : "");

@@ -3,6 +3,7 @@ const AppError = require("../utils/AppError");
 const repo = require("../repositories/submissionRepository");
 const examRepo = require("../repositories/examRepository");
 const { assertCanManageCourse } = require("./examService");
+const notificationService = require("./notificationService");
 
 const { Decimal } = Prisma;
 const GRACE_MS = 10 * 1000; // cho phép trễ nhẹ do mạng khi lưu/nộp bài
@@ -184,6 +185,12 @@ async function submit(accountId, attemptId, answers) {
 
   const done = await repo.findAttemptById(attemptId);
   const totalScore = await repo.sumQuestionScore(done.examId);
+  await notificationService.notifyCourseTeacher(done.exam.courseId, {
+    type: "EXAM_SUBMITTED",
+    title: "Học viên vừa nộp bài",
+    body: done.exam.examName,
+    link: `/teacher/exams/${done.examId}/submissions`,
+  });
   return { ...toAttemptDto(done, totalScore), autoSubmitted: expired };
 }
 

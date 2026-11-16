@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import { ROUTES } from "../../constants/routes";
@@ -7,6 +7,7 @@ import { useAuth } from "../../hooks/useAuth";
 import MainNav from "./MainNav";
 import SearchBox from "./SearchBox";
 import UserMenu from "./UserMenu";
+import NotificationBell from "./NotificationBell";
 
 const iconButton = "inline-flex size-10 items-center justify-center rounded-full bg-surface text-primary transition-colors hover:bg-line";
 
@@ -28,10 +29,7 @@ export default function Header() {
           </button>
           {account ? (
             <>
-              {/* TODO: nối API thông báo */}
-              <button type="button" aria-label="Thông báo" className={iconButton}>
-                <Bell size={20} />
-              </button>
+              <NotificationBell buttonClassName="bg-surface text-primary hover:bg-line" />
               <UserMenu />
             </>
           ) : (

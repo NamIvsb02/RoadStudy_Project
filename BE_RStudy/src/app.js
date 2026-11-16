@@ -26,6 +26,7 @@ const submissionRoutes = require("./routes/submissionRoutes");
 const chatbotRoutes = require("./routes/chatbotRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use("/api/exam", examRoutes);
 app.use("/api/submission", submissionRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/recommendation", recommendationRoutes);
+app.use("/api/notification", notificationRoutes);
 app.use("/api/report", reportRoutes);
 
 app.use(

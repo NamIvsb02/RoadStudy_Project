@@ -6,6 +6,8 @@ const { generateOtpCode, hashOtp, compareOtp } = require("../utils/otp");
 const { sendMail } = require("../config/mail");
 const AppError = require("../utils/AppError");
 const adminService = require("./adminService");
+const notificationService = require("./notificationService");
+const { PERMISSIONS } = require("../constants/permissions");
 
 const OTP_EXPIRES_MINUTES = Number(process.env.OTP_EXPIRES_MINUTES) || 10;
 
@@ -56,6 +58,14 @@ const verifyEmail = async (email, code) => {
 
   await authRepository.consumeOtp(otp.id);
   await authRepository.updateAccountStatus(account.id, "HOAT_DONG");
+  if (account.role === "TEACHER") {
+    await notificationService.notifyAdmins(PERMISSIONS.DUYET_GIAO_VIEN, {
+      type: "TEACHER_PENDING",
+      title: "Có giáo viên mới chờ duyệt",
+      body: account.fullName,
+      link: "/admin/teacher-approval",
+    });
+  }
   return { message: "Xác minh email thành công" };
 };
 

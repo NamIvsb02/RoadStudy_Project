@@ -1,6 +1,8 @@
 const { ReportStatus } = require("@prisma/client");
 const AppError = require("../utils/AppError");
 const reportRepository = require("../repositories/reportRepository");
+const { PERMISSIONS } = require("../constants/permissions");
+const notificationService = require("./notificationService");
 
 const FINAL = [ReportStatus.DA_XU_LY, ReportStatus.TU_CHOI];
 
@@ -24,13 +26,15 @@ const create = async (accountId, { reason, content, reviewId, commentId, replyId
   const duplicated = await reportRepository.findOpenDuplicate(accountId, target);
   if (duplicated) throw new AppError("Bạn đã báo cáo nội dung này và đang chờ xử lý", 409);
 
-  return reportRepository.create({
+  const report = await reportRepository.create({
     reason,
     content,
     reporterAccountId: accountId,
     reportedAccountId: found.ownerAccountId,
     ...target,
   });
+  await notificationService.notifyAdmins(PERMISSIONS.XU_LY_BAO_CAO_VI_PHAM, { type: "REPORT_PENDING", title: "Có báo cáo vi phạm mới", body: reason, link: "/admin/reports" });
+  return report;
 };
 
 // ADMIN

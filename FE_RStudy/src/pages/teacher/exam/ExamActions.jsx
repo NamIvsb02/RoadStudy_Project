@@ -9,19 +9,25 @@ const NEXT = {
     { status: "BAN_NHAP", label: "Về bản nháp", needsEmpty: true },
   ],
 };
+const ADMIN_NEXT = { BAN_NHAP: [{ status: "DA_PHE_DUYET", label: "Phê duyệt" }] };
 
 const actionClass = "text-xs font-semibold text-primary hover:underline disabled:opacity-50";
 
-export default function ExamActions({ exam, busy, onChangeStatus, onDelete }) {
+export default function ExamActions({ exam, busy, isAdmin = false, onChangeStatus, onDelete, onPreview }) {
   const empty = exam.attemptCount === 0;
-  const steps = (NEXT[exam.status] ?? []).filter((step) => !step.needsEmpty || empty);
+  const steps = [...(isAdmin ? (ADMIN_NEXT[exam.status] ?? []) : []), ...(NEXT[exam.status] ?? [])].filter((step) => !step.needsEmpty || empty);
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-      <Link to={generatePath(ROUTES.TEACHER.EXAM_SUBMISSIONS, { id: exam.id })} className={actionClass}>
-        Bài làm
-      </Link>
-      {exam.status === "BAN_NHAP" && <span className="text-xs text-muted">Chờ admin phê duyệt</span>}
+      <button type="button" onClick={() => onPreview(exam)} className={actionClass}>
+        Xem đề
+      </button>
+      {!isAdmin && (
+        <Link to={generatePath(ROUTES.TEACHER.EXAM_SUBMISSIONS, { id: exam.id })} className={actionClass}>
+          Bài làm
+        </Link>
+      )}
+      {!isAdmin && exam.status === "BAN_NHAP" && <span className="text-xs text-muted">Chờ admin phê duyệt</span>}
       {steps.map((step) => (
         <button key={step.status} type="button" disabled={busy} onClick={() => onChangeStatus(exam, step.status)} className={actionClass}>
           {step.label}

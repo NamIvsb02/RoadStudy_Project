@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, LayoutDashboard, Loader2, LogOut, Package, User } from "lucide-react";
+import { ChevronDown, LayoutDashboard, Loader2, LogOut, Package, User, BookOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { dropdown } from "../../constants/motion";
 import { ROLES } from "../../constants/roles";
@@ -18,6 +18,7 @@ const getMenuItems = (role) => {
   }
   items.push({ label: "Hồ sơ", to: ROUTES.PROFILE, icon: User });
   if (role === ROLES.STUDENT) {
+    items.push({ label: "Khóa học của tôi", to: ROUTES.MY_COURSES, icon: BookOpen });
     items.push({ label: "Kho vật phẩm", to: ROUTES.ITEMS, icon: Package });
   }
   return items;

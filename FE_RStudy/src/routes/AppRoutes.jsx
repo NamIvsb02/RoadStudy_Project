@@ -35,6 +35,10 @@ import ExamNewPage from "../pages/teacher/ExamNewPage";
 import ExamSubmissionsPage from "../pages/teacher/ExamSubmissionsPage";
 import TeacherAttemptPage from "../pages/teacher/TeacherAttemptPage";
 import TeacherExamsPage from "../pages/teacher/TeacherExamsPage";
+import AdminExamsPage from "../pages/admin/AdminExamsPage";
+import ResourceListPage from "../pages/resource/ResourceListPage";
+import TeacherResourcesPage from "../pages/teacher/TeacherResourcesPage";
+import MyCoursesPage from "../pages/student/MyCoursesPage";
 
 export default function AppRoutes() {
   return (
@@ -44,10 +48,12 @@ export default function AppRoutes() {
         <Route path={ROUTES.COURSES} element={<CourseListPage />} />
         <Route path={ROUTES.COURSE_DETAIL} element={<CourseDetailPage />} />
         <Route path={ROUTES.TEACHER_PROFILE} element={<TeacherProfilePage />} />
+        <Route path={ROUTES.RESOURCES} element={<ResourceListPage />} />
         <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
           <Route path={ROUTES.EXAM_DETAIL} element={<ExamDetailPage />} />
           <Route path={ROUTES.EXAMS} element={<ExamListPage />} />
           <Route path={ROUTES.ATTEMPT_DETAIL} element={<ExamReviewPage />} />
+          <Route path={ROUTES.MY_COURSES} element={<MyCoursesPage />} />
         </Route>
         <Route path={ROUTES.FORBIDDEN} element={<ForbiddenPage />} />
         <Route element={<ProtectedRoute />}>
@@ -68,6 +74,7 @@ export default function AppRoutes() {
           <Route path={ROUTES.TEACHER.EXAM_SUBMISSIONS} element={<ExamSubmissionsPage />} />
           <Route path={ROUTES.TEACHER.ATTEMPT} element={<TeacherAttemptPage />} />
           <Route path={ROUTES.TEACHER.EXAMS} element={<TeacherExamsPage />} />
+          <Route path={ROUTES.TEACHER.RESOURCES} element={<TeacherResourcesPage />} />
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
       </Route>
@@ -85,6 +92,9 @@ export default function AppRoutes() {
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.XU_LY_BAO_CAO_VI_PHAM} />}>
             <Route path={ROUTES.ADMIN.REPORTS} element={<ReportsPage />} />
+          </Route>
+          <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_BAI_THI} />}>
+            <Route path={ROUTES.ADMIN.EXAMS} element={<AdminExamsPage />} />
           </Route>
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
