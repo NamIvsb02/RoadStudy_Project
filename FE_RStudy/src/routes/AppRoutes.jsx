@@ -39,6 +39,10 @@ import AdminExamsPage from "../pages/admin/AdminExamsPage";
 import ResourceListPage from "../pages/resource/ResourceListPage";
 import TeacherResourcesPage from "../pages/teacher/TeacherResourcesPage";
 import MyCoursesPage from "../pages/student/MyCoursesPage";
+import TeacherCoursesPage from "../pages/teacher/TeacherCoursesPage";
+import CourseNewPage from "../pages/teacher/CourseNewPage";
+import CourseEditPage from "../pages/teacher/CourseEditPage";
+import AdminCoursesPage from "../pages/admin/AdminCoursesPage";
 
 export default function AppRoutes() {
   return (
@@ -75,6 +79,9 @@ export default function AppRoutes() {
           <Route path={ROUTES.TEACHER.ATTEMPT} element={<TeacherAttemptPage />} />
           <Route path={ROUTES.TEACHER.EXAMS} element={<TeacherExamsPage />} />
           <Route path={ROUTES.TEACHER.RESOURCES} element={<TeacherResourcesPage />} />
+          <Route path={ROUTES.TEACHER.COURSES} element={<TeacherCoursesPage />} />
+          <Route path={ROUTES.TEACHER.COURSE_NEW} element={<CourseNewPage />} />
+          <Route path={ROUTES.TEACHER.COURSE_EDIT} element={<CourseEditPage />} />
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
       </Route>
@@ -95,6 +102,9 @@ export default function AppRoutes() {
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_BAI_THI} />}>
             <Route path={ROUTES.ADMIN.EXAMS} element={<AdminExamsPage />} />
+          </Route>
+          <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_KHOA_HOC} />}>
+            <Route path={ROUTES.ADMIN.COURSES} element={<AdminCoursesPage />} />
           </Route>
           <Route path="*" element={<ComingSoonPage />} />
         </Route>

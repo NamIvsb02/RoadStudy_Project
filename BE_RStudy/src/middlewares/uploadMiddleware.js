@@ -50,4 +50,5 @@ module.exports = {
   buildUploader,
   uploadAvatar: buildUploader({ folder: "avatars", allowedMimes: IMAGE_MIMES, maxSizeMB: 2, field: "avatar" }),
   uploadResource: buildUploader({ folder: "resources", allowedMimes: DOC_MIMES, maxSizeMB: 10, field: "file" }),
+  uploadCover: buildUploader({ folder: "covers", allowedMimes: IMAGE_MIMES, maxSizeMB: 3, field: "cover" }),
 };

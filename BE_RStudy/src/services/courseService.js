@@ -3,6 +3,7 @@ const AppError = require("../utils/AppError");
 const courseRepository = require("../repositories/courseRepository");
 const categoryRepository = require("../repositories/categoryRepository");
 const notificationService = require("./notificationService");
+const { PERMISSIONS } = require("../constants/permissions");
 
 const TEACHER_EDITABLE = [CourseStatus.BAN_NHAP, CourseStatus.DA_PHE_DUYET, CourseStatus.DANG_MO, CourseStatus.TAM_NGUNG];
 
@@ -106,6 +107,12 @@ const submitForApproval = async (accountId, id) => {
 
   const changed = await courseRepository.transition(id, [CourseStatus.BAN_NHAP], CourseStatus.CHO_DUYET);
   if (!changed) throw new AppError("Trạng thái khóa học vừa thay đổi, vui lòng tải lại", 409);
+  await notificationService.notifyAdmins(PERMISSIONS.QUAN_LY_KHOA_HOC, {
+    type: "COURSE_PENDING",
+    title: "Có khóa học mới chờ duyệt",
+    body: course.courseName,
+    link: "/admin/courses",
+  });
   return courseRepository.findById(id);
 };
 

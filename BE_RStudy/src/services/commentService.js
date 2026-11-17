@@ -117,7 +117,7 @@ const createReply = async (user, commentId, content) => {
       type: "COMMENT_REPLIED",
       title: "Có phản hồi mới vào bình luận của bạn",
       body: content.slice(0, 100),
-      link: `/course/${comment.courseId}`,
+      link: `/course/${comment.course.id}`,
     });
   }
   return { ...created, isMine: true };

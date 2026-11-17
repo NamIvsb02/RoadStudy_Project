@@ -5,11 +5,13 @@ const validate = require("../middlewares/validateMiddleware");
 const { idParamSchema, createCourseSchema, updateCourseSchema, changeStatusSchema } = require("../validators/courseValidator");
 const { requirePermission } = require("../middlewares/permissionMiddleware");
 const { PERMISSIONS } = require("../constants/permissions");
+const { uploadCover } = require("../middlewares/uploadMiddleware");
 
 const teacherOnly = [authenticate, authorize("TEACHER")];
 const adminOnly = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC)];
 //GIÁO VIÊN
 router.post("/", ...teacherOnly, validate(createCourseSchema), courseController.create);
+router.post("/cover", ...teacherOnly, uploadCover, courseController.uploadCover);
 router.get("/mine", ...teacherOnly, courseController.getMyList);
 router.get("/mine/:id", ...teacherOnly, validate(idParamSchema, "params"), courseController.getMyById);
 router.put("/:id", ...teacherOnly, validate(idParamSchema, "params"), validate(updateCourseSchema), courseController.update);

@@ -27,6 +27,8 @@ export const ROUTES = {
     EXAM_NEW: "/teacher/exams/new",
     EXAM_SUBMISSIONS: "/teacher/exams/:id/submissions",
     ATTEMPT: "/teacher/attempts/:id",
+    COURSE_NEW: "/teacher/courses/new",
+    COURSE_EDIT: "/teacher/courses/:id/edit",
   },
   ADMIN: {
     ROOT: "/admin",

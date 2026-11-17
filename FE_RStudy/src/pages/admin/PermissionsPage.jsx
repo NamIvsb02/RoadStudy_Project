@@ -6,9 +6,9 @@ import Button from "../../components/ui/Button";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { useAuth } from "../../hooks/useAuth";
 import { useFetch } from "../../hooks/useFetch";
-import AdminList from "./permissions/AdminList";
-import CreateAdminDialog from "./permissions/CreateAdminDialog";
-import PermissionEditor from "./permissions/PermissionEditor";
+import AdminList from "./permission/AdminList";
+import CreateAdminDialog from "./permission/CreateAdminDialog";
+import PermissionEditor from "./permission/PermissionEditor";
 
 const fetchAdmins = () => adminApi.getAdministrators({ limit: 100 });
 const fetchFunctions = () => adminApi.getSystemFunctions();
