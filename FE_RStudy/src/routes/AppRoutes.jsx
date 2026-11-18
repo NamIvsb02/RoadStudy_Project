@@ -43,6 +43,7 @@ import TeacherCoursesPage from "../pages/teacher/TeacherCoursesPage";
 import CourseNewPage from "../pages/teacher/CourseNewPage";
 import CourseEditPage from "../pages/teacher/CourseEditPage";
 import AdminCoursesPage from "../pages/admin/AdminCoursesPage";
+import AdminCouponsPage from "../pages/admin/AdminCouponsPage";
 
 export default function AppRoutes() {
   return (
@@ -105,6 +106,9 @@ export default function AppRoutes() {
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_KHOA_HOC} />}>
             <Route path={ROUTES.ADMIN.COURSES} element={<AdminCoursesPage />} />
+          </Route>
+          <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_MA_GIAM_GIA} />}>
+            <Route path={ROUTES.ADMIN.COUPONS} element={<AdminCouponsPage />} />
           </Route>
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
