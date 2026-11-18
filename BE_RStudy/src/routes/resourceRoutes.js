@@ -5,6 +5,11 @@ const { authenticate, authorize } = require("../middlewares/authMiddleware");
 const { uploadResource } = require("../middlewares/uploadMiddleware");
 const validate = require("../middlewares/validateMiddleware");
 const { idParamSchema, createResourceSchema } = require("../validators/resourceValidator");
+const { requirePermission } = require("../middlewares/permissionMiddleware");
+const { PERMISSIONS } = require("../constants/permissions");
+
+const checkAdminPermission = requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC);
+const adminNeedsPermission = (req, res, next) => (req.user.role === "ADMINISTRATOR" ? checkAdminPermission(req, res, next) : next());
 
 // Nếu validate body fail thì xóa file multer đã lưu
 const cleanupOnError = (mw) => (req, res, next) =>
@@ -21,6 +26,5 @@ router.get("/:id", validate(idParamSchema, "params"), resourceController.getById
 router.post("/", authenticate, authorize("TEACHER"), uploadResource, cleanupOnError(validate(createResourceSchema)), resourceController.create);
 
 // TEACHER (của mình) + ADMINISTRATOR (tất cả)
-router.delete("/:id", authenticate, authorize("TEACHER", "ADMINISTRATOR"), validate(idParamSchema, "params"), resourceController.remove);
-
+router.delete("/:id", authenticate, authorize("TEACHER", "ADMINISTRATOR"), adminNeedsPermission, validate(idParamSchema, "params"), resourceController.remove);
 module.exports = router;

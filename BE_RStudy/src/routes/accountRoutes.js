@@ -4,14 +4,17 @@ const router = express.Router();
 const controller = require("../controllers/accountController");
 const validate = require("../middlewares/validateMiddleware");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
+const { requirePermission } = require("../middlewares/permissionMiddleware");
 const { uploadAvatar } = require("../middlewares/uploadMiddleware");
+const { PERMISSIONS } = require("../constants/permissions");
 const { updateProfileSchema, updateStatusSchema } = require("../validators/accountValidator");
+
+const manageAccounts = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.QUAN_LY_TAI_KHOAN)];
 
 router.patch("/profile", authenticate, validate(updateProfileSchema), controller.updateProfile);
 router.post("/avatar", authenticate, uploadAvatar, controller.updateAvatar);
 
-// TODO: thay authorize bằng requirePermission('QUAN_LY_TAI_KHOAN') khi API Admin xong
-router.get("/", authenticate, authorize("ADMINISTRATOR"), controller.list);
-router.patch("/:id/status", authenticate, authorize("ADMINISTRATOR"), validate(updateStatusSchema), controller.changeStatus);
+router.get("/", ...manageAccounts, controller.list);
+router.patch("/:id/status", ...manageAccounts, validate(updateStatusSchema), controller.changeStatus);
 
 module.exports = router;

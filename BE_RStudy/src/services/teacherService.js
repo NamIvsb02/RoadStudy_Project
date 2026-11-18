@@ -33,4 +33,35 @@ const listForAdmin = async (query) => {
 
 const setApproval = (id, approvalStatus) => teacherRepository.updateApproval(id, approvalStatus);
 
-module.exports = { listPublic, getPublic, listForAdmin, setApproval };
+const RECENT_DAYS = 7;
+
+const toRecentAttempt = (attempt) => {
+  const scored = attempt.score !== null;
+  return {
+    id: attempt.id,
+    studentName: attempt.student.account.fullName,
+    examName: attempt.exam.examName,
+    score: scored ? Number(attempt.score).toFixed(2) : null,
+    passed: scored ? Number(attempt.score) >= Number(attempt.exam.passingScore) : null,
+    status: attempt.status,
+  };
+};
+
+const getMyStats = async (accountId) => {
+  const teacher = await teacherRepository.findByAccountId(accountId);
+  if (!teacher) throw new AppError("Không tìm thấy hồ sơ giáo viên", 404);
+
+  const since = new Date(Date.now() - RECENT_DAYS * 24 * 60 * 60 * 1000);
+  const [openCourses, openExams, draftExams, attemptsLast7Days, attempts, courses] = await teacherRepository.getStats(teacher.id, since);
+
+  return {
+    openCourses,
+    openExams,
+    draftExams,
+    attemptsLast7Days,
+    recentAttempts: attempts.map(toRecentAttempt),
+    courses: courses.map(({ _count, ...course }) => ({ ...course, examCount: _count.exams })),
+  };
+};
+
+module.exports = { listPublic, getPublic, listForAdmin, setApproval, getMyStats };

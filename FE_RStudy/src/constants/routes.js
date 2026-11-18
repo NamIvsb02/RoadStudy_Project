@@ -17,8 +17,31 @@ export const ROUTES = {
   PROFILE: "/profile",
   FORBIDDEN: "/forbidden",
   STUDENT: { ROOT: "/student" },
-  TEACHER: { ROOT: "/teacher" },
-  ADMIN: { ROOT: "/admin" },
+  TEACHER: {
+    ROOT: "/teacher",
+    COURSES: "/teacher/courses",
+    EXAMS: "/teacher/exams",
+    SUBMISSIONS: "/teacher/submissions",
+    RESOURCES: "/teacher/resources",
+    EXAM_NEW: "/teacher/exams/new",
+    EXAM_SUBMISSIONS: "/teacher/exams/:id/submissions",
+    ATTEMPT: "/teacher/attempts/:id",
+  },
+  ADMIN: {
+    ROOT: "/admin",
+    ACCOUNTS: "/admin/accounts",
+    TEACHER_APPROVAL: "/admin/teacher-approval",
+    PAYMENTS: "/admin/payments",
+    REFUNDS: "/admin/refunds",
+    REPORTS: "/admin/reports",
+    COUPONS: "/admin/coupons",
+    EXAMS: "/admin/exams",
+    COURSES: "/admin/courses",
+    PERMISSIONS: "/admin/permissions",
+  },
+  EXAM_DETAIL: "/exams/:id",
+  EXAM_TAKE: "/exams/:id/take",
+  ATTEMPT_DETAIL: "/attempts/:id",
 };
 
 export const ROLE_HOME = {
