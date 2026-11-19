@@ -2,7 +2,7 @@ const prisma = require("../config/database");
 
 const include = {
   category: { select: { id: true, categoryName: true } },
-  uploadedBy: { select: { id: true } },
+  uploadedBy: { select: { id: true, account: { select: { fullName: true } } } },
 };
 
 exports.findTeacherByAccountId = (accountId) => prisma.teacher.findUnique({ where: { accountId } });

@@ -11,6 +11,7 @@ import { isLeader } from "../utils/permission";
 import UserMenu from "./common/UserMenu";
 import { getManageNav } from "./manage/manageNav";
 import Avatar from "./ui/Avatar";
+import NotificationBell from "./common/NotificationBell";
 
 const APPROVAL_NOTICE = {
   CHO_DUYET: "Hồ sơ của bạn đang chờ quản trị viên duyệt. Trong lúc chờ, bạn chưa tạo được khóa học.",
@@ -94,6 +95,7 @@ export default function ManageLayout() {
             <span className="hidden text-sm text-muted sm:inline">
               {account.fullName} · {roleLabel}
             </span>
+            <NotificationBell />
             <UserMenu />
             <Avatar name={account.fullName} src={account.avatarUrl} size="sm" className="lg:hidden" />
           </div>

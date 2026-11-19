@@ -7,8 +7,8 @@ import { ROLES } from "../../constants/roles";
 import { useAuth } from "../../hooks/useAuth";
 import { useFetch } from "../../hooks/useFetch";
 import { isLeader } from "../../utils/permission";
-import AccountsFilterBar from "./accounts/AccountsFilterBar";
-import AccountsTable from "./accounts/AccountsTable";
+import AccountsFilterBar from "./account/AccountsFilterBar";
+import AccountsTable from "./account/AccountsTable";
 
 const LIMIT = 10;
 const TOGGLEABLE = ["HOAT_DONG", "BI_KHOA"];

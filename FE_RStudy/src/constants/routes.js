@@ -3,7 +3,7 @@ import { ROLES } from "./roles";
 export const ROUTES = {
   HOME: "/",
   COURSES: "/courses",
-  COURSE_DETAIL: "/courses/:id",
+  COURSE_DETAIL: "/course/:id",
   TEACHER_PROFILE: "/teachers/:id",
   EXAMS: "/exams",
   RESOURCES: "/resources",
@@ -16,6 +16,8 @@ export const ROUTES = {
   RESET_PASSWORD: "/reset-password",
   PROFILE: "/profile",
   FORBIDDEN: "/forbidden",
+  MY_COURSES: "/my-courses",
+  PAYMENT: "/payment/:id",
   STUDENT: { ROOT: "/student" },
   TEACHER: {
     ROOT: "/teacher",
@@ -26,6 +28,8 @@ export const ROUTES = {
     EXAM_NEW: "/teacher/exams/new",
     EXAM_SUBMISSIONS: "/teacher/exams/:id/submissions",
     ATTEMPT: "/teacher/attempts/:id",
+    COURSE_NEW: "/teacher/courses/new",
+    COURSE_EDIT: "/teacher/courses/:id/edit",
   },
   ADMIN: {
     ROOT: "/admin",

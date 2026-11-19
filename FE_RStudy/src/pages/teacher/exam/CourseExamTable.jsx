@@ -6,18 +6,26 @@ import StatusBadge from "../../../components/ui/StatusBadge";
 import { useFetch } from "../../../hooks/useFetch";
 import { formatScore } from "../../exam/examFormat";
 import ExamActions from "./ExamActions";
+import ExamPreviewDialog from "./ExamPreviewDialog";
 import ShowAnswersSwitch from "./ShowAnswersSwitch";
 
 const th = "bg-primary/10 px-3 py-2 text-left text-xs font-semibold text-primary";
 const td = "border-b border-line px-3 py-2.5 text-sm text-ink";
+const byNewest = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
 
-export default function CourseExamTable({ courseId }) {
-  const request = useCallback(() => examApi.listByCourse(courseId, { limit: 50 }), [courseId]);
+export default function CourseExamTable({ courses, isAdmin = false }) {
+  const request = useCallback(async () => {
+    const results = await Promise.all(courses.map((course) => examApi.listByCourse(course.id, { limit: 50 })));
+    const items = results.flatMap((res, index) => res.data.items.map((exam) => ({ ...exam, courseName: courses[index].courseName })));
+    return { data: { items: items.sort(byNewest) } };
+  }, [courses]);
   const { data, loading, error, reload } = useFetch(request);
   const [busy, setBusy] = useState(false);
   const [target, setTarget] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [actionError, setActionError] = useState("");
   const items = data?.items ?? [];
+  const showCourse = courses.length > 1;
 
   const run = async (work) => {
     setBusy(true);
@@ -45,11 +53,12 @@ export default function CourseExamTable({ courseId }) {
           {actionError}
         </p>
       )}
-      <DashboardPanel title="Đề thi của khóa học" loading={loading} error={error} empty={items.length === 0} emptyText="Khóa học này chưa có đề thi nào.">
-        <table className="w-full min-w-[880px]">
+      <DashboardPanel title="Đề thi" loading={loading} error={error} empty={items.length === 0} emptyText="Chưa có đề thi nào.">
+        <table className="w-full min-w-[900px]">
           <thead>
             <tr>
               <th className={th}>Đề thi</th>
+              {showCourse && <th className={th}>Khóa học</th>}
               <th className={th}>Số câu</th>
               <th className={th}>Thời gian</th>
               <th className={th}>Điểm đạt</th>
@@ -64,6 +73,7 @@ export default function CourseExamTable({ courseId }) {
             {items.map((exam) => (
               <tr key={exam.id}>
                 <td className={td}>{exam.examName}</td>
+                {showCourse && <td className={td}>{exam.courseName}</td>}
                 <td className={td}>{exam.questionCount}</td>
                 <td className={td}>{exam.durationMinutes} phút</td>
                 <td className={td}>{formatScore(exam.passingScore)}</td>
@@ -76,13 +86,21 @@ export default function CourseExamTable({ courseId }) {
                   <StatusBadge type="ExamStatus" value={exam.status} />
                 </td>
                 <td className={td}>
-                  <ExamActions exam={exam} busy={busy} onChangeStatus={(item, status) => run(() => examApi.changeStatus(item.id, status))} onDelete={setTarget} />
+                  <ExamActions
+                    exam={exam}
+                    busy={busy}
+                    isAdmin={isAdmin}
+                    onPreview={setPreview}
+                    onChangeStatus={(item, status) => run(() => examApi.changeStatus(item.id, status))}
+                    onDelete={setTarget}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </DashboardPanel>
+      <ExamPreviewDialog exam={preview} onClose={() => setPreview(null)} />
       <ConfirmDialog
         open={Boolean(target)}
         title="Xóa đề thi?"

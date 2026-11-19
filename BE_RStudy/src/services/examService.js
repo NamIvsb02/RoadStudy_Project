@@ -1,6 +1,7 @@
 const { Prisma } = require("@prisma/client");
 const AppError = require("../utils/AppError");
 const repo = require("../repositories/examRepository");
+const notificationService = require("./notificationService");
 
 const { Decimal } = Prisma;
 const EXAM_STATUSES = ["BAN_NHAP", "DA_PHE_DUYET", "DANG_MO", "TAM_NGUNG"];
@@ -150,7 +151,7 @@ async function update(user, id, data) {
 
 async function changeStatus(user, id, status) {
   const exam = await loadExam(id);
-  await assertCanManageCourse(user, exam.courseId);
+  const course = await assertCanManageCourse(user, exam.courseId);
 
   const allowedRoles = TRANSITIONS[exam.status]?.[status];
   if (!allowedRoles) throw new AppError(`Không thể chuyển đề thi từ ${exam.status} sang ${status}`, 400);
@@ -168,6 +169,12 @@ async function changeStatus(user, id, status) {
     throw new AppError("Đề thi đã có bài làm, không thể chuyển về nháp", 409);
   }
   await repo.updateExam(id, { status });
+  if (status === "DA_PHE_DUYET") {
+    await notificationService.notifyTeacher(course.teacherId, { type: "EXAM_APPROVED", title: "Đề thi đã được phê duyệt", body: exam.examName, link: "/teacher/exams" });
+  }
+  if (status === "DANG_MO") {
+    await notificationService.notifyCourseStudents(exam.courseId, { type: "EXAM_OPENED", title: "Có đề thi mới", body: exam.examName, link: `/exams/${id}` });
+  }
   return withTotal(await loadExam(id));
 }
 

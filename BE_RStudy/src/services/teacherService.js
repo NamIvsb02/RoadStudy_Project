@@ -1,6 +1,7 @@
 const teacherRepository = require("../repositories/teacherRepository");
 const AppError = require("../utils/AppError");
 const { getPagination, buildPaginationMeta } = require("../utils/pagination");
+const notificationService = require("./notificationService");
 
 const APPROVALS = ["CHO_DUYET", "DA_DUYET", "TU_CHOI"];
 const cleanSearch = (q) => (typeof q === "string" ? q.trim() : "");
@@ -31,8 +32,16 @@ const listForAdmin = async (query) => {
   return { items, pagination: buildPaginationMeta(total, page, limit) };
 };
 
-const setApproval = (id, approvalStatus) => teacherRepository.updateApproval(id, approvalStatus);
-
+const setApproval = async (id, approvalStatus) => {
+  const teacher = await teacherRepository.updateApproval(id, approvalStatus);
+  const approved = approvalStatus === "DA_DUYET";
+  await notificationService.notify(teacher.account.id, {
+    type: approved ? "TEACHER_APPROVED" : "TEACHER_REJECTED",
+    title: approved ? "Hồ sơ giáo viên đã được duyệt" : "Hồ sơ giáo viên bị từ chối",
+    link: "/teacher",
+  });
+  return teacher;
+};
 const RECENT_DAYS = 7;
 
 const toRecentAttempt = (attempt) => {

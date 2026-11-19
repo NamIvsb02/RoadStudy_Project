@@ -31,7 +31,7 @@ export default function MyCoursesPanel({ items, loading }) {
         </tbody>
       </table>
       <div className="mt-4 flex gap-2">
-        <Link to={ROUTES.TEACHER.COURSES} className={`${linkClass} bg-primary text-white hover:bg-primary-dark`}>
+        <Link to={ROUTES.TEACHER.COURSE_NEW} className={`${linkClass} bg-primary text-white hover:bg-primary-dark`}>
           Tạo khóa học
         </Link>
         <Link to={ROUTES.TEACHER.EXAMS} className={`${linkClass} bg-soft text-primary hover:bg-primary/10`}>

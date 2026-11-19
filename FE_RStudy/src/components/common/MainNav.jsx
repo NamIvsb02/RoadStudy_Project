@@ -1,11 +1,14 @@
 import { NavLink } from "react-router-dom";
 import { ROUTES } from "../../constants/routes";
-import { NAV_ITEMS } from "./navItems";
+import { useAuth } from "../../hooks/useAuth";
+import { getNavItems } from "./navItems";
 
 export default function MainNav() {
+  const { account } = useAuth();
+
   return (
     <nav aria-label="Điều hướng chính" className="hidden flex-1 justify-center gap-2 lg:flex">
-      {NAV_ITEMS.map(({ label, to, icon: Icon }) => (
+      {getNavItems(account).map(({ label, to, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}

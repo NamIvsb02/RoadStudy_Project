@@ -4,8 +4,8 @@ import DashboardPanel from "../../components/common/DashboardPanel";
 import Pagination from "../../components/ui/Pagination";
 import { STATUS_MAPS } from "../../constants/statuses";
 import { useFetch } from "../../hooks/useFetch";
-import ReportActionDialog from "./reports/ReportActionDialog";
-import ReportCard from "./reports/ReportCard";
+import ReportActionDialog from "./report/ReportActionDialog";
+import ReportCard from "./report/ReportCard";
 
 const LIMIT = 10;
 const TABS = ["CHO_XU_LY", "DANG_XU_LY", "DA_XU_LY", "TU_CHOI"];
