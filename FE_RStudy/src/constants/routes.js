@@ -17,6 +17,7 @@ export const ROUTES = {
   PROFILE: "/profile",
   FORBIDDEN: "/forbidden",
   MY_COURSES: "/my-courses",
+  PAYMENT: "/payment/:id",
   STUDENT: { ROOT: "/student" },
   TEACHER: {
     ROOT: "/teacher",

@@ -29,6 +29,9 @@ export default function MyCourseCard({ registration }) {
           <Link to={generatePath(ROUTES.COURSE_DETAIL, { id: course.id })} className="text-primary hover:underline">
             Xem khóa học
           </Link>
+          <Link to={generatePath(ROUTES.PAYMENT, { id: registration.id })} className="text-primary hover:underline">
+            {status === "CHO_THANH_TOAN" ? "Thanh toán" : "Hóa đơn"}
+          </Link>
           {status === "DA_THANH_TOAN" && (
             <Link to={ROUTES.EXAMS} className="text-primary hover:underline">
               Đề thi

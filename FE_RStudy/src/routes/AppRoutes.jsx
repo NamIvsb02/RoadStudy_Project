@@ -44,6 +44,9 @@ import CourseNewPage from "../pages/teacher/CourseNewPage";
 import CourseEditPage from "../pages/teacher/CourseEditPage";
 import AdminCoursesPage from "../pages/admin/AdminCoursesPage";
 import AdminCouponsPage from "../pages/admin/AdminCouponsPage";
+import PaymentPage from "../pages/payment/PaymentPage";
+import AdminPaymentsPage from "../pages/admin/AdminPaymentsPage";
+import AdminRefundsPage from "../pages/admin/AdminRefundsPage";
 
 export default function AppRoutes() {
   return (
@@ -54,11 +57,13 @@ export default function AppRoutes() {
         <Route path={ROUTES.COURSE_DETAIL} element={<CourseDetailPage />} />
         <Route path={ROUTES.TEACHER_PROFILE} element={<TeacherProfilePage />} />
         <Route path={ROUTES.RESOURCES} element={<ResourceListPage />} />
+
         <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
           <Route path={ROUTES.EXAM_DETAIL} element={<ExamDetailPage />} />
           <Route path={ROUTES.EXAMS} element={<ExamListPage />} />
           <Route path={ROUTES.ATTEMPT_DETAIL} element={<ExamReviewPage />} />
           <Route path={ROUTES.MY_COURSES} element={<MyCoursesPage />} />
+          <Route path={ROUTES.PAYMENT} element={<PaymentPage />} />
         </Route>
         <Route path={ROUTES.FORBIDDEN} element={<ForbiddenPage />} />
         <Route element={<ProtectedRoute />}>
@@ -109,6 +114,12 @@ export default function AppRoutes() {
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_MA_GIAM_GIA} />}>
             <Route path={ROUTES.ADMIN.COUPONS} element={<AdminCouponsPage />} />
+          </Route>
+          <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_THANH_TOAN} />}>
+            <Route path={ROUTES.ADMIN.PAYMENTS} element={<AdminPaymentsPage />} />
+          </Route>
+          <Route element={<PermissionRoute permission={PERMISSIONS.XU_LY_HOAN_TIEN} />}>
+            <Route path={ROUTES.ADMIN.REFUNDS} element={<AdminRefundsPage />} />
           </Route>
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
