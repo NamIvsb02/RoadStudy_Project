@@ -1,43 +1,73 @@
 const prisma = require("../config/database");
 
 const courseSelect = {
-    id: true,
-    courseName: true,
-    description: true,
-    price: true,
-    coverImageUrl: true,
-    category: { select: { id: true, categoryName: true } },
-    teacher: { select: { id: true, specialization: true, account: { select: { fullName: true } } } },
+  id: true,
+  courseName: true,
+  description: true,
+  price: true,
+  coverImageUrl: true,
+  category: { select: { id: true, categoryName: true } },
+  teacher: { select: { id: true, specialization: true, account: { select: { fullName: true } } } },
 };
 
 const openWhere = (maxPrice) => ({
-    status: "DANG_MO",
-    ...(maxPrice != null && { price: { lte: maxPrice } }),
+  status: "DANG_MO",
+  ...(maxPrice != null && { price: { lte: maxPrice } }),
 });
 
 // Khóa đang mở khớp từ khóa (tên, mô tả, danh mục), trong ngân sách nếu có
 const findCandidates = ({ keywords, maxPrice, limit }) =>
-    prisma.course.findMany({
-        where: {
-            ...openWhere(maxPrice),
-            OR: keywords.flatMap((keyword) => [
-                { courseName: { contains: keyword, mode: "insensitive" } },
-                { description: { contains: keyword, mode: "insensitive" } },
-                { category: { categoryName: { contains: keyword, mode: "insensitive" } } },
-            ]),
-        },
-        take: limit,
-        orderBy: { registrations: { _count: "desc" } },
-        select: courseSelect,
-    });
+  prisma.course.findMany({
+    where: {
+      ...openWhere(maxPrice),
+      OR: keywords.flatMap((keyword) => [
+        { courseName: { contains: keyword, mode: "insensitive" } },
+        { description: { contains: keyword, mode: "insensitive" } },
+        { category: { categoryName: { contains: keyword, mode: "insensitive" } } },
+      ]),
+    },
+    take: limit,
+    orderBy: { registrations: { _count: "desc" } },
+    select: courseSelect,
+  });
 
 // Dự phòng khi không khớp từ khóa nào: lấy các khóa đang mở được đăng ký nhiều nhất trong ngân sách
 const findOpenCourses = ({ maxPrice, limit }) =>
-    prisma.course.findMany({
-        where: openWhere(maxPrice),
-        take: limit,
-        orderBy: { registrations: { _count: "desc" } },
-        select: courseSelect,
-    });
+  prisma.course.findMany({
+    where: openWhere(maxPrice),
+    take: limit,
+    orderBy: { registrations: { _count: "desc" } },
+    select: courseSelect,
+  });
 
-module.exports = { courseSelect, findCandidates, findOpenCourses };
+const summarySelect = {
+  id: true,
+  courseName: true,
+  price: true,
+  coverImageUrl: true,
+  category: { select: { id: true, categoryName: true } },
+  teacher: { select: { id: true, specialization: true, account: { select: { fullName: true, avatarUrl: true } } } },
+};
+
+const findStudentIdByAccountId = async (accountId) => (await prisma.student.findUnique({ where: { accountId }, select: { id: true } }))?.id ?? null;
+
+const findStudentCourseLinks = (studentId) =>
+  prisma.courseRegistration.findMany({
+    where: { studentId, status: { in: ["DA_THANH_TOAN", "CHO_THANH_TOAN"] } },
+    select: { courseId: true, course: { select: { categoryId: true } } },
+  });
+
+const findOpenForStudent = ({ excludeIds, categoryIds, limit }) =>
+  prisma.course.findMany({
+    where: {
+      status: "DANG_MO",
+      category: { status: "HOAT_DONG" },
+      ...(excludeIds.length > 0 && { id: { notIn: excludeIds } }),
+      ...(categoryIds && { categoryId: { in: categoryIds } }),
+    },
+    take: limit,
+    orderBy: { registrations: { _count: "desc" } },
+    select: summarySelect,
+  });
+
+module.exports = { courseSelect, findCandidates, findOpenCourses, findStudentIdByAccountId, findStudentCourseLinks, findOpenForStudent };

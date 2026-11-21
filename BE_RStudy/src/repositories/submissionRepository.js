@@ -20,6 +20,7 @@ const findExamForStart = (id) =>
           options: { orderBy: { id: "asc" }, select: { id: true, content: true } },
         },
       },
+      course: { select: { learning: { select: { showExams: true } } } },
     },
   });
 
@@ -107,6 +108,22 @@ const withStartLock = (studentId, examId, work) =>
     { timeout: 10000 },
   );
 
+const findManyForManage = (where, { skip, take }) =>
+  Promise.all([
+    prisma.examAttempt.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { startTime: "desc" },
+      include: {
+        ...attemptInclude,
+        student: { select: { id: true, account: { select: { fullName: true, email: true } } } },
+        exam: { select: { id: true, examName: true, durationMinutes: true, passingScore: true, courseId: true, showAnswers: true, course: { select: { id: true, courseName: true } } } },
+      },
+    }),
+    prisma.examAttempt.count({ where }),
+  ]);
+
 module.exports = {
   findExamForStart,
   findQuestionsWithOptions,
@@ -120,4 +137,5 @@ module.exports = {
   sumQuestionScore,
   findManyByStudent,
   findManyByExam,
+  findManyForManage,
 };

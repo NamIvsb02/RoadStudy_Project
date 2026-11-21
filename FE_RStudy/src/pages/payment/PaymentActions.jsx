@@ -12,8 +12,9 @@ export default function PaymentActions({ registration, stage, onChanged }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+  const free = Number(registration.invoice?.totalAmount ?? 0) === 0;
   const canCancel = stage === "AWAITING" || stage === "REJECTED";
-  const canRefund = stage === "REVIEWING" || (stage === "PAID" && canRefundPaid(registration.invoice));
+  const canRefund = !free && (stage === "REVIEWING" || (stage === "PAID" && canRefundPaid(registration.invoice)));
 
   if (!canCancel && !canRefund) return null;
 

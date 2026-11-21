@@ -47,6 +47,10 @@ import AdminCouponsPage from "../pages/admin/AdminCouponsPage";
 import PaymentPage from "../pages/payment/PaymentPage";
 import AdminPaymentsPage from "../pages/admin/AdminPaymentsPage";
 import AdminRefundsPage from "../pages/admin/AdminRefundsPage";
+import TeacherSubmissionsPage from "../pages/teacher/TeacherSubmissionsPage";
+import LearnPage from "../pages/learn/LearnPage";
+import CourseLearningPage from "../pages/teacher/CourseLearningPage";
+import AdminCategoriesPage from "../pages/admin/AdminCategoriesPage";
 
 export default function AppRoutes() {
   return (
@@ -57,7 +61,7 @@ export default function AppRoutes() {
         <Route path={ROUTES.COURSE_DETAIL} element={<CourseDetailPage />} />
         <Route path={ROUTES.TEACHER_PROFILE} element={<TeacherProfilePage />} />
         <Route path={ROUTES.RESOURCES} element={<ResourceListPage />} />
-
+        <Route path={ROUTES.LEARN} element={<LearnPage />} />
         <Route element={<ProtectedRoute allowedRoles={[ROLES.STUDENT]} />}>
           <Route path={ROUTES.EXAM_DETAIL} element={<ExamDetailPage />} />
           <Route path={ROUTES.EXAMS} element={<ExamListPage />} />
@@ -88,6 +92,8 @@ export default function AppRoutes() {
           <Route path={ROUTES.TEACHER.COURSES} element={<TeacherCoursesPage />} />
           <Route path={ROUTES.TEACHER.COURSE_NEW} element={<CourseNewPage />} />
           <Route path={ROUTES.TEACHER.COURSE_EDIT} element={<CourseEditPage />} />
+          <Route path={ROUTES.TEACHER.SUBMISSIONS} element={<TeacherSubmissionsPage />} />
+          <Route path={ROUTES.TEACHER.COURSE_LEARNING} element={<CourseLearningPage />} />
           <Route path="*" element={<ComingSoonPage />} />
         </Route>
       </Route>
@@ -111,6 +117,7 @@ export default function AppRoutes() {
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_KHOA_HOC} />}>
             <Route path={ROUTES.ADMIN.COURSES} element={<AdminCoursesPage />} />
+            <Route path={ROUTES.ADMIN.CATEGORIES} element={<AdminCategoriesPage />} />
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_MA_GIAM_GIA} />}>
             <Route path={ROUTES.ADMIN.COUPONS} element={<AdminCouponsPage />} />
