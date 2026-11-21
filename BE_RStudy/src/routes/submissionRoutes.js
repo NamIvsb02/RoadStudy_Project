@@ -10,8 +10,7 @@ router.use(authenticate);
 
 // Admin phải có quyền QUAN_LY_BAI_THI mới xem được bài làm; học viên và giáo viên không bị ảnh hưởng
 const checkAdminPermission = requirePermission(PERMISSIONS.QUAN_LY_BAI_THI);
-const adminNeedsPermission = (req, res, next) =>
-    req.user.role === "ADMINISTRATOR" ? checkAdminPermission(req, res, next) : next();
+const adminNeedsPermission = (req, res, next) => (req.user.role === "ADMINISTRATOR" ? checkAdminPermission(req, res, next) : next());
 
 // Học viên làm bài
 router.post("/start", authorize("STUDENT"), validate(startSchema), controller.start);
@@ -21,7 +20,7 @@ router.post("/:id/submit", authorize("STUDENT"), validate(submitSchema), control
 
 // Giáo viên (khóa mình phụ trách) và admin có quyền xem bài làm của một đề
 router.get("/exam/:examId", authorize("TEACHER", "ADMINISTRATOR"), adminNeedsPermission, controller.listByExam);
-
+router.get("/manage", authorize("TEACHER", "ADMINISTRATOR"), adminNeedsPermission, controller.listManage);
 // Xem kết quả: học viên (bài của mình), giáo viên, quản trị viên
 router.get("/:id", authorize("STUDENT", "TEACHER", "ADMINISTRATOR"), adminNeedsPermission, controller.getById);
 

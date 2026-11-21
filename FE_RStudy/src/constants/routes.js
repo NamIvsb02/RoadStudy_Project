@@ -43,6 +43,7 @@ export const ROUTES = {
     EXAMS: "/admin/exams",
     COURSES: "/admin/courses",
     PERMISSIONS: "/admin/permissions",
+    CATEGORIES: "/admin/categories",
   },
   EXAM_DETAIL: "/exams/:id",
   EXAM_TAKE: "/exams/:id/take",

@@ -50,6 +50,7 @@ import AdminRefundsPage from "../pages/admin/AdminRefundsPage";
 import TeacherSubmissionsPage from "../pages/teacher/TeacherSubmissionsPage";
 import LearnPage from "../pages/learn/LearnPage";
 import CourseLearningPage from "../pages/teacher/CourseLearningPage";
+import AdminCategoriesPage from "../pages/admin/AdminCategoriesPage";
 
 export default function AppRoutes() {
   return (
@@ -116,6 +117,7 @@ export default function AppRoutes() {
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_KHOA_HOC} />}>
             <Route path={ROUTES.ADMIN.COURSES} element={<AdminCoursesPage />} />
+            <Route path={ROUTES.ADMIN.CATEGORIES} element={<AdminCategoriesPage />} />
           </Route>
           <Route element={<PermissionRoute permission={PERMISSIONS.QUAN_LY_MA_GIAM_GIA} />}>
             <Route path={ROUTES.ADMIN.COUPONS} element={<AdminCouponsPage />} />

@@ -1,4 +1,4 @@
-import { BookOpen, ClipboardList, FileText, Flag, FolderOpen, LayoutDashboard, ShieldCheck, Ticket, Undo2, UserCheck, UserCog, Users, Wallet } from "lucide-react";
+import { BookOpen, ClipboardList, FileText, Flag, FolderOpen, LayoutDashboard, ShieldCheck, Ticket, Undo2, UserCheck, UserCog, Users, Wallet, Tags } from "lucide-react";
 import { PERMISSIONS } from "../../constants/permissions";
 import { ROLES } from "../../constants/roles";
 import { ROUTES } from "../../constants/routes";
@@ -18,6 +18,7 @@ const ADMIN_NAV = [
   { label: "Tài khoản", to: ROUTES.ADMIN.ACCOUNTS, icon: Users, permission: PERMISSIONS.QUAN_LY_TAI_KHOAN },
   { label: "Duyệt giáo viên", to: ROUTES.ADMIN.TEACHER_APPROVAL, icon: UserCheck, permission: PERMISSIONS.DUYET_GIAO_VIEN },
   { label: "Khóa học", to: ROUTES.ADMIN.COURSES, icon: BookOpen, permission: PERMISSIONS.QUAN_LY_KHOA_HOC },
+  { label: "Danh mục", to: ROUTES.ADMIN.CATEGORIES, icon: Tags, permission: PERMISSIONS.QUAN_LY_KHOA_HOC },
   { label: "Thanh toán", to: ROUTES.ADMIN.PAYMENTS, icon: Wallet, permission: PERMISSIONS.QUAN_LY_THANH_TOAN },
   { label: "Hoàn tiền", to: ROUTES.ADMIN.REFUNDS, icon: Undo2, permission: PERMISSIONS.XU_LY_HOAN_TIEN },
   { label: "Báo cáo vi phạm", to: ROUTES.ADMIN.REPORTS, icon: Flag, permission: PERMISSIONS.XU_LY_BAO_CAO_VI_PHAM },

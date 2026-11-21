@@ -8,8 +8,9 @@ import { ROUTES } from "../../constants/routes";
 import { useFetch } from "../../hooks/useFetch";
 import { learningApi } from "../../api/learningApi";
 import { formatDate } from "../../utils/format";
-import CourseExams from "../exam/list/CourseExams";
+import LearnExams from "./LearnExams";
 import SessionList from "./SessionList";
+import CommentSection from "../courseDetail/CommentSection";
 
 const linkButton = "inline-flex items-center justify-center rounded-lg px-5 text-sm font-semibold transition-colors";
 
@@ -71,9 +72,10 @@ export default function LearnPage() {
               <p className="text-sm text-muted">Giáo viên chưa cập nhật tài liệu.</p>
             )}
           </section>
-          {data.showExams && <CourseExams course={{ id: course.id, courseName: "Bài thi" }} />}
         </div>
       </div>
+      {data.showExams && <LearnExams courseId={course.id} />}
+      <CommentSection courseId={course.id} />
     </div>
   );
 }

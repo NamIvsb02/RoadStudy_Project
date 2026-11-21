@@ -1,15 +1,16 @@
-import { teacherApi } from '../api/teacherApi';
-import { categoryApi } from '../api/categoryApi';
-import PageColumns from '../components/common/PageColumns';
-import SectionHeader from '../components/common/SectionHeader';
-import TeacherAvatarList from '../components/common/TeacherAvatarList';
-import EmptyState from '../components/ui/EmptyState';
-import ErrorState from '../components/ui/ErrorState';
-import LoadingState from '../components/ui/LoadingState';
-import { useFetch } from '../hooks/useFetch';
-import CategoryCourseSection from './home/CategoryCourseSection';
-import CategorySidebar from './home/CategorySidebar';
-import HomeBanner from './home/HomeBanner';
+import { teacherApi } from "../api/teacherApi";
+import { categoryApi } from "../api/categoryApi";
+import PageColumns from "../components/common/PageColumns";
+import SectionHeader from "../components/common/SectionHeader";
+import TeacherAvatarList from "../components/common/TeacherAvatarList";
+import EmptyState from "../components/ui/EmptyState";
+import ErrorState from "../components/ui/ErrorState";
+import LoadingState from "../components/ui/LoadingState";
+import { useFetch } from "../hooks/useFetch";
+import CategoryCourseSection from "./home/CategoryCourseSection";
+import CategorySidebar from "./home/CategorySidebar";
+import HomeBanner from "./home/HomeBanner";
+import ForYouSection from "./home/ForYouSection";
 
 const FEATURED_CATEGORIES = 3;
 const loadCategories = () => categoryApi.getPublicList({ limit: 100 });
@@ -36,6 +37,7 @@ export default function HomePage() {
   return (
     <PageColumns left={sidebar}>
       <HomeBanner />
+      <ForYouSection />
       <section className="mt-8">
         <SectionHeader title="Giáo viên tiêu biểu" />
         {teacherContent}
