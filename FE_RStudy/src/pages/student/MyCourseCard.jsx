@@ -33,8 +33,8 @@ export default function MyCourseCard({ registration }) {
             {status === "CHO_THANH_TOAN" ? "Thanh toán" : "Hóa đơn"}
           </Link>
           {status === "DA_THANH_TOAN" && (
-            <Link to={ROUTES.EXAMS} className="text-primary hover:underline">
-              Đề thi
+            <Link to={generatePath(ROUTES.LEARN, { courseId: course.id })} className="text-primary hover:underline">
+              Vào học
             </Link>
           )}
         </div>

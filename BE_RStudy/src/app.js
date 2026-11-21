@@ -27,6 +27,7 @@ const chatbotRoutes = require("./routes/chatbotRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const learningRoutes = require("./routes/learningRoutes");
 
 const app = express();
 
@@ -54,16 +55,20 @@ app.use("/api/submission", submissionRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/recommendation", recommendationRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/learning", learningRoutes);
 app.use("/api/report", reportRoutes);
 
-app.use(
-  "/uploads/avatars",
-  (req, res, next) => {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-  },
-  express.static(path.join(__dirname, "../uploads/avatars")),
-);
+// ===== Static Uploads =====
+["avatars", "covers", "resources"].forEach((folder) => {
+  app.use(
+    `/uploads/${folder}`,
+    express.static(path.join(__dirname, "..", "uploads", folder), {
+      setHeaders: (res) => {
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      },
+    }),
+  );
+});
 app.use(notFound);
 app.use(errorHandler);
 

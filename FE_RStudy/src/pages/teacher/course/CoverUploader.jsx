@@ -1,17 +1,17 @@
 import { useRef, useState } from "react";
 import { courseApi } from "../../../api/courseApi";
+import CourseCover from "../../../components/common/CourseCover";
 import Button from "../../../components/ui/Button";
 import FormField from "../../../components/ui/FormField";
-import { assetUrl } from "../../../utils/format";
+import { toCoverFile } from "./coverImage";
 
-const MAX_SIZE = 3 * 1024 * 1024;
+const MAX_SIZE = 10 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
 export default function CoverUploader({ value, onChange }) {
   const inputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
-  const [previewFailed, setPreviewFailed] = useState(false);
 
   const handleFile = async (event) => {
     const file = event.target.files[0];
@@ -22,14 +22,13 @@ export default function CoverUploader({ value, onChange }) {
       return;
     }
     if (file.size > MAX_SIZE) {
-      setError("Ảnh tối đa 3MB");
+      setError("Ảnh tối đa 10MB");
       return;
     }
     setUploading(true);
     setError("");
     try {
-      const res = await courseApi.uploadCover(file);
-      setPreviewFailed(false);
+      const res = await courseApi.uploadCover(await toCoverFile(file));
       onChange(res.data.coverImageUrl);
     } catch (err) {
       setError(err.message);
@@ -39,13 +38,9 @@ export default function CoverUploader({ value, onChange }) {
   };
 
   return (
-    <FormField label="Ảnh bìa" htmlFor="coverImage" error={error} hint="JPG, PNG hoặc WEBP, tối đa 3MB. Không bắt buộc.">
+    <FormField label="Ảnh bìa" htmlFor="coverImage" error={error} hint="JPG, PNG hoặc WEBP, tối thiểu 640x360. Ảnh tự được cắt giữa theo tỉ lệ 16:9. Không bắt buộc.">
       <div className="flex flex-wrap items-center gap-4">
-        {value && !previewFailed ? (
-          <img src={assetUrl(value)} alt="Ảnh bìa khóa học" onError={() => setPreviewFailed(true)} className="aspect-video w-48 rounded-lg border border-line object-cover" />
-        ) : (
-          <div className="flex aspect-video w-48 items-center justify-center rounded-lg border border-dashed border-line text-xs text-muted">Chưa có ảnh</div>
-        )}
+        <CourseCover src={value} alt="Ảnh bìa khóa học" className="max-w-3xs rounded-lg border border-line" />
         <div className="flex gap-2">
           <input ref={inputRef} id="coverImage" type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFile} className="sr-only" />
           <Button variant="outline" loading={uploading} onClick={() => inputRef.current?.click()}>

@@ -3,6 +3,7 @@ import BottomNav from "./common/BottomNav";
 import Footer from "./common/Footer";
 import Header from "./common/Header";
 import Sidebar from "./common/Sidebar";
+import ChatWidget from "./chatbot/ChatWidget";
 
 export default function Layout() {
   return (
@@ -16,6 +17,7 @@ export default function Layout() {
       </div>
       <Footer />
       <BottomNav />
+      <ChatWidget />
     </div>
   );
 }

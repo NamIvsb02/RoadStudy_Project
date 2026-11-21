@@ -131,6 +131,7 @@ async function start(accountId, examId) {
 
   const exam = await repo.findExamForStart(examId);
   if (!exam || exam.status !== "DANG_MO") throw new AppError("Đề thi không tồn tại hoặc chưa mở", 404);
+  if (exam.course.learning?.showExams === false) throw new AppError("Đề thi không tồn tại hoặc chưa mở", 404);
   if (!(await examRepo.hasConfirmedRegistration(studentId, exam.courseId))) {
     throw new AppError("Bạn cần được xác nhận đăng ký khóa học để làm bài thi", 403);
   }
@@ -237,4 +238,22 @@ async function listByExam(user, examId, query, { skip, take }) {
   return { items, total };
 }
 
-module.exports = { start, saveAnswers, submit, myAttempts, getById, listByExam };
+async function listManage(user, query, { skip, take }) {
+  const where = {};
+  if (query.courseId) {
+    await assertCanManageCourse(user, String(query.courseId));
+    where.exam = { courseId: String(query.courseId) };
+  } else if (user.role === "TEACHER") {
+    const teacher = await examRepo.findTeacherByAccountId(user.id);
+    if (!teacher || teacher.approvalStatus !== "DA_DUYET") throw new AppError("Bạn không phụ trách khóa học nào", 403);
+    where.exam = { course: { teacherId: teacher.id } };
+  }
+  if (query.examId) where.examId = String(query.examId);
+  if (["DANG_LAM", "DA_NOP", "DA_CHAM", "HUY"].includes(query.status)) where.status = query.status;
+
+  const [rows, total] = await repo.findManyForManage(where, { skip, take });
+  const items = rows.map((a) => ({ ...toAttemptDto(a), student: a.student, course: a.exam.course }));
+  return { items, total };
+}
+
+module.exports = { start, saveAnswers, submit, myAttempts, getById, listByExam, listManage };

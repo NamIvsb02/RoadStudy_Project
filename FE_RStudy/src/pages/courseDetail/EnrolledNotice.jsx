@@ -21,8 +21,8 @@ export default function EnrolledNotice({ registration, course }) {
       <p className="text-sm text-muted">{paid ? "Bạn đã đăng ký khóa học này." : "Bạn đã đăng ký khóa học này, đang chờ thanh toán."}</p>
       {paid ? (
         <>
-          <Link to={ROUTES.EXAMS} className={primaryClass}>
-            Làm bài thi
+          <Link to={generatePath(ROUTES.LEARN, { courseId: course.id })} className={primaryClass}>
+            Vào học
           </Link>
           <Link to={paymentTo} className={secondaryClass}>
             Xem hóa đơn

@@ -245,6 +245,8 @@ model Course {
   comments        Comment[]
   exams           Exam[]
   recommendations CourseRecommendation[]
+  learning CourseLearning?
+  sessions CourseSession[]
 
   @@index([categoryId])
   @@index([teacherId])
@@ -578,4 +580,27 @@ model Notification {
   account Account @relation(fields: [accountId], references: [id])
 
   @@index([accountId, isRead, createdAt])
+}
+
+model CourseLearning {
+  courseId  String  @id @db.VarChar(36)
+  driveUrl  String? @db.VarChar(2048)
+  classUrl  String? @db.VarChar(2048)
+  showExams Boolean @default(true)
+
+  course Course @relation(fields: [courseId], references: [id])
+}
+
+model CourseSession {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  courseId  String   @db.VarChar(36)
+  title     String   @db.VarChar(200)
+  startTime DateTime
+  endTime   DateTime
+  note      String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@index([courseId, startTime])
 }

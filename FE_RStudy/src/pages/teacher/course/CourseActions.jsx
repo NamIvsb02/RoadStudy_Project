@@ -18,6 +18,9 @@ export default function CourseActions({ course, busy, onSubmitForApproval }) {
           Gửi duyệt
         </button>
       )}
+      <Link to={generatePath(ROUTES.TEACHER.COURSE_LEARNING, { id: course.id })} className={actionClass}>
+        Lớp học
+      </Link>
       <Link to={`${ROUTES.TEACHER.EXAMS}?courseId=${course.id}`} className={actionClass}>
         Đề thi
       </Link>

@@ -30,6 +30,7 @@ export const ROUTES = {
     ATTEMPT: "/teacher/attempts/:id",
     COURSE_NEW: "/teacher/courses/new",
     COURSE_EDIT: "/teacher/courses/:id/edit",
+    COURSE_LEARNING: "/teacher/courses/:id/learning",
   },
   ADMIN: {
     ROOT: "/admin",
@@ -46,6 +47,7 @@ export const ROUTES = {
   EXAM_DETAIL: "/exams/:id",
   EXAM_TAKE: "/exams/:id/take",
   ATTEMPT_DETAIL: "/attempts/:id",
+  LEARN: "/learn/:courseId",
 };
 
 export const ROLE_HOME = {

@@ -214,7 +214,9 @@ async function requestRefund(accountId, invoiceId, description) {
   const studentId = await requireStudentId(accountId);
   const invoice = await repo.findInvoiceById(invoiceId);
   if (!invoice || invoice.studentId !== studentId) throw new AppError("Hóa đơn không tồn tại", 404);
-
+  if (new Decimal(invoice.totalAmount).isZero()) {
+    throw new AppError("Khóa học miễn phí không áp dụng hoàn tiền", 400);
+  }
   if ((await repo.countPendingRefundByRegistration(invoice.registrationId)) > 0) {
     throw new AppError("Đã có yêu cầu hoàn tiền đang chờ xử lý cho đơn này", 409);
   }
