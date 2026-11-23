@@ -1,0 +1,472 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-23T13:37:00+07:00",
+  "title": "Design System: RoadStudy",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "brand",
+        "displayName": "primary",
+        "canonical": "#155e94",
+        "cssVariable": "--color-primary",
+        "tailwindToken": "primary",
+        "source": "src/assets/styles/theme.css"
+      },
+      "primary-dark": {
+        "role": "brand",
+        "displayName": "primary-dark",
+        "canonical": "#0f4a75",
+        "cssVariable": "--color-primary-dark",
+        "tailwindToken": "primary-dark",
+        "source": "src/assets/styles/theme.css"
+      },
+      "primary-light": {
+        "role": "brand",
+        "displayName": "primary-light",
+        "canonical": "#3c79a6",
+        "cssVariable": "--color-primary-light",
+        "tailwindToken": "primary-light",
+        "source": "src/assets/styles/theme.css"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "surface",
+        "canonical": "#f0f3f7",
+        "cssVariable": "--color-surface",
+        "tailwindToken": "surface",
+        "source": "src/assets/styles/theme.css"
+      },
+      "page": {
+        "role": "neutral",
+        "displayName": "page",
+        "canonical": "#f7f8f9",
+        "cssVariable": "--color-page",
+        "tailwindToken": "page",
+        "source": "src/assets/styles/theme.css"
+      },
+      "accent": {
+        "role": "accent",
+        "displayName": "accent",
+        "canonical": "#ff8a00",
+        "cssVariable": "--color-accent",
+        "tailwindToken": "accent",
+        "source": "src/assets/styles/theme.css"
+      },
+      "success": {
+        "role": "status",
+        "displayName": "success",
+        "canonical": "#16a34a",
+        "cssVariable": "--color-success",
+        "tailwindToken": "success",
+        "source": "src/assets/styles/theme.css"
+      },
+      "warning": {
+        "role": "status",
+        "displayName": "warning",
+        "canonical": "#d97706",
+        "cssVariable": "--color-warning",
+        "tailwindToken": "warning",
+        "source": "src/assets/styles/theme.css"
+      },
+      "danger": {
+        "role": "status",
+        "displayName": "danger",
+        "canonical": "#dc2626",
+        "cssVariable": "--color-danger",
+        "tailwindToken": "danger",
+        "source": "src/assets/styles/theme.css"
+      },
+      "info": {
+        "role": "status",
+        "displayName": "info",
+        "canonical": "#2563eb",
+        "cssVariable": "--color-info",
+        "tailwindToken": "info",
+        "source": "src/assets/styles/theme.css"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "ink",
+        "canonical": "#1f2937",
+        "cssVariable": "--color-ink",
+        "tailwindToken": "ink",
+        "source": "src/assets/styles/theme.css"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "muted",
+        "canonical": "#6b7280",
+        "cssVariable": "--color-muted",
+        "tailwindToken": "muted",
+        "source": "src/assets/styles/theme.css"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "line",
+        "canonical": "#e5e7eb",
+        "cssVariable": "--color-line",
+        "tailwindToken": "line",
+        "source": "src/assets/styles/theme.css"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero và banner giới thiệu khóa học"
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Tiêu đề trang, tiêu đề mục lớn"
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Tên khóa học, tiêu đề card, tên mục quản trị"
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Nội dung, mô tả, thông tin bài học"
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Nhãn biểu mẫu, trạng thái và thông tin phụ"
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "token": "shadow-card",
+        "value": "0 1px 3px rgb(16 24 40 / 0.08)",
+        "purpose": "Bề mặt cần độ nổi nhẹ"
+      },
+      {
+        "name": "card-hover",
+        "token": "shadow-card-hover",
+        "value": "0 6px 16px rgb(16 24 40 / 0.12)",
+        "purpose": "Hover hoặc overlay/toast theo code hiện có"
+      }
+    ],
+    "motion": [
+      {
+        "name": "duration-range",
+        "value": "150ms–400ms",
+        "purpose": "Giới hạn theo quy ước AI_RULES.md được mô tả"
+      },
+      {
+        "name": "properties",
+        "value": "opacity, transform",
+        "purpose": "Chỉ animate thuộc tính hiệu quả"
+      },
+      {
+        "name": "presets",
+        "value": "src/constants/motion.js",
+        "purpose": "Dùng preset framer-motion có sẵn, không tự đặt tên preset chưa kiểm chứng"
+      },
+      {
+        "name": "toast",
+        "value": "slideInRight",
+        "purpose": "Preset đã xác nhận trong Toast.jsx"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1536px"
+      }
+    ],
+    "typography": {
+      "fontFamily": "\"Be Vietnam Pro\", ui-sans-serif, system-ui, \"Segoe UI\", Roboto, sans-serif",
+      "cssVariable": "--font-sans",
+      "weights": {
+        "regular": 400,
+        "medium": 500,
+        "semibold": 600,
+        "bold": 700
+      },
+      "note": "Chưa xác nhận thang font-size cho từng heading; dùng utility Tailwind có sẵn và đối chiếu component hiện hữu."
+    },
+    "sources": [
+      "src/assets/styles/theme.css",
+      "src/index.css",
+      "src/components/ui/inputClass.js",
+      "src/components/ui/FormField.jsx",
+      "src/components/ui/Toast.jsx",
+      "AI_RULES.md (quy tắc do người dùng trích dẫn, chưa kiểm tra file trực tiếp)"
+    ]
+  },
+  "components": [
+    {
+      "name": "Button primary",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Biến thể nút primary; sử dụng component Button hiện có làm nguồn sự thật.",
+      "implementationStatus": "partially-verified",
+      "tailwindExample": "inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold bg-primary text-white hover:bg-primary-dark",
+      "details": {
+        "note": "Tên 5 variants và kích thước lấy từ mô tả; class cụ thể của Button chưa được cung cấp, ví dụ không phải bản sao code."
+      }
+    },
+    {
+      "name": "Button secondary",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Biến thể nút secondary; sử dụng component Button hiện có làm nguồn sự thật.",
+      "implementationStatus": "partially-verified",
+      "tailwindExample": "inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold bg-surface text-primary",
+      "details": {
+        "note": "Tên 5 variants và kích thước lấy từ mô tả; class cụ thể của Button chưa được cung cấp, ví dụ không phải bản sao code."
+      }
+    },
+    {
+      "name": "Button outline",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Biến thể nút outline; sử dụng component Button hiện có làm nguồn sự thật.",
+      "implementationStatus": "partially-verified",
+      "tailwindExample": "inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold border border-line bg-white text-ink",
+      "details": {
+        "note": "Tên 5 variants và kích thước lấy từ mô tả; class cụ thể của Button chưa được cung cấp, ví dụ không phải bản sao code."
+      }
+    },
+    {
+      "name": "Button ghost",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Biến thể nút ghost; sử dụng component Button hiện có làm nguồn sự thật.",
+      "implementationStatus": "partially-verified",
+      "tailwindExample": "inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold bg-transparent text-ink",
+      "details": {
+        "note": "Tên 5 variants và kích thước lấy từ mô tả; class cụ thể của Button chưa được cung cấp, ví dụ không phải bản sao code."
+      }
+    },
+    {
+      "name": "Button danger",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Biến thể nút danger; sử dụng component Button hiện có làm nguồn sự thật.",
+      "implementationStatus": "partially-verified",
+      "tailwindExample": "inline-flex h-11 items-center justify-center rounded-lg px-4 text-sm font-semibold bg-danger text-white",
+      "details": {
+        "note": "Tên 5 variants và kích thước lấy từ mô tả; class cụ thể của Button chưa được cung cấp, ví dụ không phải bản sao code."
+      }
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-base",
+      "description": "Input theo inputClass.js, focus ring và trạng thái lỗi.",
+      "implementationStatus": "verified",
+      "tailwindExample": "h-11 w-full rounded-lg border border-line bg-white px-3 text-sm text-ink placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary-light/40",
+      "details": {
+        "error": "border-danger focus:ring-danger/30",
+        "multiline": "min-h-28 py-2",
+        "source": "src/components/ui/inputClass.js"
+      }
+    },
+    {
+      "name": "Form Field",
+      "kind": "form",
+      "refersTo": "form-field",
+      "description": "Label font-medium, dấu sao bắt buộc, error role=alert và hint thay thế.",
+      "implementationStatus": "verified",
+      "tailwindExample": "space-y-1.5",
+      "details": {
+        "source": "src/components/ui/FormField.jsx"
+      }
+    },
+    {
+      "name": "Toast",
+      "kind": "feedback",
+      "refersTo": "toast",
+      "description": "Toast bốn trạng thái success/error/warning/info, icon lucide, slideInRight.",
+      "implementationStatus": "verified",
+      "tailwindExample": "flex items-start gap-3 rounded-xl border border-line bg-white p-3 shadow-card-hover",
+      "details": {
+        "source": "src/components/ui/Toast.jsx",
+        "iconLibrary": "lucide-react",
+        "motionPreset": "slideInRight"
+      }
+    },
+    {
+      "name": "Status Badge",
+      "kind": "badge",
+      "refersTo": "status-badge",
+      "description": "Trạng thái nghiệp vụ dùng màu semantic, kèm chữ rõ nghĩa.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "inline-flex items-center rounded-full text-xs font-semibold",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Statistic Card",
+      "kind": "card",
+      "refersTo": "stat-card",
+      "description": "Thẻ KPI quản trị, tiêu đề và số liệu có thể dùng font-bold.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "rounded-xl border border-line bg-white",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Data Table",
+      "kind": "table",
+      "refersTo": "data-table",
+      "description": "Bảng quản lý có trạng thái loading/empty/error và xử lý màn hình nhỏ.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "border border-line bg-white",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Dialog",
+      "kind": "dialog",
+      "refersTo": "dialog",
+      "description": "Hộp thoại bo rounded-2xl, hỗ trợ đóng và điều hướng bàn phím.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "rounded-2xl bg-white shadow-card-hover",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Tabs",
+      "kind": "tabs",
+      "refersTo": "tabs",
+      "description": "Tab thể hiện trạng thái chọn và keyboard focus rõ ràng.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "text-ink",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Admin Sidebar Item",
+      "kind": "navigation",
+      "refersTo": "sidebar-item",
+      "description": "Mục sidebar quản trị phân biệt active và hover bằng token.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "rounded-lg",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Course Card",
+      "kind": "card",
+      "refersTo": "course-card",
+      "description": "Thẻ khóa học ưu tiên tên, ảnh bìa, giáo viên, giá và CTA theo dữ liệu thực.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "rounded-xl border border-line bg-white",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Header Search",
+      "kind": "input",
+      "refersTo": "header-search",
+      "description": "Chỉ ô tìm kiếm header được phép bo tròn hoàn toàn.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "rounded-full",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    },
+    {
+      "name": "Notification Bell",
+      "kind": "notification",
+      "refersTo": "notification-bell",
+      "description": "Nút chuông có nhãn accessible và chỉ báo số lượng khi có dữ liệu.",
+      "implementationStatus": "guideline-unverified",
+      "tailwindExample": "text-ink",
+      "details": {
+        "note": "Cần đối chiếu source component thực tế trước khi coi là thông số triển khai chính thức."
+      }
+    }
+  ],
+  "narrative": {
+    "northStar": "Road to Learning",
+    "overview": "RoadStudy là nền tảng học trực tuyến. Giao diện sử dụng xanh dương #155e94 làm màu dẫn hướng, cam #ff8a00 làm điểm nhấn, nền page #f7f8f9 và surface #f0f3f7, chữ Be Vietnam Pro. Ưu tiên tính rõ ràng, nhất quán, dễ sử dụng cho học viên, giáo viên và quản trị viên.",
+    "keyCharacteristics": [
+      "Nút và input thông thường rounded-lg; tìm kiếm header, chip và avatar có thể rounded-full.",
+      "Card rounded-xl, dialog rounded-2xl; không cấm shadow, dùng shadow-card và shadow-card-hover khi phù hợp.",
+      "Dùng font-bold cho tiêu đề và số liệu quan trọng, không áp giới hạn 600 cho mọi nơi.",
+      "Màu semantic phản ánh trạng thái nghiệp vụ, không dùng màu thay thế cho nhãn văn bản."
+    ],
+    "rules": [
+      {
+        "name": "Design tokens",
+        "section": "colors",
+        "body": "Dùng các token trong theme.css/index.css; không hardcode màu tùy tiện."
+      },
+      {
+        "name": "Icon source",
+        "section": "icons",
+        "body": "Chỉ dùng lucide-react cho icon giao diện."
+      },
+      {
+        "name": "Motion presets",
+        "section": "motion",
+        "body": "Dùng framer-motion với preset tại src/constants/motion.js; thời lượng 0.15–0.4 giây, chỉ animate opacity và transform."
+      },
+      {
+        "name": "Async states",
+        "section": "states",
+        "body": "Danh sách và form phải xử lý loading, empty và error phù hợp ngữ cảnh."
+      },
+      {
+        "name": "Centralized constants",
+        "section": "architecture",
+        "body": "Dùng hằng số cho đường dẫn và cấu hình; tránh hardcode URL hoặc route."
+      },
+      {
+        "name": "Vietnamese UI",
+        "section": "content",
+        "body": "Nội dung hiển thị cho người dùng bằng tiếng Việt."
+      },
+      {
+        "name": "Verified implementation",
+        "section": "governance",
+        "body": "Khi tài liệu và code khác nhau, kiểm tra component hiện tại và cập nhật design system sau khi thống nhất; không coi guideline-unverified là thực trạng."
+      }
+    ],
+    "dos": [
+      "Dùng token primary, accent, ink, muted, line, page, surface và màu trạng thái.",
+      "Tái sử dụng Button, FormField, inputClass, Toast và component dùng chung.",
+      "Giữ focus state, label, role alert và tương phản dễ đọc.",
+      "Kiểm tra responsive và các trạng thái loading/empty/error.",
+      "Đối chiếu file nguồn khi chuẩn hóa các component chưa được xác minh."
+    ],
+    "donts": [
+      "Không sao chép màu navy hoặc font Montserrat từ SmartHire.",
+      "Không đổi mọi button sang rounded-full.",
+      "Không áp quy tắc zero-shadow cho toàn bộ giao diện.",
+      "Không tự tạo màu, đường dẫn hay animation preset ngoài hệ thống.",
+      "Không trình bày ví dụ class chưa xác minh như thể là code gốc."
+    ]
+  },
+  "description": "Quy chuẩn giao diện FE_RStudy dựa trên mã nguồn được cung cấp; không tự suy diễn style chưa xác minh.",
+  "integration": {
+    "targetPath": "FE_RStudy/docs/design/design_system.json",
+    "aiRulesReference": "Xem docs/design/design_system.json để tuân thủ design tokens, component conventions và quy tắc UI RoadStudy.",
+    "note": "Chưa chỉnh AI_RULES.md vì file đó không được cung cấp."
+  }
+}

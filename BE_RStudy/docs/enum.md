@@ -38,9 +38,9 @@ Quy ước:
 
 | Giá trị   | Nhãn      | Màu     | Ghi chú                            |
 | --------- | --------- | ------- | ---------------------------------- |
-| CHO_DUYET | Chờ duyệt | vàng    | Mặc định khi đăng ký làm giáo viên |
-| DA_DUYET  | Đã duyệt  | xanh lá | Được tạo khóa học                  |
-| TU_CHOI   | Từ chối   | đỏ      | Admin duyệt lại được               |
+| CHO_DUYET | Chờ duyệt | vàng    | Mặc định khi đăng ký làm giáo viên. Chưa đăng nhập được (403 ở login và refresh) |
+| DA_DUYET  | Đã duyệt  | xanh lá | Đăng nhập và tạo khóa học được                                                   |
+| TU_CHOI   | Từ chối   | đỏ      | Không đăng nhập được (403 ở login và refresh). Admin duyệt lại được              |
 
 ### OtpPurpose
 
@@ -90,7 +90,7 @@ Quy ước:
 | DA_HUY         | Đã hủy         | xám     | Học viên tự hủy khi chưa được duyệt. Được đăng ký lại (tạo đơn mới)              |
 | HOAN_THANH     | (không dùng)   |         | Có trong enum nhưng hệ thống không dùng, FE bỏ qua                               |
 
-Học viên hủy được đơn khi đơn còn `CHO_THANH_TOAN` (admin chưa duyệt). Hủy xong đăng ký lại cùng khóa được, hệ thống tạo đơn mới và giữ đơn cũ. Đơn `HOAN_TIEN` thì không đăng ký lại được.
+Học viên hủy được đơn khi đơn còn `CHO_THANH_TOAN` (admin chưa duyệt). Hủy xong đăng ký lại cùng khóa được, hệ thống tạo đơn mới và giữ đơn cũ. Đơn `HOAN_TIEN` cũng đăng ký lại được bằng đơn mới (miễn là không còn yêu cầu hoàn tiền chờ xử lý cho khóa đó).
 
 ### InvoiceStatus
 
@@ -169,21 +169,23 @@ Học viên hủy được đơn khi đơn còn `CHO_THANH_TOAN` (admin chưa du
 
 ### ExamStatus
 
-| Giá trị      | Nhãn         | Màu        | Ghi chú                       |
-| ------------ | ------------ | ---------- | ----------------------------- |
-| BAN_NHAP     | Bản nháp     | xám        |                               |
-| DA_PHE_DUYET | Đã phê duyệt | xanh dương |                               |
-| DANG_MO      | Đang mở      | xanh lá    | Học viên mới thấy và làm được |
-| TAM_NGUNG    | Tạm ngưng    | đỏ         |                               |
+| Giá trị      | Nhãn         | Màu        | Ghi chú                                                                                          |
+| ------------ | ------------ | ---------- | ------------------------------------------------------------------------------------------------ |
+| BAN_NHAP     | Bản nháp     | xám        | Trạng thái lúc tạo. Không có bước "gửi duyệt" riêng: giáo viên tạo đề là admin nhận thông báo `EXAM_PENDING` |
+| DA_PHE_DUYET | Đã phê duyệt | xanh dương | Chỉ admin chuyển từ `BAN_NHAP` sang. Giáo viên nhận thông báo `EXAM_APPROVED`                    |
+| DANG_MO      | Đang mở      | xanh lá    | Học viên mới thấy và làm được. Chuyển sang đây thì học viên đã thanh toán nhận `EXAM_OPENED`     |
+| TAM_NGUNG    | Tạm ngưng    | đỏ         | Mở lại được, hoặc về `BAN_NHAP` nếu đề chưa có bài làm                                           |
+
+Luồng chuyển đầy đủ xem mục Exam trong `api-spec.md`.
 
 ### AttemptStatus
 
-| Giá trị  | Nhãn     | Màu        | Ghi chú                                           |
-| -------- | -------- | ---------- | ------------------------------------------------- |
-| DANG_LAM | Đang làm | xanh dương | Mỗi lần chỉ mở 1 bài. Tối đa 3 lượt cho mỗi đề    |
-| DA_NOP   | Đã nộp   | vàng       |                                                   |
-| DA_CHAM  | Đã chấm  | xanh lá    | Chấm ở server, không trả `isCorrect` cho học viên |
-| HUY      | Đã hủy   | xám        |                                                   |
+| Giá trị  | Nhãn     | Màu        | Ghi chú                                                                                      |
+| -------- | -------- | ---------- | -------------------------------------------------------------------------------------------- |
+| DANG_LAM | Đang làm | xanh dương | Mỗi lần chỉ mở 1 bài. Số lượt tối đa theo `Exam.maxAttempts` của từng đề (mặc định 3)         |
+| DA_NOP   | Đã nộp   | vàng       |                                                                                              |
+| DA_CHAM  | Đã chấm  | xanh lá    | Chấm ở server. Học viên chỉ thấy đáp án đúng khi đề bật `showAnswers`                         |
+| HUY      | Đã hủy   | xám        | Không tính vào số lượt                                                                       |
 
 ## AI
 
@@ -193,3 +195,34 @@ Học viên hủy được đơn khi đơn còn `CHO_THANH_TOAN` (admin chưa du
 | ------- | --------- |
 | STUDENT | Học viên  |
 | AI      | Trợ lý AI |
+
+## Thông báo
+
+### Notification.type
+
+Trong schema, `type` là chuỗi (`VarChar(50)`), **không phải enum Prisma**. Bảng dưới là các giá trị BE đang tạo; thêm loại mới thì cập nhật bảng này.
+
+| Giá trị           | Người nhận                                   | Khi nào                                      |
+| ----------------- | -------------------------------------------- | -------------------------------------------- |
+| TEACHER_PENDING   | Admin có quyền `DUYET_GIAO_VIEN`             | Giáo viên mới xác minh email, chờ duyệt      |
+| TEACHER_APPROVED  | Giáo viên                                    | Hồ sơ được duyệt                             |
+| TEACHER_REJECTED  | Giáo viên                                    | Hồ sơ bị từ chối                             |
+| COURSE_PENDING    | Admin có quyền `QUAN_LY_KHOA_HOC`            | Giáo viên gửi duyệt khóa học                 |
+| COURSE_APPROVED   | Giáo viên                                    | Khóa học được duyệt                          |
+| COURSE_REJECTED   | Giáo viên                                    | Khóa học bị từ chối                          |
+| EXAM_PENDING      | Admin có quyền `QUAN_LY_BAI_THI`             | Giáo viên tạo đề thi mới                     |
+| EXAM_APPROVED     | Giáo viên                                    | Đề thi được phê duyệt                        |
+| EXAM_OPENED       | Học viên đã thanh toán của khóa              | Đề thi chuyển sang `DANG_MO`                 |
+| EXAM_SUBMITTED    | Giáo viên của khóa                           | Học viên nộp bài                             |
+| PAYMENT_PENDING   | Admin có quyền `QUAN_LY_THANH_TOAN`          | Học viên gửi minh chứng thanh toán           |
+| PAYMENT_APPROVED  | Học viên                                     | Thanh toán được xác nhận                     |
+| PAYMENT_REJECTED  | Học viên                                     | Thanh toán bị từ chối (kèm lý do)            |
+| REFUND_APPROVED   | Học viên                                     | Yêu cầu hoàn tiền được chấp thuận            |
+| REFUND_COMPLETED  | Học viên                                     | Đã hoàn tiền xong                            |
+| REFUND_REJECTED   | Học viên                                     | Yêu cầu hoàn tiền bị từ chối                 |
+| REPORT_PENDING    | Admin có quyền `XU_LY_BAO_CAO_VI_PHAM`       | Có báo cáo vi phạm mới                       |
+| SESSION_CREATED   | Học viên đã thanh toán của khóa              | Giáo viên thêm buổi học                      |
+| SESSION_UPDATED   | Học viên đã thanh toán của khóa              | Giáo viên đổi buổi học                       |
+| COMMENT_REPLIED   | Người viết bình luận                         | Bình luận của mình được trả lời              |
+
+Leader luôn nhận các thông báo gửi cho admin. Hiện học viên gửi yêu cầu hoàn tiền thì admin **chưa** nhận thông báo. Không gian học (`CourseLearning`, `CourseSession`) không có enum riêng.
