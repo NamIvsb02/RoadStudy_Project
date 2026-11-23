@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/logo_text-blue.png";
 import { ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
 import MainNav from "./MainNav";
@@ -19,7 +19,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-white shadow-card">
       <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 lg:px-6">
         <Link to={ROUTES.HOME} className="shrink-0" aria-label="RoadStudy">
-          <img src={logo} alt="RoadStudy" className="h-9 w-auto" />
+          <img src={logo} alt="RoadStudy" className="h-11 w-auto" />
         </Link>
         <SearchBox className="hidden w-56 lg:block" />
         <MainNav />
