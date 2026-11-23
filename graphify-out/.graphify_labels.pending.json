@@ -1,0 +1,23 @@
+{
+  "0": "Header.jsx",
+  "10": "AppRoutes.jsx",
+  "11": "AdminCoursesPage.jsx",
+  "19": "Button",
+  "27": "AccountsPage.jsx",
+  "29": "useAuth",
+  "31": "axiosClient.js",
+  "34": "AppError",
+  "35": "refreshAccessToken",
+  "40": "resourceRoutes.js",
+  "43": "PaymentPage.jsx",
+  "48": "database.js",
+  "51": "PermissionsPage.jsx",
+  "57": "ContentForm.jsx",
+  "58": "react-router-dom",
+  "59": "authService.js",
+  "66": "TeacherDashboardPage.jsx",
+  "71": "reportRoutes.js",
+  "74": "ExamListPage.jsx",
+  "76": "CourseCard.jsx",
+  "78": "package.json"
+}
