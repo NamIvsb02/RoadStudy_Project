@@ -1,0 +1,14 @@
+# Thư viện npm ở thư mục gốc (prettier)
+node_modules/
+
+# Cache của graphify, chạy lại là có
+graphify-out/cache/
+
+# Cấu hình Claude Code riêng từng máy
+.claude/settings.local.json
+CLAUDE.local.md
+
+# Biến môi trường
+.env
+.env.*
+!.env.example

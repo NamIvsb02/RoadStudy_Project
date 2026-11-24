@@ -1,0 +1,26 @@
+services:
+  backend:
+    build: ./BE_RStudy
+    container_name: roadstudy-backend
+    env_file: ./BE_RStudy/.env
+    environment:
+      PORT: 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      # Giữ file upload (avatar, bìa, tài liệu, minh chứng) trên máy, không mất khi xóa container
+      - ./BE_RStudy/uploads:/app/uploads
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./FE_RStudy
+      args:
+        VITE_API_URL: http://localhost:5000/api
+        VITE_ASSET_URL: http://localhost:5000
+    container_name: roadstudy-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

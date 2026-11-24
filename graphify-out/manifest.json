@@ -1,10 +1,9 @@
 {
   ".claude/settings.json": {
-    "mtime": 1795430618.1001675,
-    "seen": 1795430802.397287,
-    "ast_hash": "217feba74fdbd5c3d307fb66a0aed053",
-    "semantic_hash": "217feba74fdbd5c3d307fb66a0aed053",
-    "ast_empty": true
+    "mtime": 1795515569.895886,
+    "seen": 1795515752.4744217,
+    "ast_hash": "6984e63c0274d5cc95197dcbca4d21c7",
+    "semantic_hash": ""
   },
   "BE_RStudy/package.json": {
     "mtime": 1793326896.22813,
@@ -103,10 +102,10 @@
     "semantic_hash": "5b31523098b8e056bca52ac1e4373265"
   },
   "BE_RStudy/src/controllers/commentController.js": {
-    "mtime": 1793716842.9895606,
-    "seen": 1795430802.3989785,
-    "ast_hash": "242373286418b97676249ccaae9828d7",
-    "semantic_hash": "242373286418b97676249ccaae9828d7"
+    "mtime": 1795519782.3401575,
+    "seen": 1795520216.2555711,
+    "ast_hash": "76da2062d4f4683e40d193a9a771e1ec",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/controllers/couponController.js": {
     "mtime": 1793326896.2321312,
@@ -115,10 +114,10 @@
     "semantic_hash": "95aa8b6ad45bbe1ad258c8288c6e3852"
   },
   "BE_RStudy/src/controllers/courseController.js": {
-    "mtime": 1795060793.7628207,
-    "seen": 1795430802.3991654,
-    "ast_hash": "dca8ce17661f9b4ad42f5122c9928512",
-    "semantic_hash": "dca8ce17661f9b4ad42f5122c9928512"
+    "mtime": 1795519842.642723,
+    "seen": 1795520216.2555764,
+    "ast_hash": "607fce63373902de1f8d600d60ce5a6c",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/controllers/enrollmentController.js": {
     "mtime": 1794049917.2865527,
@@ -169,10 +168,10 @@
     "semantic_hash": "e9317fda668b08c38670ef198e6446a9"
   },
   "BE_RStudy/src/controllers/reviewController.js": {
-    "mtime": 1793716842.9915507,
-    "seen": 1795430802.4000375,
-    "ast_hash": "f0030a819db19fe9ecc4d7aebb191498",
-    "semantic_hash": "f0030a819db19fe9ecc4d7aebb191498"
+    "mtime": 1795518426.803977,
+    "seen": 1795518447.88793,
+    "ast_hash": "f59cc100b9e11dedf57bb2107f7dff02",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/controllers/submissionController.js": {
     "mtime": 1795255224.296661,
@@ -187,10 +186,10 @@
     "semantic_hash": "2d3c855a5fb36755d04a1897452fd3a3"
   },
   "BE_RStudy/src/middlewares/authMiddleware.js": {
-    "mtime": 1793787052.1239617,
-    "seen": 1795430802.4003072,
-    "ast_hash": "bdc6e42cfd785ff9b0940f948ed69d94",
-    "semantic_hash": "bdc6e42cfd785ff9b0940f948ed69d94"
+    "mtime": 1795519769.9891896,
+    "seen": 1795520216.2556005,
+    "ast_hash": "a03139a21d8792f6ffe1a17175a408f5",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/middlewares/errorHandler.js": {
     "mtime": 1793967871.6136444,
@@ -217,10 +216,10 @@
     "semantic_hash": "cfbe831138dac7261f92b3582202d64f"
   },
   "BE_RStudy/src/middlewares/validateMiddleware.js": {
-    "mtime": 1792242371.872638,
-    "seen": 1795430802.4007826,
-    "ast_hash": "cc3dbb7549eef62cf34fc40237c1a727",
-    "semantic_hash": "cc3dbb7549eef62cf34fc40237c1a727"
+    "mtime": 1795520048.2925975,
+    "seen": 1795520216.2556095,
+    "ast_hash": "2fae83dbff9cdcedf041e84e4d2bde90",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/repositories/accountRepository.js": {
     "mtime": 1793720779.0429537,
@@ -253,10 +252,10 @@
     "semantic_hash": "dfee479cab3cba81b643cc34d664de2b"
   },
   "BE_RStudy/src/repositories/commentRepository.js": {
-    "mtime": 1793716842.997032,
-    "seen": 1795430802.4013312,
-    "ast_hash": "49b482452ffa25e8f1f37301f61902d0",
-    "semantic_hash": "49b482452ffa25e8f1f37301f61902d0"
+    "mtime": 1795519782.3452127,
+    "seen": 1795520216.2556212,
+    "ast_hash": "67fa26a7a0a128c47aa7a9e97d86cbbb",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/repositories/couponRepository.js": {
     "mtime": 1794049917.289554,
@@ -265,10 +264,10 @@
     "semantic_hash": "efc9073e45a9adaa94aa29fad73d56cc"
   },
   "BE_RStudy/src/repositories/courseRepository.js": {
-    "mtime": 1793326896.237267,
-    "seen": 1795430802.401513,
-    "ast_hash": "8fe5c622eaa1f332de525c33ab512fb2",
-    "semantic_hash": "8fe5c622eaa1f332de525c33ab512fb2"
+    "mtime": 1795519842.644724,
+    "seen": 1795520216.255625,
+    "ast_hash": "1e761cbaf41dbd4c39473beed805dd1d",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/repositories/enrollmentRepository.js": {
     "mtime": 1794049917.289554,
@@ -301,16 +300,16 @@
     "semantic_hash": "f6ec25738a2e005929d11999afd6b7a4"
   },
   "BE_RStudy/src/repositories/recommendationRepository.js": {
-    "mtime": 1795255269.4063914,
-    "seen": 1795430802.4020574,
-    "ast_hash": "6ce01307981c10fb4c885655de6e60ae",
-    "semantic_hash": "6ce01307981c10fb4c885655de6e60ae"
+    "mtime": 1795518418.8780265,
+    "seen": 1795518447.8879654,
+    "ast_hash": "f00525594d4a2dfb7d2ad468be9cd940",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/repositories/reportRepository.js": {
-    "mtime": 1794121100.9294932,
-    "seen": 1795430802.4021492,
-    "ast_hash": "4893aa87040dd2f550b4fb06eb93e7f5",
-    "semantic_hash": "4893aa87040dd2f550b4fb06eb93e7f5"
+    "mtime": 1795520321.2816048,
+    "seen": 1795520432.2999232,
+    "ast_hash": "a75f97eb82a9e5bb2027a4ea68db2234",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/repositories/resourceRepository.js": {
     "mtime": 1795060793.7662973,
@@ -367,10 +366,10 @@
     "semantic_hash": "d673dfbc615e722051d35ceb76e06da4"
   },
   "BE_RStudy/src/routes/commentRoutes.js": {
-    "mtime": 1793716843.005475,
-    "seen": 1795430802.4031017,
-    "ast_hash": "4e7d5b9e19a0d6417cdf7ce58f68474f",
-    "semantic_hash": "4e7d5b9e19a0d6417cdf7ce58f68474f"
+    "mtime": 1795519782.3391795,
+    "seen": 1795520216.2556567,
+    "ast_hash": "8069c534152ac5b53a3a545912c54001",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/routes/couponRoutes.js": {
     "mtime": 1794049917.291605,
@@ -379,10 +378,10 @@
     "semantic_hash": "71a30a82d4319eb5a18eb943c1bc66cc"
   },
   "BE_RStudy/src/routes/courseRoutes.js": {
-    "mtime": 1795060793.7673051,
-    "seen": 1795430802.4032807,
-    "ast_hash": "7dcca79a39d29549d2cfc290784c80da",
-    "semantic_hash": "7dcca79a39d29549d2cfc290784c80da"
+    "mtime": 1795519842.6397252,
+    "seen": 1795520216.2556603,
+    "ast_hash": "c115188a224d6b7cf06a8930781b0d62",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/routes/enrollmentRoutes.js": {
     "mtime": 1794049917.2926047,
@@ -421,10 +420,10 @@
     "semantic_hash": "05eaffc7a5b0e00a77af150f915e4448"
   },
   "BE_RStudy/src/routes/reportRoutes.js": {
-    "mtime": 1795060178.568805,
-    "seen": 1795430802.4039147,
-    "ast_hash": "7cdb523b7aeaca10eff9400971da6e66",
-    "semantic_hash": "7cdb523b7aeaca10eff9400971da6e66"
+    "mtime": 1795519748.6949532,
+    "seen": 1795520216.2556741,
+    "ast_hash": "7c91f8a2bc54e80946674af1db6bfd98",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/routes/resourceRoutes.js": {
     "mtime": 1795060178.5708036,
@@ -481,10 +480,10 @@
     "semantic_hash": "520dfca48457291537ad8200ed9b23bb"
   },
   "BE_RStudy/src/services/commentService.js": {
-    "mtime": 1795060793.7708192,
-    "seen": 1795430802.4048245,
-    "ast_hash": "a33dcce615253f6c8a8230af75bd936b",
-    "semantic_hash": "a33dcce615253f6c8a8230af75bd936b"
+    "mtime": 1795519782.3452127,
+    "seen": 1795520216.2556932,
+    "ast_hash": "98b9d011670409f3b7f454076fefedd2",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/services/couponService.js": {
     "mtime": 1794049917.2976043,
@@ -493,10 +492,10 @@
     "semantic_hash": "87ae742a80e9323a2206ef5e8d135cfa"
   },
   "BE_RStudy/src/services/courseService.js": {
-    "mtime": 1795060793.771827,
-    "seen": 1795430802.405004,
-    "ast_hash": "a6968df4294aee822c179a46196862cd",
-    "semantic_hash": "a6968df4294aee822c179a46196862cd"
+    "mtime": 1795520048.2946067,
+    "seen": 1795520216.2556965,
+    "ast_hash": "f31dbf422782f8a27215f507e362ae45",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/services/enrollmentService.js": {
     "mtime": 1794049917.2986047,
@@ -523,10 +522,10 @@
     "semantic_hash": "1b1d6c9c320780acdd289550da49770f"
   },
   "BE_RStudy/src/services/notificationService.js": {
-    "mtime": 1795060793.7738256,
-    "seen": 1795430802.4054558,
-    "ast_hash": "10e07181da0a8037320614e9cee79d2d",
-    "semantic_hash": "10e07181da0a8037320614e9cee79d2d"
+    "mtime": 1795519748.6949532,
+    "seen": 1795520216.255706,
+    "ast_hash": "2159eb92dfb3dbecaee637844df1e9f7",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/services/recommendationService.js": {
     "mtime": 1795255311.3146262,
@@ -535,10 +534,10 @@
     "semantic_hash": "63f51cbd078d11b391c610d2cb1a7ca8"
   },
   "BE_RStudy/src/services/reportService.js": {
-    "mtime": 1795060793.7738256,
-    "seen": 1795430802.4056377,
-    "ast_hash": "14004a4f19224fddbd423dd6a8852322",
-    "semantic_hash": "14004a4f19224fddbd423dd6a8852322"
+    "mtime": 1795520321.285843,
+    "seen": 1795520432.3000076,
+    "ast_hash": "3ec1fff73c9678ce791391621f6da538",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/services/resourceService.js": {
     "mtime": 1794073955.7582796,
@@ -649,10 +648,10 @@
     "semantic_hash": "bfabc8296a35ba56571fb9756085d34b"
   },
   "BE_RStudy/src/validators/courseValidator.js": {
-    "mtime": 1793326896.2462442,
-    "seen": 1795430802.4073951,
-    "ast_hash": "1ad599c8a31a266c508facbc149d4f3f",
-    "semantic_hash": "1ad599c8a31a266c508facbc149d4f3f"
+    "mtime": 1795520048.293605,
+    "seen": 1795520216.255746,
+    "ast_hash": "d9970c2ef3b82b1f048210dd5be0a323",
+    "semantic_hash": ""
   },
   "BE_RStudy/src/validators/enrollmentValidator.js": {
     "mtime": 1794049917.3016062,
@@ -865,10 +864,10 @@
     "semantic_hash": "7c28d63af4fe1b3eb67762a712a5f2a8"
   },
   "FE_RStudy/src/api/courseApi.js": {
-    "mtime": 1795060793.7807546,
-    "seen": 1795430802.4107003,
-    "ast_hash": "3178fab1369abcbba6563da638c4ba96",
-    "semantic_hash": "3178fab1369abcbba6563da638c4ba96"
+    "mtime": 1795519873.157219,
+    "seen": 1795520216.2558336,
+    "ast_hash": "ced5a21267377fd4cfa486e703207617",
+    "semantic_hash": ""
   },
   "FE_RStudy/src/api/enrollmentApi.js": {
     "mtime": 1795060793.78409,
@@ -1117,10 +1116,10 @@
     "semantic_hash": "05b0e872114fba7bee59cee2298deffc"
   },
   "FE_RStudy/src/components/common/NoteDialog.jsx": {
-    "mtime": 1795060793.7924855,
-    "seen": 1795430802.4146764,
-    "ast_hash": "7e2358cd79d9a43de275414d85e34014",
-    "semantic_hash": "7e2358cd79d9a43de275414d85e34014"
+    "mtime": 1795519873.1632223,
+    "seen": 1795520216.255943,
+    "ast_hash": "0d06eaa98080bef97339eceeb216eb52",
+    "semantic_hash": ""
   },
   "FE_RStudy/src/components/common/NotificationBell.jsx": {
     "mtime": 1795060793.7934916,
@@ -1501,10 +1500,10 @@
     "semantic_hash": "d24eab7cfe7bd9a61cb742ede464fe8d"
   },
   "FE_RStudy/src/pages/admin/AdminCoursesPage.jsx": {
-    "mtime": 1795060793.804474,
-    "seen": 1795430802.4202476,
-    "ast_hash": "e15d82feff5b0dd3d5f219c79375e236",
-    "semantic_hash": "e15d82feff5b0dd3d5f219c79375e236"
+    "mtime": 1795520030.3752375,
+    "seen": 1795520216.2560966,
+    "ast_hash": "97edff57d43a4599fae928772493245b",
+    "semantic_hash": ""
   },
   "FE_RStudy/src/pages/admin/AdminDashboardPage.jsx": {
     "mtime": 1795060178.6138937,
@@ -1603,10 +1602,10 @@
     "semantic_hash": "83a6c7aa8f78e067ff46caa08eaefeb9"
   },
   "FE_RStudy/src/pages/admin/course/courseActions.js": {
-    "mtime": 1795060793.8132956,
-    "seen": 1795430802.4217093,
-    "ast_hash": "a7cdb2f42c8eef638decbf5a9906d86f",
-    "semantic_hash": "a7cdb2f42c8eef638decbf5a9906d86f"
+    "mtime": 1795519886.7099037,
+    "seen": 1795520216.2561297,
+    "ast_hash": "3434eb16ef1f052d2e7bcadb8ae77891",
+    "semantic_hash": ""
   },
   "FE_RStudy/src/pages/admin/dashboard/CountCard.jsx": {
     "mtime": 1795060178.6169064,
@@ -1771,10 +1770,10 @@
     "semantic_hash": "8ea204f164fd67d2e9d5e756035507ed"
   },
   "FE_RStudy/src/pages/courseDetail/CommentSection.jsx": {
-    "mtime": 1793967871.6553085,
-    "seen": 1795430802.424097,
-    "ast_hash": "89bda8dd38a410fd4030aa19195edff2",
-    "semantic_hash": "89bda8dd38a410fd4030aa19195edff2"
+    "mtime": 1795520030.374231,
+    "seen": 1795520216.256187,
+    "ast_hash": "49360e3e9add7f88d650faf2d32ae8ad",
+    "semantic_hash": ""
   },
   "FE_RStudy/src/pages/courseDetail/CourseEnrollBox.jsx": {
     "mtime": 1795060793.8233943,
@@ -2304,13 +2303,6 @@
     "ast_hash": "8479c470c3142e96f35ec1c918a417b2",
     "semantic_hash": "8479c470c3142e96f35ec1c918a417b2"
   },
-  "design_system.json": {
-    "mtime": 1795419547.0562153,
-    "seen": 1795430802.4319818,
-    "ast_hash": "9937abae0be8df3ef56be85c0a716996",
-    "semantic_hash": "9937abae0be8df3ef56be85c0a716996",
-    "ast_empty": true
-  },
   "BE_RStudy/database/schema.sql": {
     "mtime": 1792222185.0039785,
     "seen": 1795430916.3646617,
@@ -2395,88 +2387,40 @@
     "ast_hash": "a95e9cd9d35fa9ddfc6f6c310b958295",
     "semantic_hash": ""
   },
-  ".agents/rules/frontend.md": {
-    "mtime": 1795433905.4421222,
-    "seen": 1795436555.582997,
-    "ast_hash": "2e9159883a5da73c15626e72d63862c8",
-    "semantic_hash": ""
-  },
-  "AGENTS.md": {
-    "mtime": 1795433905.500467,
-    "seen": 1795436555.5830102,
-    "ast_hash": "94b8c8f63dc282b87a10fc25622e6c6f",
-    "semantic_hash": ""
-  },
   "BE_RStudy/README.md": {
-    "mtime": 1792221806.798756,
-    "seen": 1795436555.5830176,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": ""
-  },
-  "BE_RStudy/docs/01-phan-cong-va-quy-trinh.md": {
-    "mtime": 1795436192.0306442,
-    "seen": 1795436555.583025,
-    "ast_hash": "68f0c9d976e560442d42f2be5777e50b",
-    "semantic_hash": ""
-  },
-  "BE_RStudy/docs/02-quy-uoc-ky-thuat.md": {
-    "mtime": 1795436224.5959928,
-    "seen": 1795436555.5830321,
-    "ast_hash": "eff0b11cb36f35d48e16ebb60725db5b",
-    "semantic_hash": ""
-  },
-  "BE_RStudy/docs/03-quy-tac-nghiep-vu.md": {
-    "mtime": 1795436284.426164,
-    "seen": 1795436555.5830367,
-    "ast_hash": "bbc8267d4c13077e079d77542785b18b",
+    "mtime": 1795515715.8834321,
+    "seen": 1795515752.4760745,
+    "ast_hash": "1646918dce9baf2bea82203d78b2c3b1",
     "semantic_hash": ""
   },
   "BE_RStudy/docs/api-spec.md": {
-    "mtime": 1795436523.7524066,
-    "seen": 1795436555.5830426,
-    "ast_hash": "e1d43036d3879c217d8257f0014a0bbf",
+    "mtime": 1795520422.4303322,
+    "seen": 1795520432.3009212,
+    "ast_hash": "74e7d9f4de2f0f6541985c019580940e",
     "semantic_hash": ""
   },
   "BE_RStudy/docs/enum.md": {
-    "mtime": 1795436334.2761812,
-    "seen": 1795436555.5830476,
-    "ast_hash": "15e5f5d2a7e0bc4a62d96a1b80477b27",
+    "mtime": 1795519916.0217638,
+    "seen": 1795520216.2564037,
+    "ast_hash": "5acf9ea407b353fa2b16cb50898db0e3",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1795433905.8857071,
-    "seen": 1795436555.583056,
-    "ast_hash": "369ec702bdabc5a566cbc37a094b7212",
+    "mtime": 1795521218.433745,
+    "seen": 1795521238.750746,
+    "ast_hash": "c655d70540920e5d99de9a52fb39b6bd",
     "semantic_hash": ""
   },
   "DESIGN_SYSTEM.md": {
-    "mtime": 1795433905.8897173,
-    "seen": 1795436555.5830612,
-    "ast_hash": "87ea798874cea6e8b973d8ac50bc99d1",
+    "mtime": 1795516129.0463626,
+    "seen": 1795516135.2860024,
+    "ast_hash": "b85accb507f040092edcc963f7761a9b",
     "semantic_hash": ""
   },
   "FE_RStudy/README.md": {
-    "mtime": 1790177458.534126,
-    "seen": 1795436555.58307,
-    "ast_hash": "a28dc4cb878325f3e9e5649f3e1469ac",
-    "semantic_hash": ""
-  },
-  "FE_RStudy/docs/AI_RULES.md": {
-    "mtime": 1795433905.9355764,
-    "seen": 1795436555.583077,
-    "ast_hash": "285ee221d8a42ac6557a3776355be664",
-    "semantic_hash": ""
-  },
-  "FE_RStudy/docs/specs/_TEMPLATE.md": {
-    "mtime": 1795433905.9479551,
-    "seen": 1795436555.5830827,
-    "ast_hash": "bb93a8c1b4680181bf2f14e0cbf90d41",
-    "semantic_hash": ""
-  },
-  "FE_RStudy/dump.txt": {
-    "mtime": 1793967871.6167016,
-    "seen": 1795436555.583089,
-    "ast_hash": "6aed6450005c853f734eafb6dca2caa0",
+    "mtime": 1795516131.8521357,
+    "seen": 1795516135.2860043,
+    "ast_hash": "f198f4f057dd0421792aed6bad996854",
     "semantic_hash": ""
   },
   "FE_RStudy/index.html": {
@@ -2486,15 +2430,15 @@
     "semantic_hash": ""
   },
   "PRODUCT.md": {
-    "mtime": 1795434052.7684379,
-    "seen": 1795436555.5830965,
-    "ast_hash": "583762662e6a46636d62680b600438c7",
+    "mtime": 1795518155.850254,
+    "seen": 1795518186.097617,
+    "ast_hash": "336e6a5423824c35c9dc343a7ab17e69",
     "semantic_hash": ""
   },
   "SETUP.md": {
-    "mtime": 1795434058.192904,
-    "seen": 1795436555.5830998,
-    "ast_hash": "5ef526d846d82d0191a43e81d4b4bf84",
+    "mtime": 1795518155.8983526,
+    "seen": 1795518186.0976183,
+    "ast_hash": "766e9a4c0e6bf3c019e71e8e142f1ed0",
     "semantic_hash": ""
   },
   "FE_RStudy/public/favicon.png": {
@@ -2569,10 +2513,94 @@
     "ast_hash": "1da90fc65a1db29b1c5283dbe88f7f5d",
     "semantic_hash": ""
   },
+  "docker-compose.yml": {
+    "mtime": 1795448434.9394987,
+    "seen": 1795515752.4760332,
+    "ast_hash": "7eeb5028dbfaee84cd15c53d495fece0",
+    "semantic_hash": ""
+  },
+  ".claude/rules/backend.md": {
+    "mtime": 1795518155.7860336,
+    "seen": 1795518186.097593,
+    "ast_hash": "f7149ee4301d219ad2b283ffb445dee8",
+    "semantic_hash": ""
+  },
+  ".claude/rules/business.md": {
+    "mtime": 1795519916.0237617,
+    "seen": 1795520216.2563803,
+    "ast_hash": "05865d41acc4de8482311e4ea537d49a",
+    "semantic_hash": ""
+  },
+  ".claude/rules/database.md": {
+    "mtime": 1795515715.747085,
+    "seen": 1795515752.4760525,
+    "ast_hash": "8a5ff94a4fb738d7f28896ae9ec839c5",
+    "semantic_hash": ""
+  },
+  ".claude/rules/design.md": {
+    "mtime": 1795516125.7284155,
+    "seen": 1795516135.2859862,
+    "ast_hash": "7924fbb88648ab5c51a91f65a69ed6fa",
+    "semantic_hash": ""
+  },
+  ".claude/rules/frontend.md": {
+    "mtime": 1795517764.042729,
+    "seen": 1795518186.0975995,
+    "ast_hash": "24cb9ef97e9bda6ad1489c93fc2b7a35",
+    "semantic_hash": ""
+  },
+  ".claude/rules/security.md": {
+    "mtime": 1795515715.8166313,
+    "seen": 1795515752.4760623,
+    "ast_hash": "6a275728419405a31c82405f8cd64a20",
+    "semantic_hash": ""
+  },
+  ".claude/rules/testing.md": {
+    "mtime": 1795515715.8312857,
+    "seen": 1795515752.476066,
+    "ast_hash": "36229d47e15108d2762871d425fe65c1",
+    "semantic_hash": ""
+  },
+  ".claude/rules/workflow.md": {
+    "mtime": 1795521235.020712,
+    "seen": 1795521238.7507298,
+    "ast_hash": "6739b79931f9c4b5c96d43e9cf543c51",
+    "semantic_hash": ""
+  },
+  ".claude/agents/backend-reviewer.md": {
+    "mtime": 1795516461.6054344,
+    "seen": 1795518186.097585,
+    "ast_hash": "6afd8bb83caa654d084517fef4a5c18c",
+    "semantic_hash": ""
+  },
+  ".claude/agents/frontend-reviewer.md": {
+    "mtime": 1795516461.6487768,
+    "seen": 1795518186.097588,
+    "ast_hash": "4f1ceca6fba9256ee2024b8b33a7427e",
+    "semantic_hash": ""
+  },
+  ".claude/agents/security-reviewer.md": {
+    "mtime": 1795516461.6882215,
+    "seen": 1795518186.0975895,
+    "ast_hash": "f759151cd9c3b27e4a9e82b2391da46a",
+    "semantic_hash": ""
+  },
+  ".claude/agents/test-engineer.md": {
+    "mtime": 1795516461.7239132,
+    "seen": 1795518186.097591,
+    "ast_hash": "d24a2e790a060cd46181a82e262888d2",
+    "semantic_hash": ""
+  },
+  "BE_RStudy/tests/fix-regression.test.js": {
+    "mtime": 1795520345.8421915,
+    "seen": 1795520432.3000853,
+    "ast_hash": "8605613c586128700ffd9b60b2dd7aef",
+    "semantic_hash": ""
+  },
   "BE_RStudy/package-lock.json": {
-    "mtime": 1795060178.5516274,
-    "seen": 1795436555.5831785,
-    "ast_hash": "dc13e51446774bbc33511608f2b8adb9",
+    "mtime": 1795448873.351748,
+    "seen": 1795515752.476154,
+    "ast_hash": "9386ba250df16f33add5a4ea4b4a8746",
     "semantic_hash": ""
   },
   "FE_RStudy/package-lock.json": {
