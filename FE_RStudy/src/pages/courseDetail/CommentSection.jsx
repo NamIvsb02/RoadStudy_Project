@@ -14,19 +14,20 @@ import CommentItem from './CommentItem';
 
 const PAGE_SIZE = 10;
 
+// Đổi người dùng (đăng nhập/đăng xuất) thì tải lại danh sách để cờ isMine đúng
 export default function CommentSection({ courseId }) {
+  const { account } = useAuth();
+  return <CommentList key={account?.id ?? 'guest'} courseId={courseId} />;
+}
+
+function CommentList({ courseId }) {
   const { account, loading: authLoading } = useAuth();
   const [page, setPage] = useState(1);
   const canWrite = account?.role === ROLES.STUDENT || account?.role === ROLES.TEACHER;
   const loggedIn = Boolean(account);
 
-  const request = useCallback(
-    () =>
-      loggedIn
-        ? commentApi.listByCourse(courseId, { page, limit: PAGE_SIZE })
-        : Promise.resolve({ data: null }),
-    [courseId, page, loggedIn],
-  );
+  // Khách cũng xem được bình luận (isMine luôn false khi chưa đăng nhập)
+  const request = useCallback(() => commentApi.listByCourse(courseId, { page, limit: PAGE_SIZE }), [courseId, page]);
   const { data, loading, error, reload } = useFetch(request);
 
   const createComment = async (content) => {
@@ -36,17 +37,8 @@ export default function CommentSection({ courseId }) {
   };
 
   let content;
-  if (authLoading || (loggedIn && loading && !data)) content = <LoadingState />;
-  else if (!loggedIn) {
-    content = (
-      <p className="text-slate-600">
-        <Link to={ROUTES.LOGIN} className="font-medium text-primary hover:underline">
-          Đăng nhập
-        </Link>{' '}
-        để xem và tham gia bình luận.
-      </p>
-    );
-  } else if (error) content = <ErrorState message={error} onRetry={reload} />;
+  if (authLoading || (loading && !data)) content = <LoadingState />;
+  else if (error) content = <ErrorState message={error} onRetry={reload} />;
   else {
     content = (
       <>
@@ -59,6 +51,14 @@ export default function CommentSection({ courseId }) {
               onSubmit={createComment}
             />
           </div>
+        )}
+        {!loggedIn && (
+          <p className="mb-4 text-muted">
+            <Link to={ROUTES.LOGIN} className="font-medium text-primary hover:underline">
+              Đăng nhập
+            </Link>{' '}
+            để tham gia bình luận.
+          </p>
         )}
         {data.items.length === 0 ? (
           <EmptyState message="Chưa có bình luận nào" />
