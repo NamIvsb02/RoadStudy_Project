@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const commentController = require('../controllers/commentController');
-const { authenticate, authorize } = require('../middlewares/authMiddleware');
+const { authenticate, optionalAuthenticate, authorize } = require('../middlewares/authMiddleware');
 const validate = require('../middlewares/validateMiddleware');
 const {
   courseIdParamSchema,
@@ -13,7 +13,7 @@ const {
 const writers = [authenticate, authorize('STUDENT', 'TEACHER')];
 
 // ---------- theo khóa học ----------
-router.get('/course/:courseId', authenticate, validate(courseIdParamSchema, 'params'), commentController.listByCourse);
+router.get('/course/:courseId', optionalAuthenticate, validate(courseIdParamSchema, 'params'), commentController.listByCourse);
 router.post(
   '/course/:courseId',
   ...writers,

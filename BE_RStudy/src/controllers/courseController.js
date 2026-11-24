@@ -18,7 +18,7 @@ const parseListQuery = (query) => {
   const cleaned = Object.fromEntries(Object.entries(query).filter(([, v]) => v !== ""));
   const result = publicListQuerySchema.safeParse(cleaned);
   if (!result.success) {
-    const message = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+    const message = result.error.issues.map((i) => (i.path.length > 0 ? `${i.path.join(".")}: ${i.message}` : i.message)).join("; ");
     throw new AppError(message, 400);
   }
   return result.data;
@@ -77,12 +77,12 @@ exports.approve = async (req, res) => {
 };
 
 exports.reject = async (req, res) => {
-  const data = await courseService.reject(req.params.id);
+  const data = await courseService.reject(req.params.id, req.body.reason);
   res.json(formatResponse(true, data, "Đã từ chối khóa học, giáo viên có thể chỉnh sửa và gửi duyệt lại"));
 };
 
 exports.changeStatus = async (req, res) => {
-  const data = await courseService.changeStatusByAdmin(req.params.id, req.body.status);
+  const data = await courseService.changeStatusByAdmin(req.params.id, req.body.status, req.body.reason);
   res.json(formatResponse(true, data, "Cập nhật trạng thái khóa học thành công"));
 };
 

@@ -32,6 +32,7 @@ const commentSelect = {
 const courseGuardSelect = {
   id: true,
   status: true,
+  category: { select: { status: true } },
   teacher: { select: { accountId: true } },
 };
 

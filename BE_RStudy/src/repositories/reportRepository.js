@@ -44,13 +44,23 @@ exports.findAndCount = async ({ status, skip, take }) => {
   return { items, total };
 };
 
-exports.update = (id, data) => prisma.violationReport.update({ where: { id }, data, include });
+const OPEN_STATUSES = ["CHO_XU_LY", "DANG_XU_LY"];
 
-// Chốt DA_XU_LY: đánh dấu nội dung VI_PHAM và cập nhật báo cáo trong 1 transaction
+// Đổi trạng thái có điều kiện (chỉ khi báo cáo còn ở một trong các trạng thái fromStatuses).
+// Trả về báo cáo sau khi đổi, hoặc null nếu trạng thái đã bị người khác đổi trước (tránh ghi đè khi 2 admin xử lý cùng lúc)
+exports.transition = async (id, fromStatuses, data) => {
+  const { count } = await prisma.violationReport.updateMany({ where: { id, status: { in: fromStatuses } }, data });
+  return count === 0 ? null : prisma.violationReport.findUnique({ where: { id }, include });
+};
+
+// Chốt DA_XU_LY: đổi trạng thái báo cáo (có điều kiện) và đánh dấu nội dung VI_PHAM trong 1 transaction.
+// Trả về null nếu báo cáo không còn ở trạng thái mở; khi đó không đụng tới nội dung bị báo cáo.
 exports.resolveViolation = (report, data) =>
   prisma.$transaction(async (tx) => {
+    const { count } = await tx.violationReport.updateMany({ where: { id: report.id, status: { in: OPEN_STATUSES } }, data });
+    if (count === 0) return null;
     if (report.reviewId) await tx.review.update({ where: { id: report.reviewId }, data: { status: "VI_PHAM" } });
     if (report.commentId) await tx.comment.update({ where: { id: report.commentId }, data: { status: "VI_PHAM" } });
     if (report.replyId) await tx.reply.update({ where: { id: report.replyId }, data: { status: "VI_PHAM" } });
-    return tx.violationReport.update({ where: { id: report.id }, data, include });
+    return tx.violationReport.findUnique({ where: { id: report.id }, include });
   });

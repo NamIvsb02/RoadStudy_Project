@@ -6,6 +6,17 @@ const authenticate = (req, res, next) => {
   if (!header || !header.startsWith("Bearer ")) {
     return next(new AppError("Thiếu token xác thực", 401));
   }
+  return readToken(header, req, next);
+};
+
+// Cho API công khai: không có token thì coi là khách, có token thì phải hợp lệ như authenticate
+const optionalAuthenticate = (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith("Bearer ")) return next();
+  return readToken(header, req, next);
+};
+
+function readToken(header, req, next) {
   try {
     const payload = verifyAccessToken(header.slice(7));
     req.user = { id: payload.sub, role: payload.role };
@@ -13,7 +24,7 @@ const authenticate = (req, res, next) => {
   } catch (err) {
     next(new AppError("Token không hợp lệ hoặc hết hạn", 401));
   }
-};
+}
 
 const authorize =
   (...roles) =>
@@ -25,4 +36,4 @@ const authorize =
     next();
   };
 
-module.exports = { authenticate, authorize };
+module.exports = { authenticate, optionalAuthenticate, authorize };

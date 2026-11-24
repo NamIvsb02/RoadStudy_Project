@@ -2,7 +2,7 @@ const router = require("express").Router();
 const courseController = require("../controllers/courseController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 const validate = require("../middlewares/validateMiddleware");
-const { idParamSchema, createCourseSchema, updateCourseSchema, changeStatusSchema } = require("../validators/courseValidator");
+const { idParamSchema, createCourseSchema, updateCourseSchema, changeStatusSchema, rejectCourseSchema } = require("../validators/courseValidator");
 const { requirePermission } = require("../middlewares/permissionMiddleware");
 const { PERMISSIONS } = require("../constants/permissions");
 const { uploadCover } = require("../middlewares/uploadMiddleware");
@@ -21,7 +21,7 @@ router.post("/:id/submit", ...teacherOnly, validate(idParamSchema, "params"), co
 router.get("/manage", ...adminOnly, courseController.getAdminList);
 router.get("/manage/:id", ...adminOnly, validate(idParamSchema, "params"), courseController.getAdminById);
 router.post("/:id/approve", ...adminOnly, validate(idParamSchema, "params"), courseController.approve);
-router.post("/:id/reject", ...adminOnly, validate(idParamSchema, "params"), courseController.reject);
+router.post("/:id/reject", ...adminOnly, validate(idParamSchema, "params"), validate(rejectCourseSchema), courseController.reject);
 router.patch("/:id/status", ...adminOnly, validate(idParamSchema, "params"), validate(changeStatusSchema), courseController.changeStatus);
 
 router.get("/", courseController.getPublicList);

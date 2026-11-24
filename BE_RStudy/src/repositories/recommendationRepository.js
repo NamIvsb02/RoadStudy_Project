@@ -12,6 +12,7 @@ const courseSelect = {
 
 const openWhere = (maxPrice) => ({
   status: "DANG_MO",
+  category: { status: "HOAT_DONG" },
   ...(maxPrice != null && { price: { lte: maxPrice } }),
 });
 

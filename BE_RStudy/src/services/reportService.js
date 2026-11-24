@@ -12,9 +12,14 @@ const getExistingOrThrow = async (id) => {
   return report;
 };
 
+const FINAL_MESSAGE = "Báo cáo đã được xử lý xong, không thể thay đổi";
+
 const assertNotFinal = (report) => {
-  if (FINAL.includes(report.status)) throw new AppError("Báo cáo đã được xử lý xong, không thể thay đổi", 409);
+  if (FINAL.includes(report.status)) throw new AppError(FINAL_MESSAGE, 409);
 };
+
+// Trạng thái bị người khác đổi giữa lúc kiểm tra và lúc ghi
+const conflict = () => new AppError("Báo cáo vừa được người khác xử lý, vui lòng tải lại", 409);
 
 // NGƯỜI DÙNG
 const create = async (accountId, { reason, content, reviewId, commentId, replyId }) => {
@@ -54,15 +59,31 @@ const process = async (id, { status, resolutionResult }) => {
 
   if (status === ReportStatus.DANG_XU_LY) {
     if (report.status !== ReportStatus.CHO_XU_LY) throw new AppError("Báo cáo đã ở trạng thái đang xử lý", 409);
-    return reportRepository.update(id, { status });
+    const started = await reportRepository.transition(id, [ReportStatus.CHO_XU_LY], { status });
+    if (!started) throw conflict();
+    return started;
   }
-  return reportRepository.resolveViolation(report, { status, resolutionResult });
+  const resolved = await reportRepository.resolveViolation(report, { status, resolutionResult });
+  if (!resolved) throw conflict();
+  await notificationService.notify(report.reporterAccountId, {
+    type: "REPORT_RESOLVED",
+    title: "Báo cáo vi phạm của bạn đã được xử lý",
+    body: resolutionResult,
+  });
+  return resolved;
 };
 
 const reject = async (id, { resolutionResult }) => {
   const report = await getExistingOrThrow(id);
   assertNotFinal(report);
-  return reportRepository.update(id, { status: ReportStatus.TU_CHOI, resolutionResult });
+  const rejected = await reportRepository.transition(id, [ReportStatus.CHO_XU_LY, ReportStatus.DANG_XU_LY], { status: ReportStatus.TU_CHOI, resolutionResult });
+  if (!rejected) throw conflict();
+  await notificationService.notify(report.reporterAccountId, {
+    type: "REPORT_REJECTED",
+    title: "Báo cáo vi phạm của bạn không được chấp nhận",
+    body: resolutionResult,
+  });
+  return rejected;
 };
 
 module.exports = { create, getList, getById, process, reject };
