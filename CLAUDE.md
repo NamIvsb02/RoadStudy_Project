@@ -1,68 +1,129 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Đọc trước khi làm (bắt buộc, trước mọi thao tác sửa code)
 
-RoadStudy là website đăng ký và học trực tuyến (vai trò `STUDENT`, `TEACHER`, `ADMINISTRATOR`) có chatbot AI. Repo gồm hai project npm độc lập, không có workspace gốc: `BE_RStudy/` (Express 5 + Prisma 6 + PostgreSQL/Supabase, CommonJS) và `FE_RStudy/` (React 19 + Vite, JSX, Tailwind v4).
+Làm theo đúng thứ tự dưới đây. **Agent chính (leader) khi gọi subagent phải nạp đúng các file này cho subagent**, và tự kiểm tra lại kết quả, không coi báo cáo suông của subagent là bằng chứng đã xong.
 
-**`AGENTS.md` là tài liệu điều phối bắt buộc.** Đọc nó trước khi làm việc: giao tiếp và viết tài liệu bằng tiếng Việt, xin phép trước khi cài package / chạy migration / commit / push / tạo PR, không sửa chéo FE/BE khi nhiệm vụ chỉ thuộc một vùng.
+1. **Hiểu yêu cầu.** Thiếu thông tin thì hỏi, không đoán.
+2. **Hỏi codebase bằng graph trước.** Nếu `graphify-out/graph.json` tồn tại, chạy `graphify query "<câu hỏi>"` trước lần grep hoặc đọc source đầu tiên (chi tiết ở mục graphify cuối file).
+3. **Đọc rule theo vùng sắp sửa:**
 
-## Tài liệu quy tắc
+| Sắp làm gì                                              | Phải đọc trước                                                                 |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Bất kỳ việc nào                                         | `.claude/rules/workflow.md`                                                    |
+| Sửa `BE_RStudy/`                                        | `.claude/rules/backend.md`, `.claude/rules/security.md`                        |
+| Đụng Prisma, schema, repository, migration              | `.claude/rules/database.md`                                                    |
+| Viết hoặc sửa service, validator, trang FE có nghiệp vụ | `.claude/rules/business.md`                                                    |
+| Sửa `FE_RStudy/`                                        | `.claude/rules/frontend.md`, `.claude/rules/design.md`, rồi `DESIGN_SYSTEM.md` |
+| Viết hoặc sửa test                                      | `.claude/rules/testing.md`                                                     |
 
-Đọc theo vùng làm việc:
+4. **Đọc tài liệu chuẩn của phần đang làm:**
+   - Gọi hoặc viết API: mục của module đó trong `BE_RStudy/docs/api-spec.md` (nguồn chuẩn). API chưa có trong file này thì **chưa tính là xong**.
+   - Dùng trạng thái, enum, loại thông báo: `BE_RStudy/docs/enum.md`.
+5. **Xem code xung quanh** để bám đúng cách làm hiện có, rồi **lập kế hoạch** các bước trước khi sửa.
 
-- FE: `.agents/rules/frontend.md`, `FE_RStudy/docs/AI_RULES.md` (quy tắc cứng), `FE_RStudy/docs/specs/` (spec từng trang, mẫu `_TEMPLATE.md`), và `DESIGN_SYSTEM.md` + `design_system.json` (thư mục gốc) nếu là tác vụ giao diện.
-- BE: `BE_RStudy/docs/02-quy-uoc-ky-thuat.md`, `03-quy-tac-nghiep-vu.md`, `enum.md`.
-- `BE_RStudy/docs/api-spec.md` là nguồn chuẩn về endpoint cho cả hai bên. Mục 15 của file này liệt kê module nào chưa có tài liệu.
-- Chung: `PRODUCT.md` (bối cảnh sản phẩm), `SETUP.md` (cài đặt), `BE_RStudy/docs/01-phan-cong-va-quy-trinh.md` (quy trình Git, database).
-- Animation: mặc định không animation, trừ scroll-reveal cho các section chính của trang nội dung (đã chốt, chi tiết ở mục 4 `AI_RULES.md`) và lắc chuông thông báo. Mobile-first, tôn trọng `prefers-reduced-motion`.
+## Guardrails
 
-## Lệnh
+- **Luôn trả lời, lập kế hoạch, báo cáo và viết tài liệu bằng tiếng Việt** (giữ thuật ngữ kỹ thuật tiếng Anh khi cần). Chỉ đổi ngôn ngữ khi người dùng yêu cầu. Tên file, biến, hàm giữ tiếng Anh. **Ngoại lệ: commit message viết bằng tiếng Anh** (quy tắc ở `.claude/rules/workflow.md`).
+- **Xin phép trước** khi: cài/cập nhật package, sửa `schema.prisma`, chạy migration hoặc seed, sửa Docker/CI, commit, push, tạo PR, đổi nhánh, gửi dữ liệu ra dịch vụ ngoài.
+- **Cấm** `prisma migrate reset`, seed lại, xóa dữ liệu: cả nhóm dùng chung **một database Supabase**. Chỉ Nam sửa schema và chạy migration.
+- **Cấm** `git push --force`, `git reset --hard`, xóa nhánh khi chưa được người dùng đồng ý.
+- Không đọc, in hay commit `.env` và bí mật (`DATABASE_URL`, `DIRECT_URL`, API key).
+- Chỉ làm đúng phạm vi; không sửa chéo FE/BE khi nhiệm vụ thuộc một vùng. Thấy lỗi ngoài vùng phụ trách thì **ghi nhận và báo người dùng**, không tự sửa lan.
+- Không tắt xác thực, phân quyền, validate để sửa nhanh. Backend mới là nơi chặn quyền thật.
+- Không tự tạo file mới ngoài phạm vi được giao (đặc biệt file `.md`) khi chưa hỏi.
+- Không nói đã chạy test/build khi chưa chạy. Báo trung thực: đã làm gì, cái gì chưa xong, lỗi phát sinh.
 
-Backend (`cd BE_RStudy`, cần `.env` có `DATABASE_URL`, `DIRECT_URL`, `JWT_ACCESS_SECRET`, cấu hình AI/mail):
+## Cách giao tiếp
 
-- `npm run dev`: chạy nodemon `src/app.js`, cổng `PORT` (mặc định 5000), kiểm tra sống tại `GET /health`
-- `npm run db:generate`: chạy prisma generate sau khi sửa `prisma/schema.prisma`
-- `npm run db:migrate` / `npx prisma db seed`: tạo migration / seed. **Phải xin phép trước.** Prisma CLI đọc `prisma.config.ts` và dùng `DIRECT_URL`. Cả nhóm dùng chung **một database Supabase**: chỉ Nam sửa schema và chạy migration, người khác sau khi pull chỉ chạy `npx prisma generate`. Không bao giờ chạy `migrate reset` hay seed lại khi chưa được duyệt.
-- `npm test` chỉ là stub. Test là script Node gọi HTTP vào **server đang chạy** và DB thật: bật `npm run dev` trước, rồi chạy từng file, ví dụ `node tests/exam.test.js` (in ra PASS/FAIL). `node tests/ai-check.js` kiểm tra kết nối nhà cung cấp AI.
-  - `tests/helpers/auth.js` tạo access token hợp lệ, không cần đăng nhập OTP. Một số test cũ (`category`, `comment`, `course`, `course.public`) vẫn gửi header `x-dev-role` mà `authMiddleware` không còn hỗ trợ, nên các route cần xác thực trong những test này có thể lỗi.
-  - Tài khoản seed dùng chung mật khẩu `Password123!`: `leader@`, `admin@`, `teacher@`, `student@roadstudy.vn`.
+- Nói đơn giản, dễ hiểu. Thuật ngữ bắt buộc (ví dụ `JWT`, `transaction`, `middleware`) thì giải thích ngắn lần đầu.
+- Giải thích phức tạp phải kèm ví dụ cụ thể.
+- Người dùng chạy Windows với Git Bash: lệnh đưa ra phải chạy được trong Git Bash.
+- Khi người dùng nói **"hướng dẫn tôi làm"**: chỉ giải thích từng bước và đưa lệnh, **không tự thực hiện**.
+- Làm xong báo danh sách file đã tạo hoặc sửa và việc còn lại.
 
-Frontend (`cd FE_RStudy`, cần `VITE_API_URL` (vd `http://localhost:5000/api`) và `VITE_ASSET_URL`):
+## Dự án
 
-- `npm run dev`, `npm run build`, `npm run lint` (chạy lint trước khi báo xong). FE chưa có test.
+RoadStudy là website đăng ký và học trực tuyến có chatbot AI gợi ý khóa học, ba vai trò `STUDENT`, `TEACHER`, `ADMINISTRATOR` (admin có Leader và 8 quyền chức năng). Hai project npm độc lập, không có workspace gốc:
 
-## Kiến trúc backend
+| Thư mục      | Công nghệ                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------- |
+| `BE_RStudy/` | Node 24, Express 5, Prisma 6, PostgreSQL (Supabase), CommonJS, zod, JWT, multer           |
+| `FE_RStudy/` | React 19, Vite, JSX, Tailwind v4, React Router 7, TanStack Query, axios                   |
+| Thư mục gốc  | `CLAUDE.md`, `PRODUCT.md`, `DESIGN_SYSTEM.md`, `SETUP.md`, `docker-compose.yml`, Prettier |
 
-- Mỗi module (auth, account, teacher, admin, category, course, resource, enrollment, coupon, invoice, review, comment, exam, submission, chatbot, recommendation, report, notification, learning) có đủ 5 file: `routes/` → `controllers/` → `services/` → `repositories/` + `validators/`. Controller chỉ nhận req/res. Toàn bộ nghiệp vụ nằm ở service và báo lỗi bằng `throw new AppError(msg, status)`. Repository chỉ chứa lệnh Prisma. Tất cả route được mount ở `/api/<module>` trong `src/app.js`.
-- Tên module khác tên bảng Prisma: coupon=`DiscountCode`, enrollment=`CourseRegistration`, submission=`ExamAttempt`, report=`ViolationReport`, chatbot=`AiConversation`/`AiMessage`, recommendation=`CourseRecommendation`, admin=`Administrator`+`SystemFunction`+`PermissionAssignment`, invoice=`Invoice`+`SupportRequest` (yêu cầu hoàn tiền), learning=`CourseLearning`+`CourseSession`.
-- Phân quyền có hai tầng, gắn ở route:
-  1. `authenticate` (JWT Bearer, gán `req.user = {id, role}`) rồi `authorize(...roles)`.
-  2. Với admin, thêm `requireAdmin` / `requirePermission(PERMISSIONS.X)` / `requireLeader` (`middlewares/permissionMiddleware.js`). Các middleware này nạp `req.admin = {id, isLeader, permissions}` từ DB. Leader bỏ qua mọi kiểm tra quyền. Có 8 quyền, tên nằm ở `src/constants/permissions.js` và phải trùng với `functionName` trong DB. Route dùng chung cho giáo viên và admin chỉ kiểm tra quyền khi là admin (xem `examRoutes.js`, `learningRoutes.js`).
-- Giáo viên `CHO_DUYET` / `TU_CHOI` bị chặn 403 ở cả `login` lẫn `refresh` (`assertTeacherApproved`).
-- Thông báo trên chuông: gọi các hàm `notify*` trong `services/notificationService.js` sau khi nghiệp vụ thành công. Các hàm này tự nuốt lỗi. Danh sách loại thông báo ở `enum.md`.
-- Response luôn có dạng `formatResponse(success, data, message)` → `{ success, message, data }`. Danh sách phải phân trang (`utils/pagination.js`) và trả về `data.items` + `data.pagination`. Express 5 tự chuyển lỗi async sang `errorHandler`, và `errorHandler` đã ánh xạ lỗi Prisma (P2002→409, P2003→400, P2025→404).
-- Quy ước dữ liệu: tiền (Decimal) trả dạng chuỗi; xóa mềm bằng trường `status` (ví dụ `HOAT_DONG`), không xóa cứng; quan hệ Prisma dùng `onDelete: Restrict`; không bao giờ trả `passwordHash`.
-- AI (`src/config/ai.js`): chọn nhà cung cấp qua `AI_PROVIDER`. `gemini` dùng `GEMINI_API_KEY`. `openai` dùng mọi API tương thích OpenAI (Groq mặc định) với `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`. Chỉ chatbot gọi AI (`generateJson` trong `recommendationService.recommend`). Khối "Dành cho bạn" (`GET /recommendation/me`) không gọi AI.
-- Upload qua multer (`uploadMiddleware.js`) và được phục vụ tĩnh tại `/uploads/{avatars,covers,resources}`. DB lưu đường dẫn tương đối. Minh chứng thanh toán lưu ở `uploads/proofs` và **không** được phục vụ công khai.
+```text
+BE_RStudy/src/  routes → controllers → services → repositories (+ validators), 19 module, mount /api/<module>
+BE_RStudy/prisma/  schema.prisma, migrations/, seed.js     BE_RStudy/tests/  script Node gọi HTTP
+FE_RStudy/src/  api/ components/ constants/ context/ hooks/ pages/ routes/AppRoutes.jsx utils/
+```
 
-## Kiến trúc frontend
+## Quy trình và kiểm tra
 
-- `src/api/axiosClient.js` trả thẳng `response.data` (tức `{success, message, data}`), tự gắn Bearer token, và tự refresh khi gặp 401 (gom các lần refresh đồng thời thành một). Nếu refresh thất bại, nó phát sự kiện `auth:logout`. Không xử lý 401 trong trang. Mỗi module BE có một file `src/api/<module>Api.js`; component không gọi axios trực tiếp.
-- `AuthContext` gọi `/auth/me`. Với ADMINISTRATOR, nó gọi thêm `/admin/me` và gộp `isLeader` + `permissions` vào `account`. Component đọc các giá trị này qua `useAuth()`, không đụng localStorage (đã có `utils/tokenStorage`).
-- Định tuyến nằm ở `src/routes/AppRoutes.jsx`, với các guard `ProtectedRoute` (role), `PermissionRoute` và `LeaderRoute`, và các layout `Layout` / `AuthLayout` / `ManageLayout` (khu quản trị/giáo viên) / `ExamLayout`. Dùng hằng `ROUTES`, `ROLES`, `PERMISSIONS` từ `src/constants/`, không viết cứng chuỗi. Khi thêm trang, chỉ thêm 1 dòng vào `AppRoutes.jsx` và 1 hằng vào `routes.js`.
-- Chỉ dùng icon `lucide-react` và animation `framer-motion` với preset trong `src/constants/motion.js`. Form dùng react-hook-form + zod. Server state dùng TanStack Query (`src/lib/queryClient.js`). Text giao diện bằng tiếng Việt.
-- Ảnh/file upload: dùng `assetUrl(path)` trong `src/utils/format.js`, không tự ghép với `VITE_ASSET_URL`. Ảnh bìa khóa học luôn qua `components/common/CourseCover`. Ảnh minh chứng cần token nên tải dạng blob qua `hooks/useProofImage` / `components/common/ProofImage`, không đặt vào `<img src>`.
-- Thời gian BE trả ISO UTC, hiển thị theo giờ Việt Nam bằng các hàm dayjs trong `utils/format.js` (`formatDate`, `formatDateTime`, `timeAgo`). Tiền chuyển sang số khi tính và định dạng VND bằng `formatVND`.
-- Màu lấy từ token trong `src/assets/styles/theme.css`, không ghi mã màu trực tiếp. Menu khu quản lý và quyền ứng với từng mục nằm ở `src/components/manage/manageNav.js`.
+1. Đọc theo mục "Đọc trước khi làm" ở đầu file.
+2. Làm thay đổi nhỏ gọn, bám đúng kiến trúc và phạm vi.
+3. Kiểm tra trước khi báo xong (chi tiết trong `.claude/rules/testing.md`): FE chạy `npm run lint` và `npm run build`; BE bật server rồi chạy script test liên quan.
+4. Báo cáo trung thực. Chỉ commit và push khi người dùng yêu cầu; quy ước nhánh và commit nằm trong `.claude/rules/workflow.md`.
+
+## Lệnh thường dùng
+
+| Việc            | Lệnh                                                              |
+| --------------- | ----------------------------------------------------------------- |
+| Chạy BE         | `cd BE_RStudy && npm run dev` (cổng 5000, kiểm tra `GET /health`) |
+| Chạy FE         | `cd FE_RStudy && npm run dev` (cổng 5173)                         |
+| Lint / build FE | `npm run lint`, `npm run build` (trong `FE_RStudy/`)              |
+| Prisma Client   | `npm run db:generate` (sau khi pull hoặc schema đổi)              |
+| Test BE         | Bật `npm run dev`, rồi `node tests/<module>.test.js`              |
+| Docker          | `docker compose up -d --build` (thư mục gốc)                      |
+| Format Markdown | `npx prettier --write <file.md>` (chỉ file vừa sửa)               |
+
+## Rules và tài liệu
+
+Rules trong `.claude/rules/` tự nạp theo đường dẫn file đang làm, nhưng **vẫn phải đọc đúng file theo bảng ở đầu trang** trước khi sửa code, vì subagent không chắc nhận được rule tự nạp.
+
+| Rule          | Phạm vi                      | Nội dung                                                  |
+| ------------- | ---------------------------- | --------------------------------------------------------- |
+| `workflow.md` | Toàn repo                    | Ngôn ngữ, việc cần xin phép, Git, báo cáo, chuẩn Markdown |
+| `testing.md`  | Toàn repo                    | Kiểm tra trước khi báo xong, cách chạy test BE            |
+| `backend.md`  | `BE_RStudy/**`               | Phân tầng, response, lỗi, validate, upload, AI            |
+| `database.md` | Prisma, repository           | DB dùng chung, migration, quy ước schema                  |
+| `security.md` | `src/**` của FE và BE        | Xác thực, phân quyền, dữ liệu nhạy cảm, prompt AI         |
+| `business.md` | Service, validator, trang FE | Quy tắc nghiệp vụ đã chốt và chưa chốt                    |
+| `frontend.md` | `FE_RStudy/**`               | Quy tắc cứng FE, cấu trúc, gọi API, auth                  |
+| `design.md`   | JSX, CSS, spec               | Cách áp dụng và kiểm tra `DESIGN_SYSTEM.md`               |
+
+### Subagent
+
+Subagent trong `.claude/agents/` (model Sonnet), chỉ gọi khi người dùng yêu cầu:
+
+| Agent               | Dùng khi                                                      | Sửa file?              |
+| ------------------- | ------------------------------------------------------------- | ---------------------- |
+| `frontend-reviewer` | Review thay đổi `FE_RStudy/`                                  | Không                  |
+| `backend-reviewer`  | Review thay đổi `BE_RStudy/`                                  | Không                  |
+| `security-reviewer` | Audit tài khoản, quyền, thanh toán, upload, secrets, cấu hình | Không                  |
+| `test-engineer`     | Kiểm chứng hành vi bằng test chạy thật                        | Chỉ `BE_RStudy/tests/` |
+
+Khi gọi subagent: nạp cho nó các file rule đúng vùng (bảng ở đầu trang) và quy tắc graphify. Agent chính tự xem diff và tự chạy lệnh kiểm tra.
+
+### Tài liệu tham khảo
+
+Chỉ đọc phần cần cho tác vụ:
+
+| Cần biết                                 | Đọc                                                         |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| Endpoint, body, response, lỗi            | `BE_RStudy/docs/api-spec.md` (nguồn chuẩn; chưa có Swagger) |
+| Giá trị enum, trạng thái, loại thông báo | `BE_RStudy/docs/enum.md`                                    |
+| Token, component, motion, responsive     | `DESIGN_SYSTEM.md`                                          |
+| Mẫu spec trang FE                        | Mục "Spec trang" trong `.claude/rules/frontend.md`          |
+| Mục tiêu sản phẩm, người dùng            | `PRODUCT.md`                                                |
+| Cài đặt, biến môi trường, Docker         | `SETUP.md`                                                  |
 
 ## graphify
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+Repo có knowledge graph ở `graphify-out/`.
 
-Rules:
-
-- When graphify-out/graph.json exists, run `graphify query "<question>"` before your first grep, search or source-file read for a codebase question, and put this rule in every subagent prompt that explores code. Read raw files only for lines the graph or an earlier read already located. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. When the answer is under a Markdown heading, `graphify section "<heading>"` prints that section's text, so the .md need not be opened. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
-- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.
+- Khi `graphify-out/graph.json` tồn tại, chạy `graphify query "<câu hỏi>"` trước lần grep/đọc source đầu tiên cho câu hỏi về codebase, và đưa quy tắc này vào prompt của mọi subagent khám phá code. Chỉ đọc file gốc cho các dòng mà graph hoặc lần đọc trước đã chỉ ra.
+- `graphify path "<A>" "<B>"` cho quan hệ, `graphify explain "<khái niệm>"` cho một khái niệm, `graphify section "<heading>"` để in một mục Markdown mà không mở cả file.
+- Chỉ đọc `graphify-out/GRAPH_REPORT.md` khi review kiến trúc tổng thể hoặc khi query/path/explain không đủ.
+- Sau khi sửa code chạy `graphify update .` (chỉ AST, không tốn API).
+- `graphify-out/graph.json` được ghi lại toàn bộ mỗi lần build; diff lớn trong PR là bình thường, không coi là churn.

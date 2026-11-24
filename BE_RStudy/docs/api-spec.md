@@ -27,7 +27,8 @@ Lỗi: `success: false`, `data: null`, `message` là nội dung hiển thị đ�
 | 401       | Chưa đăng nhập, token sai hoặc hết hạn                                                                |
 | 403       | Không đủ quyền, hoặc tài khoản bị khóa / chưa xác minh                                                |
 | 404       | Không tìm thấy (kể cả URL không tồn tại)                                                              |
-| 409       | Trùng dữ liệu (ví dụ email đã dùng)                                                                   |
+| 409       | Trùng dữ liệu (ví dụ email đã dùng) hoặc xung đột trạng thái (ví dụ duyệt khóa không ở `CHO_DUYET`)   |
+| 429       | Gửi quá nhanh (chatbot: 6 tin mỗi phút)                                                               |
 | 500       | Lỗi hệ thống: `"Lỗi hệ thống, vui lòng thử lại sau"`                                                  |
 
 ### Xác thực
@@ -42,6 +43,11 @@ Lỗi: `success: false`, `data: null`, `message` là nội dung hiển thị đ�
   - 401 `Thiếu token xác thực`
   - 401 `Token không hợp lệ hoặc hết hạn`
   - 403 `Không đủ quyền truy cập` (sai vai trò)
+- Lỗi thường gặp ở API quản trị (ghi "`ADMINISTRATOR` + `<QUYỀN>`"; Leader luôn qua kiểm tra quyền):
+  - 403 `Tài khoản quản trị không hợp lệ hoặc đã bị khóa`
+  - 403 `Bạn không có quyền thực hiện chức năng này` (thiếu quyền chức năng)
+  - 403 `Chỉ Leader mới được thực hiện chức năng này` (API chỉ dành cho Leader)
+- Lỗi validate tham số, query và body có dạng `"tênTrường: nội dung"`, nhiều lỗi nối bằng `"; "`. Lỗi kiểm tra trên cả body (ví dụ "cần ít nhất một trường") không gắn với trường nào nên chỉ có nội dung, không có tiền tố.
 
 ### Vai trò
 
@@ -376,9 +382,18 @@ Giáo viên `CHO_DUYET` hoặc `TU_CHOI` không đăng nhập được (xem `POS
   "draftExams": 1,
   "attemptsLast7Days": 12,
   "recentAttempts": [
-    { "id": "", "studentName": "", "examName": "", "score": "7.00", "passed": true, "status": "DA_CHAM" }
+    {
+      "id": "",
+      "studentName": "",
+      "examName": "",
+      "score": "7.00",
+      "passed": true,
+      "status": "DA_CHAM"
+    }
   ],
-  "courses": [{ "id": "", "courseName": "", "status": "DANG_MO", "examCount": 2 }]
+  "courses": [
+    { "id": "", "courseName": "", "status": "DANG_MO", "examCount": 2 }
+  ]
 }
 ```
 
@@ -565,7 +580,7 @@ Ghi chú chung: Decimal có thể không có phần thập phân thừa (ví d�
 
 - 201: message `Tạo mã giảm giá thành công`, `data` là `DiscountCode` (`usedCount` bằng 0)
 - Lỗi: 400 validate | 400 `Chỉ được nhập một trong hai: số tiền giảm hoặc phần trăm giảm` | 400 `Ngày kết thúc phải sau ngày bắt đầu` | 409 `Mã giảm giá đã tồn tại`
-- Ghi chú: không được gửi `usedCount` (hoặc trường nào ngoài bảng trên), server trả 400 `: Không được gửi các trường: usedCount`.
+- Ghi chú: không được gửi `usedCount` (hoặc trường nào ngoài bảng trên), server trả 400 `Không được gửi các trường: usedCount`.
 
 ### PUT /coupon/:id
 
@@ -699,15 +714,15 @@ Quy tắc chung:
 - Quyền: `TEACHER` (khóa mình phụ trách), admin có quyền `QUAN_LY_BAI_THI`
 - Body:
 
-| Trường          | Kiểu   | Bắt buộc | Ghi chú                               |
-| --------------- | ------ | -------- | ------------------------------------- |
-| courseId        | string | có       |                                       |
-| examName        | string | có       | 1 đến 200 ký tự                       |
-| durationMinutes | number | có       | Số nguyên từ 1 đến 1440               |
-| passingScore    | number | có       | 0 đến 999.99                          |
-| maxAttempts     | number | không    | Số nguyên 1 đến 10, mặc định 3        |
-| showAnswers     | boolean | không   | Mặc định `false`                      |
-| questions       | array  | có       | 1 đến 200 câu hỏi (cấu trúc bên dưới) |
+| Trường          | Kiểu    | Bắt buộc | Ghi chú                               |
+| --------------- | ------- | -------- | ------------------------------------- |
+| courseId        | string  | có       |                                       |
+| examName        | string  | có       | 1 đến 200 ký tự                       |
+| durationMinutes | number  | có       | Số nguyên từ 1 đến 1440               |
+| passingScore    | number  | có       | 0 đến 999.99                          |
+| maxAttempts     | number  | không    | Số nguyên 1 đến 10, mặc định 3        |
+| showAnswers     | boolean | không    | Mặc định `false`                      |
+| questions       | array   | có       | 1 đến 200 câu hỏi (cấu trúc bên dưới) |
 
 Mỗi phần tử của `questions`:
 
@@ -897,7 +912,7 @@ Quy tắc:
 }
 ```
 
-  - Học viên, bài đã chấm, đề **bật** `showAnswers`: giống dạng của giáo viên/admin ngay dưới.
+- Học viên, bài đã chấm, đề **bật** `showAnswers`: giống dạng của giáo viên/admin ngay dưới.
 
 - Giáo viên/admin (luôn luôn): `Attempt` + `questions`, mỗi câu thêm `isCorrect` (học viên làm đúng hay không), `earnedScore`, và `options[].isCorrect`.
 - Lỗi: 403 `Bạn không phụ trách khóa học này` | 404 `Bài làm không tồn tại` (cũng trả khi học viên xem bài của người khác)
@@ -1126,16 +1141,16 @@ Response thành công của module này có `message` rỗng.
 
 Đối tượng thông báo (`Notification`):
 
-| Trường    | Kiểu           | Ghi chú                                                   |
-| --------- | -------------- | --------------------------------------------------------- |
-| id        | string         |                                                           |
-| accountId | string         |                                                           |
-| type      | string         | Ví dụ `PAYMENT_APPROVED`, `EXAM_OPENED`                   |
-| title     | string         | Tối đa 200 ký tự                                          |
-| body      | string \| null | Tối đa 500 ký tự                                          |
-| link      | string \| null | Đường dẫn FE để chuyển tới khi bấm, ví dụ `/my-courses`   |
-| isRead    | boolean        |                                                           |
-| createdAt | string         | ISO 8601                                                  |
+| Trường    | Kiểu           | Ghi chú                                                 |
+| --------- | -------------- | ------------------------------------------------------- |
+| id        | string         |                                                         |
+| accountId | string         |                                                         |
+| type      | string         | Ví dụ `PAYMENT_APPROVED`, `EXAM_OPENED`                 |
+| title     | string         | Tối đa 200 ký tự                                        |
+| body      | string \| null | Tối đa 500 ký tự                                        |
+| link      | string \| null | Đường dẫn FE để chuyển tới khi bấm, ví dụ `/my-courses` |
+| isRead    | boolean        |                                                         |
+| createdAt | string         | ISO 8601                                                |
 
 ### GET /notification
 
@@ -1195,7 +1210,17 @@ Chỉ giáo viên phụ trách khóa mới sửa được không gian học và 
   "driveUrl": null,
   "classUrl": "https://meet.google.com/...",
   "showExams": true,
-  "sessions": [{ "id": "", "courseId": "", "title": "", "startTime": "", "endTime": "", "note": null, "createdAt": "" }]
+  "sessions": [
+    {
+      "id": "",
+      "courseId": "",
+      "title": "",
+      "startTime": "",
+      "endTime": "",
+      "note": null,
+      "createdAt": ""
+    }
+  ]
 }
 ```
 
@@ -1243,7 +1268,70 @@ Chỉ giáo viên phụ trách khóa mới sửa được không gian học và 
 
 ## 13. Course (`/api/course`) — Huynh
 
-> Mục này mới có API tải ảnh bìa. Các API còn lại của Course (giáo viên, quản trị, công khai) **chưa được điền**, xem mục 15.
+Vòng đời khóa học (`CourseStatus`):
+
+```mermaid
+stateDiagram-v2
+  [*] --> BAN_NHAP: giáo viên tạo
+  BAN_NHAP --> CHO_DUYET: giáo viên gửi duyệt
+  CHO_DUYET --> DA_PHE_DUYET: admin duyệt
+  CHO_DUYET --> BAN_NHAP: admin từ chối
+  DA_PHE_DUYET --> DANG_MO: admin mở đăng ký
+  DANG_MO --> TAM_NGUNG: admin tạm ngưng
+  TAM_NGUNG --> DANG_MO: admin mở lại
+  DANG_MO --> DA_KET_THUC: admin kết thúc
+  TAM_NGUNG --> DA_KET_THUC: admin kết thúc
+```
+
+Chỉ khóa `DANG_MO` thuộc danh mục `HOAT_DONG` mới hiện ở API công khai. Giáo viên phải ở `approvalStatus = DA_DUYET` mới dùng được các API giáo viên.
+
+Đối tượng `Course` (API giáo viên và quản trị):
+
+```json
+{
+  "id": "",
+  "courseName": "",
+  "description": "",
+  "price": "499000.00",
+  "coverImageUrl": "/uploads/covers/abc.jpg",
+  "status": "BAN_NHAP",
+  "createdAt": "",
+  "updatedAt": "",
+  "startDate": "",
+  "endDate": "",
+  "categoryId": "",
+  "teacherId": "",
+  "category": { "id": "", "categoryName": "", "status": "HOAT_DONG" },
+  "teacher": {
+    "id": "",
+    "specialization": "",
+    "approvalStatus": "DA_DUYET",
+    "account": { "fullName": "", "avatarUrl": null }
+  }
+}
+```
+
+Body tạo/sửa khóa học (`CourseBody`):
+
+| Trường        | Kiểu           | Bắt buộc khi tạo | Ghi chú                                         |
+| ------------- | -------------- | ---------------- | ----------------------------------------------- |
+| courseName    | string         | có               | 1 đến 200 ký tự                                 |
+| description   | string         | có               | không rỗng                                      |
+| price         | number         | không            | 0 đến 9999999999.99, mặc định 0 (khóa miễn phí) |
+| coverImageUrl | string \| null | không            | tối đa 2048, lấy từ `POST /course/cover`        |
+| startDate     | string (ISO)   | có               |                                                 |
+| endDate       | string (ISO)   | có               | phải sau `startDate`                            |
+| categoryId    | string         | có               | danh mục tồn tại và đang `HOAT_DONG`            |
+
+Lỗi chung của API giáo viên: 403 `Tài khoản này không phải giáo viên` | 403 `Tài khoản giáo viên chưa được quản trị viên duyệt`.
+
+### POST /course
+
+- Quyền: `TEACHER`
+- Body: `CourseBody`
+- 201: message `Tạo khóa học thành công`, `data` là `Course` với `status = BAN_NHAP`
+- Lỗi: 400 validate (ví dụ `endDate: Ngày kết thúc phải sau ngày bắt đầu`) | 400 `Danh mục không tồn tại` | 400 `Danh mục đang bị ẩn, không thể dùng cho khóa học`
+- Ghi chú: `teacherId` lấy từ tài khoản đăng nhập, `status` luôn là `BAN_NHAP` (không nhận từ client).
 
 ### POST /course/cover
 
@@ -1251,13 +1339,135 @@ Chỉ giáo viên phụ trách khóa mới sửa được không gian học và 
 - Body: `multipart/form-data`, trường file tên `cover`. Chỉ nhận jpg, png, webp, tối đa 3MB.
 - 201: message `Tải ảnh bìa thành công`, `data: { "coverImageUrl": "/uploads/covers/abc.jpg" }`
 - Lỗi: 400 `Vui lòng chọn ảnh bìa (trường "cover")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 3MB`
-- Ghi chú: API chỉ lưu ảnh. FE lấy `coverImageUrl` gửi kèm khi tạo hoặc sửa khóa học. `coverImageUrl` là đường dẫn tương đối, ghép với `VITE_ASSET_URL`.
+- Ghi chú: API chỉ lưu ảnh. FE lấy `coverImageUrl` gửi kèm khi tạo hoặc sửa khóa học. FE cắt ảnh về 16:9 (1280×720) trước khi tải lên.
+
+### GET /course/mine
+
+- Quyền: `TEACHER`
+- Query: `page`, `limit`, `q` (tên khóa), `status` (`CourseStatus`)
+- 200: message `Lấy danh sách khóa học của tôi thành công`, `data` phân trang, item là `Course`
+- Lỗi: 400 `Trạng thái lọc không hợp lệ`
+- Ghi chú: chỉ khóa của giáo viên đang đăng nhập, mới cập nhật trước.
+
+### GET /course/mine/:id
+
+- Quyền: `TEACHER` (khóa của mình)
+- 200: message `Lấy thông tin khóa học thành công`, `data` là `Course`
+- Lỗi: 404 `Khóa học không tồn tại` (kể cả khóa của giáo viên khác)
+
+### PUT /course/:id
+
+- Quyền: `TEACHER` (khóa của mình)
+- Body: một hay nhiều trường của `CourseBody`. Không gửi được `status`, `teacherId`.
+- 200: message `Cập nhật khóa học thành công`, `data` là `Course`
+- Lỗi: 400 `Cần ít nhất một trường để cập nhật` | 400 `Ngày kết thúc phải sau ngày bắt đầu` | 400 `Danh mục không tồn tại` | 400 `Danh mục đang bị ẩn, không thể dùng cho khóa học` | 404 `Khóa học không tồn tại` | 409 `Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa` | 409 `Khóa học đã có học viên đăng ký nên không thể đổi học phí hoặc thời gian học`
+- Ghi chú: sửa được khi khóa ở `BAN_NHAP`, `DA_PHE_DUYET`, `DANG_MO`, `TAM_NGUNG`. Sửa không làm đổi trạng thái. Khi khóa có đơn `CHO_THANH_TOAN` hoặc `DA_THANH_TOAN`, không đổi được `price`, `startDate`, `endDate` (gửi lại đúng giá trị cũ thì vẫn được); `courseName`, `description`, `coverImageUrl`, `categoryId` vẫn sửa được.
+
+### POST /course/:id/submit
+
+- Quyền: `TEACHER` (khóa của mình)
+- Body: không có
+- 200: message `Đã gửi khóa học chờ duyệt`, `data` là `Course` với `status = CHO_DUYET`
+- Lỗi: 400 `Danh mục đang bị ẩn, không thể dùng cho khóa học` | 404 `Khóa học không tồn tại` | 409 `Chỉ khóa học ở trạng thái nháp mới được gửi duyệt` | 409 `Trạng thái khóa học vừa thay đổi, vui lòng tải lại`
+- Ghi chú: Leader và admin có `QUAN_LY_KHOA_HOC` nhận thông báo `COURSE_PENDING`.
+
+### GET /course/manage
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- Query: `page`, `limit`, `q` (tên khóa), `status`, `categoryId`, `teacherId`
+- 200: message `Lấy danh sách khóa học thành công`, `data` phân trang, item là `Course`
+- Lỗi: 400 `Trạng thái lọc không hợp lệ`
+- Ghi chú: mọi trạng thái, mới cập nhật trước.
+
+### GET /course/manage/:id
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- 200: message `Lấy thông tin khóa học thành công`, `data` là `Course`
+- Lỗi: 404 `Khóa học không tồn tại`
+
+### POST /course/:id/approve
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- 200: message `Đã duyệt khóa học`, `data` là `Course` với `status = DA_PHE_DUYET`
+- Lỗi: 404 `Khóa học không tồn tại` | 409 `Không thể chuyển khóa học từ <trạng thái hiện tại> sang DA_PHE_DUYET` | 409 `Trạng thái khóa học vừa thay đổi, vui lòng tải lại`
+- Ghi chú: chỉ từ `CHO_DUYET`. Giáo viên nhận thông báo `COURSE_APPROVED`. Duyệt xong khóa chưa mở đăng ký, admin phải chuyển sang `DANG_MO` bằng `PATCH /course/:id/status`.
+
+### POST /course/:id/reject
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- Body: `{ "reason": string }` (lý do từ chối, bắt buộc, 1 đến 500 ký tự, không nhận trường khác)
+- 200: message `Đã từ chối khóa học, giáo viên có thể chỉnh sửa và gửi duyệt lại`, `data` là `Course` với `status = BAN_NHAP`
+- Lỗi: 400 `reason: Vui lòng nhập lý do từ chối` | 400 `reason: Lý do tối đa 500 ký tự` | 404 `Khóa học không tồn tại` | 409 `Không thể chuyển khóa học từ <trạng thái hiện tại> sang BAN_NHAP`
+- Ghi chú: chỉ từ `CHO_DUYET`. Giáo viên nhận thông báo `COURSE_REJECTED`, nội dung có kèm lý do (`<tên khóa>. Lý do: <reason>`). Lý do chỉ nằm trong thông báo, không lưu trên khóa học.
+
+### PATCH /course/:id/status
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- Body: `{ "status": CourseStatus, "reason"?: string }`. `reason` (1 đến 500 ký tự) **bắt buộc** khi chuyển `CHO_DUYET` sang `BAN_NHAP` (từ chối), các chuyển khác bỏ qua.
+- 200: message `Cập nhật trạng thái khóa học thành công`, `data` là `Course`
+- Chuyển trạng thái hợp lệ:
+
+| Từ             | Sang được                  |
+| -------------- | -------------------------- |
+| `CHO_DUYET`    | `DA_PHE_DUYET`, `BAN_NHAP` |
+| `DA_PHE_DUYET` | `DANG_MO`                  |
+| `DANG_MO`      | `TAM_NGUNG`, `DA_KET_THUC` |
+| `TAM_NGUNG`    | `DANG_MO`, `DA_KET_THUC`   |
+
+- Lỗi: 400 validate | 400 `Vui lòng nhập lý do từ chối` (từ chối thiếu `reason`) | 400 `Danh mục đang bị ẩn, không thể dùng cho khóa học` (khi mở) | 404 `Khóa học không tồn tại` | 409 `Không thể chuyển khóa học từ X sang Y` | 409 `Giáo viên phụ trách chưa được duyệt, không thể mở khóa học` | 409 `Trạng thái khóa học vừa thay đổi, vui lòng tải lại`
+- Ghi chú: chuyển từ `CHO_DUYET` cũng gửi thông báo duyệt/từ chối như hai API trên. `DA_KET_THUC` là trạng thái cuối.
+
+### GET /course
+
+- Quyền: công khai
+- Query:
+
+| Tham số     | Ghi chú                                                              |
+| ----------- | -------------------------------------------------------------------- |
+| page, limit | Phân trang                                                           |
+| q           | Tìm trong tên và mô tả, tối đa 100 ký tự                             |
+| categoryId  | Lọc theo danh mục                                                    |
+| teacherId   | Lọc theo giáo viên (`Teacher.id`)                                    |
+| minPrice    | Học phí tối thiểu, ≥ 0                                               |
+| maxPrice    | Học phí tối đa, ≥ 0, không nhỏ hơn `minPrice`                        |
+| sort        | `newest` (mặc định), `price_asc`, `price_desc`, `start_soon`, `name` |
+
+- 200: message `Lấy danh sách khóa học thành công`, `data` phân trang, item:
+
+```json
+{
+  "id": "",
+  "courseName": "",
+  "description": "",
+  "price": "0.00",
+  "coverImageUrl": null,
+  "startDate": "",
+  "endDate": "",
+  "category": { "id": "", "categoryName": "" },
+  "teacher": {
+    "id": "",
+    "specialization": "",
+    "account": { "fullName": "", "avatarUrl": null }
+  },
+  "averageRating": 4.5,
+  "reviewCount": 12
+}
+```
+
+- Lỗi: 400 `sort: ...` | 400 `maxPrice: minPrice không được lớn hơn maxPrice` | 400 `q: Từ khóa tối đa 100 ký tự`
+- Ghi chú: chỉ khóa `DANG_MO` thuộc danh mục `HOAT_DONG`. Tham số rỗng (`?q=`) được bỏ qua. `averageRating` làm tròn 1 chữ số, `null` khi chưa có đánh giá hiển thị.
+
+### GET /course/:id
+
+- Quyền: công khai
+- 200: message `Lấy thông tin khóa học thành công`, `data` như item của `GET /course` thêm `createdAt` và `teacher.biography`, `teacher.teachingExperience`
+- Lỗi: 404 `Khóa học không tồn tại` (cả khi khóa chưa mở, tạm ngưng, đã kết thúc hoặc thuộc danh mục ẩn)
 
 ---
 
 ## 14. Recommendation, gợi ý khóa học (`/api/recommendation`)
 
-Gợi ý khi chat với trợ lý AI đi qua module Chatbot (chưa điền, xem mục 15). Mục này chỉ gồm khối "Dành cho bạn" trên trang chủ, **không gọi AI**.
+Gợi ý khi chat với trợ lý AI đi qua module Chatbot (mục 20). Mục này chỉ gồm khối "Dành cho bạn" trên trang chủ, **không gọi AI**.
 
 ### GET /recommendation/me
 
@@ -1274,7 +1484,11 @@ Gợi ý khi chat với trợ lý AI đi qua module Chatbot (chưa điền, xem 
         "price": "499000.00",
         "coverImageUrl": null,
         "category": { "id": "", "categoryName": "" },
-        "teacher": { "id": "", "specialization": "", "account": { "fullName": "", "avatarUrl": null } }
+        "teacher": {
+          "id": "",
+          "specialization": "",
+          "account": { "fullName": "", "avatarUrl": null }
+        }
       },
       "reason": "Cùng danh mục với khóa học bạn đã đăng ký"
     }
@@ -1287,31 +1501,508 @@ Gợi ý khi chat với trợ lý AI đi qua module Chatbot (chưa điền, xem 
 
 ---
 
-## 15. Trạng thái tài liệu theo module
+## 15. Category, danh mục (`/api/category`) — Huynh
 
-Người phụ trách điền khi API xong, theo đúng khuôn của mục Auth (quyền, body, response, lỗi, ghi chú). Theo luật nhóm, module chưa có mục đầy đủ ở đây thì **chưa tính là xong**, dù code đã chạy.
+Đối tượng `Category`: `id, categoryName, description, status`. `status`: `HOAT_DONG` (hiển thị) hoặc `AN` (ẩn). Danh mục `AN` không hiện công khai, và khóa học, tài liệu thuộc danh mục đó cũng bị ẩn khỏi các API công khai.
 
-Đã có mục đầy đủ:
+Các API quản trị cần `ADMINISTRATOR` có quyền `QUAN_LY_KHOA_HOC` (Leader luôn được).
 
-- [x] Auth — Nam (mục 2)
-- [x] Account / Student — Nam (mục 3)
-- [x] Teacher — Nam (mục 4)
-- [x] Admin, phân quyền — Nam (mục 5)
-- [x] Coupon (mã giảm giá) — Khang (mục 6)
-- [x] Exam, Question, AnswerOption — Khang (mục 7)
-- [x] Submission (làm bài thi) — Khang (mục 8)
-- [x] Enrollment (đăng ký khóa học) — Khang (mục 9)
-- [x] Invoice, yêu cầu hoàn tiền — Khang (mục 10)
-- [x] Notification (mục 11)
-- [x] Learning, không gian học (mục 12)
-- [x] Recommendation: `GET /recommendation/me` (mục 14)
+### GET /category
 
-Code đã có nhưng **chưa có mục trong file này**:
+- Quyền: công khai
+- Query: `page`, `limit`, `q` (tìm theo tên, không phân biệt hoa thường)
+- 200: message `Lấy danh sách danh mục thành công`, `data` phân trang, mỗi item là `Category` kèm `courseCount` (số khóa `DANG_MO` của danh mục)
+- Ghi chú: chỉ danh mục `HOAT_DONG`, sắp theo `categoryName` tăng dần.
 
-- [ ] Resource (`/api/resource`) — Nam
-- [ ] Report, báo cáo vi phạm (`/api/report`) — Nam
-- [ ] Category (`/api/category`) — Huynh
-- [ ] Course (`/api/course`), trừ `POST /course/cover` — Huynh
-- [ ] Comment, Reply (`/api/comment`) — Huynh
-- [ ] Review, Review response (`/api/review`) — Huynh
-- [ ] Chatbot (`/api/chatbot`)
+### GET /category/:id
+
+- Quyền: công khai
+- 200: message `Lấy thông tin danh mục thành công`, `data` là `Category`
+- Lỗi: 404 `Danh mục không tồn tại` (kể cả khi danh mục đang `AN`)
+
+### GET /category/manage
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- Query: `page`, `limit`, `q`, `status` (`HOAT_DONG` | `AN`)
+- 200: message `Lấy danh sách danh mục thành công`, `data` phân trang, item là `Category` (không có `courseCount`)
+- Lỗi: 400 `Trạng thái lọc không hợp lệ`
+- Ghi chú: gồm cả danh mục `AN`, sắp theo `categoryName` tăng dần.
+
+### GET /category/manage/:id
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- 200: message `Lấy thông tin danh mục thành công`, `data` là `Category` kèm `relations: { courses, resources }` (số khóa học và tài liệu thuộc danh mục, mọi trạng thái)
+- Lỗi: 404 `Danh mục không tồn tại`
+
+### POST /category
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+
+| Trường       | Kiểu           | Bắt buộc | Ghi chú                        |
+| ------------ | -------------- | -------- | ------------------------------ |
+| categoryName | string         | có       | 1 đến 100 ký tự, tự cắt trắng  |
+| description  | string \| null | không    | tối đa 500                     |
+| status       | string         | không    | `HOAT_DONG` (mặc định) \| `AN` |
+
+- 201: message `Tạo danh mục thành công`, `data` là `Category`
+- Lỗi: 400 validate | 409 `Tên danh mục đã tồn tại` (so sánh không phân biệt hoa thường)
+
+### PUT /category/:id
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- Body: một hay nhiều trường như `POST /category`
+- 200: message `Cập nhật danh mục thành công`, `data` là `Category`
+- Lỗi: 400 `Cần ít nhất một trường để cập nhật` (body rỗng) | 404 `Danh mục không tồn tại` | 409 `Tên danh mục đã tồn tại`
+
+### PATCH /category/:id/status
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- Body: `{ "status": "HOAT_DONG" | "AN" }`
+- 200: message `Cập nhật trạng thái danh mục thành công`, `data` là `Category`
+- Lỗi: 400 validate | 404 `Danh mục không tồn tại`
+
+### DELETE /category/:id
+
+- Quyền: `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC`
+- 200: `data: null`, message `Xóa danh mục thành công`
+- Lỗi: 404 `Danh mục không tồn tại` | 409 `Danh mục đã có khóa học hoặc tài liệu nên không thể xóa. Hãy chuyển sang trạng thái ẩn`
+- Ghi chú: chỉ xóa hẳn được danh mục chưa có khóa học hay tài liệu nào; còn lại dùng `PATCH /category/:id/status` với `AN`.
+
+---
+
+## 16. Resource, thư viện tài liệu (`/api/resource`) — Nam
+
+Kho tài liệu công khai theo danh mục, không gắn với khóa học. Giáo viên tải lên, mọi người (kể cả khách) xem và tải về.
+
+Đối tượng `Resource`:
+
+```json
+{
+  "id": "",
+  "resourceName": "",
+  "fileUrl": "/uploads/resources/1732000000000-ab12cd34ef56ab78.pdf",
+  "createdAt": "",
+  "uploadedByTeacherId": "",
+  "categoryId": "",
+  "category": { "id": "", "categoryName": "" },
+  "uploadedBy": { "id": "", "account": { "fullName": "" } }
+}
+```
+
+`fileUrl` là đường dẫn tương đối, FE dùng `assetUrl(fileUrl)` để tải.
+
+### GET /resource
+
+- Quyền: công khai
+- Query: `page`, `limit`, `q` (tìm theo tên tài liệu), `categoryId`
+- 200: message `Lấy danh sách tài liệu thành công`, `data` phân trang, item là `Resource`
+- Ghi chú: chỉ tài liệu thuộc danh mục `HOAT_DONG`, mới nhất trước.
+
+### GET /resource/:id
+
+- Quyền: công khai
+- 200: message `Lấy thông tin tài liệu thành công`, `data` là `Resource`
+- Lỗi: 400 `id: id không hợp lệ` | 404 `Tài liệu không tồn tại` (kể cả khi danh mục đang `AN`)
+
+### POST /resource
+
+- Quyền: `TEACHER`
+- Body: `multipart/form-data`
+
+| Trường       | Kiểu   | Bắt buộc | Ghi chú                            |
+| ------------ | ------ | -------- | ---------------------------------- |
+| file         | file   | có       | PDF hoặc DOCX, tối đa 10MB         |
+| resourceName | string | có       | 1 đến 200 ký tự                    |
+| categoryId   | string | có       | UUID của danh mục đang `HOAT_DONG` |
+
+- 201: message `Tải tài liệu lên thành công`, `data` là `Resource`
+- Lỗi: 400 `Vui lòng chọn tệp PDF hoặc DOCX (field "file")` | 400 `Chỉ chấp nhận: .pdf, .docx` | 400 `Tệp tối đa 10MB` | 400 `Danh mục không tồn tại hoặc đang bị ẩn` | 400 validate | 403 `Không tìm thấy hồ sơ giáo viên`
+- Ghi chú: lỗi ở bất kỳ bước nào thì file vừa lưu bị xóa.
+
+### DELETE /resource/:id
+
+- Quyền: `TEACHER` (tài liệu của mình) hoặc `ADMINISTRATOR` + `QUAN_LY_KHOA_HOC` (mọi tài liệu)
+- 200: `data: null`, message `Xóa tài liệu thành công`
+- Lỗi: 400 `id: id không hợp lệ` | 403 `Bạn chỉ được xóa tài liệu của mình` | 403 `Bạn không có quyền thực hiện chức năng này` | 404 `Tài liệu không tồn tại`
+- Ghi chú: xóa hẳn bản ghi và file trên server (tài liệu không có quan hệ với dữ liệu khác).
+
+---
+
+## 17. Comment, bình luận và phản hồi (`/api/comment`) — Huynh
+
+Bình luận gắn với khóa học `DANG_MO`. Mỗi bình luận có danh sách phản hồi một cấp (không có phản hồi lồng nhau).
+
+Ai được viết (bình luận và phản hồi):
+
+- `STUDENT` có đơn `DA_THANH_TOAN` cho khóa (đã hoàn tiền thì mất quyền).
+- `TEACHER` phụ trách khóa đó.
+
+Đối tượng `Comment`:
+
+```json
+{
+  "id": "",
+  "content": "",
+  "commentedAt": "",
+  "courseId": "",
+  "commenter": {
+    "id": "",
+    "fullName": "",
+    "avatarUrl": null,
+    "role": "STUDENT"
+  },
+  "replies": [
+    {
+      "id": "",
+      "content": "",
+      "repliedAt": "",
+      "commentId": "",
+      "replier": {
+        "id": "",
+        "fullName": "",
+        "avatarUrl": null,
+        "role": "TEACHER"
+      },
+      "isMine": false
+    }
+  ],
+  "isMine": true
+}
+```
+
+`commenter.id`, `replier.id` là `Account.id`. `isMine` cho FE biết có hiện nút Sửa/Xóa hay không. Nội dung (`content`) tự cắt trắng, 1 đến 1000 ký tự. Xóa là ẩn mềm (`status = AN`), bình luận ẩn kéo theo phản hồi của nó không còn hiển thị.
+
+### GET /comment/course/:courseId
+
+- Quyền: công khai. Gửi kèm `Authorization` thì `isMine` đúng theo người xem; không gửi (khách) thì mọi `isMine` là `false`. Token sai hoặc hết hạn vẫn trả 401
+- Query: `page`, `limit`
+- 200: message `Lấy danh sách bình luận thành công`, `data` phân trang, item là `Comment`
+- Lỗi: 401 (có gửi token nhưng sai hoặc hết hạn) | 404 `Khóa học không tồn tại` (khóa không ở `DANG_MO` hoặc thuộc danh mục ẩn)
+- Ghi chú: chỉ bình luận và phản hồi `HIEN_THI`. Bình luận mới nhất trước, phản hồi cũ nhất trước.
+
+### POST /comment/course/:courseId
+
+- Quyền: `STUDENT`, `TEACHER` (xem điều kiện ở trên)
+- Body: `{ "content": string }`
+- 201: message `Gửi bình luận thành công`, `data` là `Comment`
+- Lỗi: 400 `content: Nội dung không được để trống` | 400 `content: Nội dung tối đa 1000 ký tự` | 403 `Bạn cần đăng ký khóa học này để bình luận` | 403 `Bạn không phụ trách khóa học này` | 404 `Khóa học không tồn tại`
+
+### PUT /comment/:id
+
+- Quyền: `STUDENT`, `TEACHER` (bình luận của mình)
+- Body: `{ "content": string }`
+- 200: message `Cập nhật bình luận thành công`, `data` là `Comment`
+- Lỗi: 400 validate | 403 `Bạn chỉ được sửa bình luận của chính mình` | 404 `Bình luận không tồn tại`
+
+### DELETE /comment/:id
+
+- Quyền: `STUDENT`, `TEACHER` (bình luận của mình)
+- 200: `data: null`, message `Xóa bình luận thành công`
+- Lỗi: 403 `Bạn chỉ được xóa bình luận của chính mình` | 404 `Bình luận không tồn tại`
+
+### POST /comment/:id/replies
+
+- Quyền: `STUDENT`, `TEACHER` (xem điều kiện ở trên)
+- Body: `{ "content": string }`
+- 201: message `Gửi phản hồi thành công`, `data` là một phần tử `replies` (có `isMine: true`)
+- Lỗi: 400 validate | 403 `Bạn cần đăng ký khóa học này để bình luận` | 403 `Bạn không phụ trách khóa học này` | 404 `Bình luận không tồn tại` | 404 `Khóa học không tồn tại`
+- Ghi chú: người viết bình luận gốc nhận thông báo `COMMENT_REPLIED` (trừ khi tự phản hồi chính mình), `link` là `/course/:courseId`.
+
+### PUT /comment/replies/:replyId
+
+- Quyền: `STUDENT`, `TEACHER` (phản hồi của mình)
+- Body: `{ "content": string }`
+- 200: message `Cập nhật phản hồi thành công`, `data` là phản hồi
+- Lỗi: 400 validate | 403 `Bạn chỉ được sửa phản hồi của chính mình` | 404 `Phản hồi không tồn tại`
+
+### DELETE /comment/replies/:replyId
+
+- Quyền: `STUDENT`, `TEACHER` (phản hồi của mình)
+- 200: `data: null`, message `Xóa phản hồi thành công`
+- Lỗi: 403 `Bạn chỉ được xóa phản hồi của chính mình` | 404 `Phản hồi không tồn tại`
+
+---
+
+## 18. Review, đánh giá khóa học (`/api/review`) — Huynh
+
+Mỗi học viên đánh giá **một lần** cho mỗi khóa (1 đến 5 sao, nhận xét không bắt buộc), sau đó chỉ sửa được. Giáo viên phụ trách trả lời mỗi đánh giá một lần. Không có API xóa đánh giá.
+
+Đối tượng `Review`:
+
+```json
+{
+  "id": "",
+  "rating": 5,
+  "content": "Khóa học rất hay",
+  "reviewedAt": "",
+  "courseId": "",
+  "student": { "account": { "fullName": "", "avatarUrl": null } },
+  "responses": [
+    {
+      "id": "",
+      "content": "",
+      "respondedAt": "",
+      "reviewId": "",
+      "account": {
+        "id": "",
+        "fullName": "",
+        "avatarUrl": null,
+        "role": "TEACHER"
+      }
+    }
+  ]
+}
+```
+
+`responses` chỉ gồm câu trả lời `HIEN_THI` (tối đa một). Các API của học viên và giáo viên trả thêm `isMine: true`.
+
+### GET /review/course/:courseId
+
+- Quyền: công khai
+- Query: `page`, `limit`, `rating` (1 đến 5, lọc theo số sao)
+- 200: message `Lấy danh sách đánh giá thành công`
+
+```json
+{
+  "summary": { "averageRating": 4.3, "reviewCount": 12 },
+  "items": [Review],
+  "pagination": { "total": 12, "page": 1, "limit": 10, "totalPages": 2 }
+}
+```
+
+- Lỗi: 400 `rating: Số sao phải là số nguyên từ 1 đến 5` | 404 `Khóa học không tồn tại` (khóa không `DANG_MO` hoặc danh mục ẩn)
+- Ghi chú: `summary` tính trên mọi đánh giá `HIEN_THI` của khóa (không phụ thuộc bộ lọc `rating`), `averageRating` làm tròn 1 chữ số, `null` khi chưa có. Mới nhất trước. Item không có `isMine`; FE so với `GET /review/course/:courseId/mine`.
+
+### GET /review/course/:courseId/mine
+
+- Quyền: `STUDENT`
+- 200: message `Lấy đánh giá của bạn thành công`, `data` là `Review` có `isMine: true`, hoặc `null` nếu chưa đánh giá
+- Lỗi: 404 `Khóa học không tồn tại`
+
+### POST /review/course/:courseId
+
+- Quyền: `STUDENT` có đơn `DA_THANH_TOAN` cho khóa
+- Body: `{ "rating": 1-5, "content"?: string | null }` (`rating` nhận số hoặc chuỗi số; `content` tối đa 1000, chuỗi rỗng thành `null`)
+- 201: message `Gửi đánh giá thành công`, `data` là `Review`
+- Lỗi: 400 `rating: Vui lòng chọn số sao` | 400 `rating: Số sao phải là số nguyên từ 1 đến 5` | 400 `content: Nhận xét tối đa 1000 ký tự` | 403 `Chỉ học viên đã được xác nhận đăng ký khóa học này mới được đánh giá` | 404 `Khóa học không tồn tại` | 409 `Bạn đã đánh giá khóa học này, hãy sửa đánh giá hiện có`
+
+### PUT /review/:id
+
+- Quyền: `STUDENT` (đánh giá của mình)
+- Body: `{ "rating"?: 1-5, "content"?: string | null }`, ít nhất một trường
+- 200: message `Cập nhật đánh giá thành công`, `data` là `Review`
+- Lỗi: 400 `Cần ít nhất một trường để cập nhật` | 400 validate | 403 `Bạn chỉ được sửa đánh giá của chính mình` | 404 `Đánh giá không tồn tại`
+
+### POST /review/:id/responses
+
+- Quyền: `TEACHER` phụ trách khóa
+- Body: `{ "content": string }` (1 đến 1000 ký tự)
+- 201: message `Gửi câu trả lời thành công`, `data` là phần tử `responses` kèm `isMine: true`
+- Lỗi: 400 validate | 403 `Bạn không phụ trách khóa học này` | 404 `Đánh giá không tồn tại` | 409 `Đánh giá này đã có câu trả lời, hãy sửa câu trả lời hiện có`
+
+### PUT /review/responses/:responseId
+
+- Quyền: `TEACHER` (câu trả lời của mình)
+- Body: `{ "content": string }`
+- 200: message `Cập nhật câu trả lời thành công`, `data` là câu trả lời
+- Lỗi: 400 validate | 403 `Bạn chỉ được sửa câu trả lời của chính mình` | 404 `Câu trả lời không tồn tại`
+
+### DELETE /review/responses/:responseId
+
+- Quyền: `TEACHER` (câu trả lời của mình)
+- 200: `data: null`, message `Xóa câu trả lời thành công`
+- Lỗi: 403 `Bạn chỉ được xóa câu trả lời của chính mình` | 404 `Câu trả lời không tồn tại`
+- Ghi chú: ẩn mềm (`AN`); sau đó giáo viên trả lời lại được.
+
+---
+
+## 19. Report, báo cáo vi phạm (`/api/report`) — Nam
+
+Học viên hoặc giáo viên báo cáo một đánh giá, bình luận hoặc phản hồi. Admin có quyền `XU_LY_BAO_CAO_VI_PHAM` xử lý.
+
+```mermaid
+stateDiagram-v2
+  [*] --> CHO_XU_LY: người dùng gửi
+  CHO_XU_LY --> DANG_XU_LY: admin nhận xử lý
+  CHO_XU_LY --> DA_XU_LY: admin xác nhận vi phạm
+  DANG_XU_LY --> DA_XU_LY: admin xác nhận vi phạm
+  CHO_XU_LY --> TU_CHOI: admin từ chối
+  DANG_XU_LY --> TU_CHOI: admin từ chối
+```
+
+`DA_XU_LY` và `TU_CHOI` là trạng thái cuối. Chốt `DA_XU_LY` thì nội dung bị báo cáo chuyển sang `VI_PHAM` (ẩn khỏi mọi danh sách) trong cùng một transaction.
+
+Đối tượng `Report`:
+
+```json
+{
+  "id": "",
+  "content": "",
+  "reason": "",
+  "reportedAt": "",
+  "status": "CHO_XU_LY",
+  "resolutionResult": null,
+  "reporterAccountId": "",
+  "reportedAccountId": "",
+  "reviewId": null,
+  "commentId": "",
+  "replyId": null,
+  "reporter": { "id": "", "email": "" },
+  "reportedAccount": { "id": "", "email": "" },
+  "review": null,
+  "comment": { "id": "", "content": "", "status": "HIEN_THI" },
+  "reply": null
+}
+```
+
+`review` có dạng `{ id, rating, content, status }`; `reply` có dạng `{ id, content, status }`.
+
+### POST /report
+
+- Quyền: `STUDENT`, `TEACHER`
+
+| Trường    | Kiểu   | Bắt buộc     | Ghi chú                    |
+| --------- | ------ | ------------ | -------------------------- |
+| reason    | string | có           | 1 đến 500 ký tự            |
+| content   | string | có           | mô tả chi tiết, 1 đến 2000 |
+| reviewId  | string | một trong ba | UUID đánh giá bị báo cáo   |
+| commentId | string | một trong ba | UUID bình luận bị báo cáo  |
+| replyId   | string | một trong ba | UUID phản hồi bị báo cáo   |
+
+- 201: message `Gửi báo cáo vi phạm thành công`, `data` là `Report`
+- Lỗi: 400 `Phải chỉ rõ đúng 1 nội dung bị báo cáo (reviewId, commentId hoặc replyId)` | 400 `Không thể báo cáo nội dung của chính mình` | 404 `Nội dung bị báo cáo không tồn tại` | 409 `Bạn đã báo cáo nội dung này và đang chờ xử lý`
+- Ghi chú: Leader và admin có `XU_LY_BAO_CAO_VI_PHAM` nhận thông báo `REPORT_PENDING`. Người gửi báo cáo nhận thông báo khi báo cáo được chốt (`REPORT_RESOLVED`, `REPORT_REJECTED`), xem hai API xử lý bên dưới.
+
+### GET /report
+
+- Quyền: `ADMINISTRATOR` + `XU_LY_BAO_CAO_VI_PHAM`
+- Query: `page`, `limit`, `status` (`ReportStatus`)
+- 200: message `Lấy danh sách báo cáo thành công`, `data` phân trang, item là `Report`, mới nhất trước
+- Lỗi: 400 `Trạng thái lọc không hợp lệ`
+
+### GET /report/:id
+
+- Quyền: `ADMINISTRATOR` + `XU_LY_BAO_CAO_VI_PHAM`
+- 200: message `Lấy chi tiết báo cáo thành công`, `data` là `Report`
+- Lỗi: 400 `id: id không hợp lệ` | 404 `Báo cáo không tồn tại`
+
+### PATCH /report/:id/process
+
+- Quyền: `ADMINISTRATOR` + `XU_LY_BAO_CAO_VI_PHAM`
+- Body: `{ "status": "DANG_XU_LY" | "DA_XU_LY", "resolutionResult"?: string }` (`resolutionResult` tối đa 2000, **bắt buộc** khi `DA_XU_LY`)
+- 200: message `Cập nhật xử lý báo cáo thành công`, `data` là `Report`
+- Ghi chú: chốt `DA_XU_LY` thì người gửi báo cáo nhận thông báo `REPORT_RESOLVED` kèm `resolutionResult`; chuyển `DANG_XU_LY` không gửi thông báo. Thông báo không có `link`.
+- Lỗi: 400 `resolutionResult: Cần nhập kết quả xử lý khi chốt DA_XU_LY` | 404 `Báo cáo không tồn tại` | 409 `Báo cáo đã ở trạng thái đang xử lý` | 409 `Báo cáo đã được xử lý xong, không thể thay đổi` | 409 `Báo cáo vừa được người khác xử lý, vui lòng tải lại`
+
+### PATCH /report/:id/reject
+
+- Quyền: `ADMINISTRATOR` + `XU_LY_BAO_CAO_VI_PHAM`
+- Body: `{ "resolutionResult": string }` (lý do từ chối, 1 đến 2000)
+- 200: message `Từ chối báo cáo thành công`, `data` là `Report` với `status = TU_CHOI`
+- Lỗi: 400 `resolutionResult: Cần nhập lý do từ chối` | 404 `Báo cáo không tồn tại` | 409 `Báo cáo đã được xử lý xong, không thể thay đổi` | 409 `Báo cáo vừa được người khác xử lý, vui lòng tải lại`
+- Ghi chú: nếu hai admin xử lý cùng lúc thì chỉ một bên thành công, bên còn lại nhận 409 `Báo cáo vừa được người khác xử lý, vui lòng tải lại` (không ghi đè, không gửi thông báo thừa). Nội dung bị báo cáo giữ nguyên trạng thái. Người gửi báo cáo nhận thông báo `REPORT_REJECTED` kèm lý do, không có `link`.
+
+---
+
+## 20. Chatbot, trợ lý AI gợi ý khóa học (`/api/chatbot`)
+
+Chỉ dành cho `STUDENT`. Mỗi tin tối đa **500 ký tự**, mỗi học viên tối đa **6 tin mỗi phút** (tính trên mọi cuộc trò chuyện). Lịch sử được lưu.
+
+AI chỉ gợi ý trong các khóa `DANG_MO` có thật (tối đa 5 khóa, mỗi khóa kèm lý do), có tính ngân sách nếu học viên nêu. Nhu cầu chưa rõ thì AI hỏi lại thay vì gợi ý. Dịch vụ AI lỗi hoặc hết thời gian chờ thì vẫn trả 201 với câu dự phòng và `degraded: true`.
+
+Đối tượng `Message`:
+
+```json
+{
+  "id": "",
+  "senderType": "AI",
+  "content": "Mình gợi ý các khóa học sau cho bạn:",
+  "sentAt": "",
+  "conversationId": "",
+  "recommendations": [
+    {
+      "id": "",
+      "recommendationReason": "Phù hợp với mục tiêu luyện thi IELTS và trong ngân sách",
+      "messageId": "",
+      "courseId": "",
+      "course": {
+        "id": "",
+        "courseName": "",
+        "description": "",
+        "price": "499000.00",
+        "coverImageUrl": null,
+        "category": { "id": "", "categoryName": "" },
+        "teacher": {
+          "id": "",
+          "specialization": "",
+          "account": { "fullName": "" }
+        }
+      }
+    }
+  ]
+}
+```
+
+`senderType`: `STUDENT` hoặc `AI`. Tin của học viên có `recommendations: []`.
+
+Đối tượng `Conversation`: `id, startTime, endTime (luôn null), studentId`.
+
+### POST /chatbot/messages
+
+- Quyền: `STUDENT`
+- Body: `{ "content": string, "conversationId"?: string }`. Không gửi `conversationId` thì tạo cuộc trò chuyện mới. Không nhận trường khác.
+- 201: message `Gửi tin nhắn thành công`
+
+```json
+{
+  "conversation": { "id": "", "startTime": "", "endTime": null, "studentId": "" },
+  "userMessage": Message,
+  "aiMessage": Message,
+  "degraded": false
+}
+```
+
+- Lỗi: 400 `content: Vui lòng nhập nội dung tin nhắn` | 400 `content: Tin nhắn tối đa 500 ký tự` | 400 `Không được gửi các trường: ...` | 403 `Chỉ học viên mới sử dụng được chatbot` | 404 `Cuộc trò chuyện không tồn tại` (không phải của mình) | 429 `Bạn gửi tin nhắn quá nhanh, vui lòng thử lại sau ít phút`
+- Ghi chú: AI đọc 6 tin gần nhất của cuộc trò chuyện làm ngữ cảnh. Thời gian phản hồi phụ thuộc dịch vụ AI (chờ tối đa `AI_TIMEOUT_MS`, mặc định 20 giây, cho mỗi lần gọi), FE nên hiện trạng thái đang trả lời.
+
+### GET /chatbot/conversations
+
+- Quyền: `STUDENT`
+- Query: `page`, `limit`
+- 200: message `Lấy danh sách cuộc trò chuyện thành công`, `data` phân trang, item là `Conversation` kèm `messageCount` và `firstMessage` (nội dung tin đầu tiên của học viên, dùng làm tiêu đề), mới nhất trước
+
+### GET /chatbot/conversations/:id
+
+- Quyền: `STUDENT` (cuộc trò chuyện của mình)
+- 200: message `Lấy cuộc trò chuyện thành công`, `data` là `Conversation` kèm `messages: [Message]` (cũ đến mới)
+- Lỗi: 404 `Cuộc trò chuyện không tồn tại`
+
+---
+
+## 21. Trạng thái tài liệu theo module
+
+Người phụ trách cập nhật mục của mình mỗi khi đổi API, theo đúng khuôn của mục Auth (quyền, body, response, lỗi, ghi chú). Theo luật nhóm, API chưa có mục đầy đủ ở đây thì **chưa tính là xong**, dù code đã chạy.
+
+| Module                       | Mục | Phụ trách |
+| ---------------------------- | --- | --------- |
+| Auth                         | 2   | Nam       |
+| Account / Student            | 3   | Nam       |
+| Teacher                      | 4   | Nam       |
+| Admin, phân quyền            | 5   | Nam       |
+| Coupon                       | 6   | Khang     |
+| Exam, Question, AnswerOption | 7   | Khang     |
+| Submission                   | 8   | Khang     |
+| Enrollment                   | 9   | Khang     |
+| Invoice, yêu cầu hoàn tiền   | 10  | Khang     |
+| Notification                 | 11  |           |
+| Learning                     | 12  |           |
+| Course                       | 13  | Huynh     |
+| Recommendation               | 14  |           |
+| Category                     | 15  | Huynh     |
+| Resource                     | 16  | Nam       |
+| Comment, Reply               | 17  | Huynh     |
+| Review, ReviewResponse       | 18  | Huynh     |
+| Report                       | 19  | Nam       |
+| Chatbot                      | 20  |           |
+
+Tất cả 19 module đã có tài liệu. Mục 13 và 15 đến 20 được soạn từ code (routes, validators, services) ngày 24/11/2026; người phụ trách rà lại phần của mình.

@@ -48,7 +48,7 @@ Khác biệt còn lại nằm ở quy trình khép kín cho thị trường Vi�
   - Thông báo trên chuông cho các sự kiện duyệt, thanh toán, hoàn tiền, đề thi, lịch học, trả lời bình luận (danh sách loại ở `enum.md`).
   - Quản lý danh mục (ẩn danh mục thì ẩn khóa học thuộc danh mục đó).
   - Khối "Dành cho bạn" trên trang chủ: gợi ý theo danh mục khóa đã đăng ký, thiếu thì bù khóa nhiều người đăng ký. Khối này không gọi AI.
-- **Cần làm tiếp:** bổ sung tài liệu API cho Resource, Report, Category, Course, Comment, Review, Chatbot (xem mục 15 của `api-spec.md`); test lại cả luồng trên ứng dụng đang chạy.
+- **Cần làm tiếp:** người phụ trách rà lại tài liệu API vừa được soạn từ code cho Course, Category, Resource, Comment, Review, Report, Chatbot (mục 13, 15 đến 20 của `api-spec.md`); test lại cả luồng trên ứng dụng đang chạy. Đang tìm hiểu hoặc cấu hình: Docker (đã có `docker-compose.yml`), GitHub Actions, Swagger/OpenAPI, triển khai cloud, Cloudinary; chưa có bản production.
 - **Ràng buộc sản phẩm:**
   - AI chỉ gợi ý trong các khóa học đang mở, không thay học viên quyết định; giới hạn 500 ký tự mỗi tin và 6 tin mỗi phút.
   - Học viên chỉ xem lớp học, làm bài thi và bình luận khi đã có đơn đăng ký hợp lệ; đã thanh toán rồi thì chỉ rút lại qua luồng hoàn tiền.
@@ -59,21 +59,21 @@ Khác biệt còn lại nằm ở quy trình khép kín cho thị trường Vi�
   - Không bao giờ gửi đáp án đúng cho học viên trong lúc làm bài, không công khai ảnh minh chứng thanh toán, không để lộ link lớp học cho người chưa thanh toán.
   - API chưa được ghi vào `BE_RStudy/docs/api-spec.md` thì chưa tính là xong; chỉ Nam sửa `schema.prisma` và chạy migration, sau đó báo cả nhóm.
   - Cả nhóm dùng chung một database Supabase: không reset hay seed lại khi chưa báo nhóm. Pull request vào `main` qua CodeRabbit review, Nam duyệt và merge.
-  - Giao diện bám design tokens trong `FE_RStudy/src/assets/styles/theme.css`, hệ thống thiết kế `DESIGN_SYSTEM.md` / `design_system.json` và quy tắc trong `FE_RStudy/docs/AI_RULES.md`; Frontend và Backend giữ ranh giới rõ, không tự sửa API khi chưa thống nhất.
+  - Giao diện bám design system `DESIGN_SYSTEM.md` (token trong `FE_RStudy/src/assets/styles/theme.css`) và quy tắc trong `.claude/rules/frontend.md`; Frontend và Backend giữ ranh giới rõ, không tự sửa API khi chưa thống nhất.
 
 ## Brand Commitments
 
 - **Tên thương hiệu:** RoadStudy.
 - **Định vị:** Nền tảng đăng ký khóa học trực tuyến đa cấp học, tích hợp AI gợi ý khóa học.
 - **Giọng điệu (Voice):** Thân thiện, rõ ràng, ngắn gọn và đáng tin; tiếng Việt có dấu, nói thẳng điều học viên cần làm tiếp theo, thông báo lỗi lấy từ hệ thống chứ không đoán, tôn trọng quyền tự quyết của người dùng.
-- **Nhận diện thị giác:** Xanh đại dương làm màu chủ đạo, cam làm điểm nhấn nhỏ, bề mặt sáng và gọn, font Be Vietnam Pro (chi tiết ở `DESIGN_SYSTEM.md` và `design_system.json` ở thư mục gốc).
+- **Nhận diện thị giác:** Xanh đại dương làm màu chủ đạo, cam làm điểm nhấn nhỏ, bề mặt sáng và gọn, font Be Vietnam Pro (chi tiết ở `DESIGN_SYSTEM.md`).
 
 ## Evidence on Hand
 
-- Quy tắc cho AI và thành viên khi làm giao diện: [FE_RStudy/docs/AI_RULES.md](FE_RStudy/docs/AI_RULES.md).
+- Quy ước frontend và mẫu spec trang: [.claude/rules/frontend.md](.claude/rules/frontend.md).
 - Nguồn sự thật của API và các trạng thái: [BE_RStudy/docs/api-spec.md](BE_RStudy/docs/api-spec.md), [BE_RStudy/docs/enum.md](BE_RStudy/docs/enum.md).
-- Quy tắc nghiệp vụ và quy ước kỹ thuật: [BE_RStudy/docs/03-quy-tac-nghiep-vu.md](BE_RStudy/docs/03-quy-tac-nghiep-vu.md), [BE_RStudy/docs/02-quy-uoc-ky-thuat.md](BE_RStudy/docs/02-quy-uoc-ky-thuat.md).
-- Hệ thống thiết kế: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md), [design_system.json](design_system.json) và các token ở [FE_RStudy/src/assets/styles/theme.css](FE_RStudy/src/assets/styles/theme.css).
+- Quy tắc nghiệp vụ và quy ước kỹ thuật: [.claude/rules/business.md](.claude/rules/business.md), [.claude/rules/backend.md](.claude/rules/backend.md), [.claude/rules/security.md](.claude/rules/security.md).
+- Hệ thống thiết kế: [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) và các token ở [FE_RStudy/src/assets/styles/theme.css](FE_RStudy/src/assets/styles/theme.css).
 - Cơ sở dữ liệu và dữ liệu mẫu: [BE_RStudy/prisma/schema.prisma](BE_RStudy/prisma/schema.prisma), [BE_RStudy/prisma/seed.js](BE_RStudy/prisma/seed.js).
 - Kiểm thử tích hợp (script Node chạy bằng `node tests/<tên>.test.js`, cần máy chủ và cơ sở dữ liệu đang chạy): [BE_RStudy/tests](BE_RStudy/tests).
 - Mã nguồn: [FE_RStudy/src](FE_RStudy/src) và [BE_RStudy/src](BE_RStudy/src).
