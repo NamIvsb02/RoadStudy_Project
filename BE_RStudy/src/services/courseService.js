@@ -1,6 +1,7 @@
 const { CourseStatus, CategoryStatus, ApprovalStatus, Prisma } = require("@prisma/client");
 const AppError = require("../utils/AppError");
 const storage = require("../utils/storage");
+const cache = require("../utils/cache");
 const courseRepository = require("../repositories/courseRepository");
 const categoryRepository = require("../repositories/categoryRepository");
 const notificationService = require("./notificationService");
@@ -188,7 +189,10 @@ const attachRating = (course, stats) => {
   };
 };
 
-const getPublicList = async ({ q, categoryId, teacherId, minPrice, maxPrice, sort, ...pg }) => {
+// Cache cho khách xem (dữ liệu giống nhau với mọi người). Tìm kiếm theo từ khóa không cache: số khóa khác nhau không giới hạn
+const getPublicList = (params) => (params.q ? loadPublicList(params) : cache.getOrSet("course:list", params, () => loadPublicList(params)));
+
+const loadPublicList = async ({ q, categoryId, teacherId, minPrice, maxPrice, sort, ...pg }) => {
   const { items, total } = await courseRepository.findPublicAndCount({
     q,
     categoryId,
@@ -207,7 +211,9 @@ const getPublicList = async ({ q, categoryId, teacherId, minPrice, maxPrice, sor
 };
 
 // Khóa chưa mở, đã ngưng/kết thúc hoặc thuộc danh mục ẩn đều trả 404 như không tồn tại
-const getPublicById = async (id) => {
+const getPublicById = (id) => cache.getOrSet("course:detail", { id }, () => loadPublicById(id));
+
+const loadPublicById = async (id) => {
   const course = await courseRepository.findPublicById(id);
   if (!course) throw new AppError("Khóa học không tồn tại", 404);
   const stats = await courseRepository.getRatingStats([course.id]);
