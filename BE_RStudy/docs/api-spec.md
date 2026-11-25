@@ -97,7 +97,7 @@ Response danh sách dùng dạng:
 ### Kiểm tra server và truy vết
 
 - `GET /health` trả `{ "status": "ok" }`: tiến trình còn sống (nằm ngoài `/api`).
-- `GET /health/ready` trả `{ "status": "ok" }` khi kết nối được database, ngược lại 503 `{ "status": "unavailable" }`. Docker dùng endpoint này làm healthcheck.
+- `GET /health/ready` trả `{ "status": "ok", "redis": "disabled" | "ok" | "down" }` khi kết nối được database (Redis là phần tăng tốc, Redis lỗi vẫn trả 200 với `redis: "down"`), ngược lại 503 `{ "status": "unavailable" }`. Docker dùng endpoint này làm healthcheck.
 - Mọi response có header `X-Request-Id`. FE có thể gửi header này (chữ, số, `-`, `_`, tối đa 64 ký tự) để dùng mã của mình. Lỗi 500 kèm mã này trong `message` để báo lại cho nhóm tra log.
 
 ---

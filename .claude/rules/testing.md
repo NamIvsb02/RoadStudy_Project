@@ -41,6 +41,7 @@ Nếu `.env` đặt `STORAGE_DRIVER=cloudinary`, mọi test có upload (`invoice
 ### Kiểm tra hiệu năng và chịu tải
 
 - `node tests/resilience.test.js` kiểm tra lỗi DB quá tải trả 503, cấu hình pool và việc đăng ký không chờ email. Test tự bật một server riêng ở cổng 5058, tạo rồi xóa 1 tài khoản tạm trên DB.
+- `node tests/redis.test.js` kiểm tra Redis tắt, Redis cấu hình nhưng chết, Redis mất giữa chừng rồi tự nối lại. Test tự bật server cổng 5059 và một container Redis tạm cổng 6391 (cần Docker, tự xóa khi xong), không đụng DB dùng chung ngoài `SELECT 1`.
 - Đo tải bằng `benchmark/run.sh <nhãn> 10 50 100 200`: môi trường **cô lập** (Postgres local trong Docker, giả lập độ trễ DB 160ms như Supabase, backend giới hạn 1 CPU và 512MB), không dùng DB dùng chung, Cloudinary hay Gemini, không đọc `BE_RStudy/.env`. Kết quả ở `benchmark/results/<nhãn>.md`. So sánh hai lần đo: `node benchmark/summarize.js so-sanh <nhãn1> <nhãn2>`. Dọn môi trường: `benchmark/run.sh --down`.
 - **Không** chạy load test lên DB dùng chung hoặc production, và không gọi hàng loạt Gemini hay Cloudinary thật.
 
