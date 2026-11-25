@@ -46,12 +46,9 @@ function buildPaymentInfo(invoice) {
   return { bankId, accountNo, accountName, amount: total.toFixed(2), transferContent: content, qrUrl };
 }
 
-async function notify(email, subject, text) {
-  try {
-    await sendMail({ to: email, subject, text });
-  } catch (err) {
-    console.error("Gửi email thất bại:", err.message);
-  }
+// Gửi email chạy nền (không await ở nơi gọi): lỗi hoặc SMTP chậm không làm chậm hay hỏng nghiệp vụ chính
+function notify(email, subject, text) {
+  sendMail({ to: email, subject, text }).catch((err) => console.error("Gửi email thất bại:", err.message));
 }
 
 const removeFile = (relativePath) => {
@@ -188,7 +185,7 @@ async function approve(id) {
     });
     if (!registrationOk) throw new AppError("Đơn đăng ký đã thay đổi trạng thái, vui lòng tải lại", 409);
   });
-  await notify(
+  notify(
     invoice.student.account.email,
     "RoadStudy: thanh toán đã được xác nhận",
     `Thanh toán cho khóa học "${invoice.registration.course.courseName}" đã được xác nhận. Bạn có thể bắt đầu học.`,
@@ -206,7 +203,7 @@ async function reject(id, reason) {
     const ok = await repo.updateInvoiceIfStatus(tx, id, "CHO_THANH_TOAN", { status: "THAT_BAI", rejectionReason: reason });
     if (!ok) throw new AppError("Hóa đơn đã được xử lý bởi người khác", 409);
   });
-  await notify(
+  notify(
     invoice.student.account.email,
     "RoadStudy: thanh toán bị từ chối",
     `Thanh toán cho khóa học "${invoice.registration.course.courseName}" bị từ chối. Lý do: ${reason}. Bạn có thể gửi lại minh chứng.`,
@@ -290,7 +287,7 @@ async function approveRefund(id, adminNote) {
     }),
   );
   if (!ok) throw new AppError("Chỉ chấp thuận được yêu cầu đang chờ xử lý", 409);
-  await notify(request.student.account.email, "RoadStudy: yêu cầu hoàn tiền được chấp thuận", "Yêu cầu hoàn tiền của bạn đã được chấp thuận. Chúng tôi sẽ hoàn tiền và thông báo khi hoàn tất.");
+  notify(request.student.account.email, "RoadStudy: yêu cầu hoàn tiền được chấp thuận", "Yêu cầu hoàn tiền của bạn đã được chấp thuận. Chúng tôi sẽ hoàn tiền và thông báo khi hoàn tất.");
   await notificationService.notifyStudent(request.studentId, {
     type: "REFUND_APPROVED",
     title: "Yêu cầu hoàn tiền đã được chấp thuận",
@@ -315,7 +312,7 @@ async function completeRefund(id, adminNote) {
     await repo.updateRegistration(tx, request.registrationId, { status: "HOAN_TIEN" });
     if (invoice) await repo.updateInvoice(invoice.id, { status: "HOAN_TIEN" }, tx);
   });
-  await notify(request.student.account.email, "RoadStudy: đã hoàn tiền", `Khoản thanh toán cho khóa học "${request.registration.course.courseName}" đã được hoàn tiền.`);
+  notify(request.student.account.email, "RoadStudy: đã hoàn tiền", `Khoản thanh toán cho khóa học "${request.registration.course.courseName}" đã được hoàn tiền.`);
   await notificationService.notifyStudent(request.studentId, {
     type: "REFUND_COMPLETED",
     title: "Đã hoàn tiền thành công",
@@ -344,7 +341,7 @@ async function rejectRefund(id, adminNote, cancelRegistration) {
     if (!ok) throw new AppError("Chỉ từ chối được yêu cầu đang chờ xử lý", 409);
     if (cancelRegistration) await cancelRegistrationTx(tx, registration, invoice);
   });
-  await notify(request.student.account.email, "RoadStudy: yêu cầu hoàn tiền bị từ chối", `Yêu cầu hoàn tiền của bạn bị từ chối. Lý do: ${adminNote}`);
+  notify(request.student.account.email, "RoadStudy: yêu cầu hoàn tiền bị từ chối", `Yêu cầu hoàn tiền của bạn bị từ chối. Lý do: ${adminNote}`);
   await notificationService.notifyStudent(request.studentId, {
     type: "REFUND_REJECTED",
     title: "Yêu cầu hoàn tiền bị từ chối",

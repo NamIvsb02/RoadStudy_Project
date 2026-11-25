@@ -29,11 +29,14 @@ const reportRoutes = require("./routes/reportRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const learningRoutes = require("./routes/learningRoutes");
 
+const prisma = require("./config/database"); // ngoại lệ có chủ đích: chỉ để đóng kết nối khi tắt server
+
 const app = express();
 app.set("trust proxy", Number(process.env.TRUST_PROXY) || 0); // đặt TRUST_PROXY=1 khi chạy sau nginx/reverse proxy để rate limit lấy đúng IP
 
 app.use(helmet());
-app.use(cors());
+const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",").map((origin) => origin.trim());
+app.use(cors({ origin: corsOrigins }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(express.json());
 
@@ -74,4 +77,17 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Tắt an toàn: ngừng nhận request mới, chờ request đang chạy xong rồi đóng kết nối DB
+const shutdown = (signal) => {
+  console.log(`Nhận ${signal}, đang tắt server...`);
+  setTimeout(() => process.exit(1), 10000).unref(); // quá 10 giây thì ép thoát
+  server.close(async () => {
+    await prisma.$disconnect().catch(() => {});
+    console.log("Đã đóng kết nối, tắt server.");
+    process.exit(0);
+  });
+};
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
