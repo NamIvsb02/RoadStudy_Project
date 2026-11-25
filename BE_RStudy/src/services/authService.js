@@ -23,7 +23,8 @@ const sendOtpQuietly = async (accountId, email, purpose) => {
   }
 };
 
-const sendOtp = async (accountId, email, purpose) => {
+// wait=false: chỉ tạo mã trong DB rồi trả về ngay, email gửi nền (lỗi chỉ ghi log). Dùng cho đăng ký, nơi người dùng có nút gửi lại mã.
+const sendOtp = async (accountId, email, purpose, { wait = true } = {}) => {
   const latest = await authRepository.findLatestOtp(accountId, purpose);
   if (latest) {
     const waitSeconds = Math.ceil((latest.createdAt.getTime() + OTP_RESEND_SECONDS * 1000 - Date.now()) / 1000);
@@ -36,7 +37,9 @@ const sendOtp = async (accountId, email, purpose) => {
 
   const subject = purpose === "XAC_MINH_EMAIL" ? "Xác minh email RoadStudy" : "Đặt lại mật khẩu RoadStudy";
   const text = `Mã xác thực của bạn là: ${code} (hết hạn sau ${OTP_EXPIRES_MINUTES} phút)`;
-  await sendMail({ to: email, subject, text });
+  const sending = sendMail({ to: email, subject, text });
+  if (wait) return sending;
+  sending.catch((err) => console.error("Gửi OTP thất bại:", err.message));
 };
 
 const issueTokenPair = async (account) => {
@@ -57,9 +60,9 @@ const register = async (payload) => {
   const account = payload.role === "TEACHER" ? await authRepository.createTeacherAccount(data) : await authRepository.createStudentAccount(data);
 
   try {
-    await sendOtp(account.id, account.email, "XAC_MINH_EMAIL");
+    await sendOtp(account.id, account.email, "XAC_MINH_EMAIL", { wait: false });
   } catch (err) {
-    console.error("Gửi OTP thất bại:", err.message);
+    console.error("Tạo OTP thất bại:", err.message);
   }
   return account;
 };
