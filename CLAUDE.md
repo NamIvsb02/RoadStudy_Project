@@ -109,14 +109,14 @@ Khi gọi subagent: nạp cho nó các file rule đúng vùng (bảng ở đầu
 
 Chỉ đọc phần cần cho tác vụ:
 
-| Cần biết                                 | Đọc                                                         |
-| ---------------------------------------- | ----------------------------------------------------------- |
-| Endpoint, body, response, lỗi            | `BE_RStudy/docs/api-spec.md` (nguồn chuẩn; chưa có Swagger) |
-| Giá trị enum, trạng thái, loại thông báo | `BE_RStudy/docs/enum.md`                                    |
-| Token, component, motion, responsive     | `DESIGN_SYSTEM.md`                                          |
-| Mẫu spec trang FE                        | Mục "Spec trang" trong `.claude/rules/frontend.md`          |
-| Mục tiêu sản phẩm, người dùng            | `PRODUCT.md`                                                |
-| Cài đặt, biến môi trường, Docker         | `SETUP.md`                                                  |
+| Cần biết                                 | Đọc                                                                                   |
+| ---------------------------------------- | ------------------------------------------------------------------------------------- |
+| Endpoint, body, response, lỗi            | `BE_RStudy/docs/api-spec.md` (nguồn chuẩn; Swagger UI ở `/api-docs` sinh từ file này) |
+| Giá trị enum, trạng thái, loại thông báo | `BE_RStudy/docs/enum.md`                                                              |
+| Token, component, motion, responsive     | `DESIGN_SYSTEM.md`                                                                    |
+| Mẫu spec trang FE                        | Mục "Spec trang" trong `.claude/rules/frontend.md`                                    |
+| Mục tiêu sản phẩm, người dùng            | `PRODUCT.md`                                                                          |
+| Cài đặt, biến môi trường, Docker         | `SETUP.md`                                                                            |
 
 ## graphify
 

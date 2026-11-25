@@ -126,6 +126,14 @@ Tên module khác tên bảng:
 - Độ cũ tối đa: ghi trong `prisma.$transaction` bump trước khi commit nên một request đọc đúng lúc đó có thể cache dữ liệu cũ, tối đa `CACHE_TTL_SECONDS` (60 giây). Redis tắt hoặc lỗi thì đọc thẳng DB.
 - Lỗi (404...) không bao giờ được cache. Cache chỉ chạy khi `REDIS_URL` có giá trị.
 
+## Swagger (OpenAPI)
+
+- `src/docs/openapi.js` **sinh tự động** tài liệu, không khai báo tay: route đọc từ `src/routes`, body và params từ `validate(schema)` trên route, vai trò/quyền/upload/rate limit từ middleware (thuộc tính `apiDoc`), mô tả từ mục `### METHOD /đường-dẫn` trong `docs/api-spec.md`.
+- Mở ở `/api-docs` (JSON: `/api-docs.json`). Mặc định bật khi dev, tắt khi `NODE_ENV=production`; ghi đè bằng `SWAGGER_ENABLED=true|false`.
+- Viết spec giữ đúng định dạng để bộ sinh đọc được: heading `### GET /course/:id` (không có `/api`), các dòng `- Quyền: ...`, ``- Query: `tên` (`A` | `B`)`` hoặc bảng ngay sau `- Query:`, `- Lỗi: 404 ... | 409 ...`.
+- Query string không có validator nên chỉ lấy từ dòng `- Query:` của spec. Middleware mới cần hiện trong Swagger thì gắn `apiDoc` như `authorize`, `requirePermission`.
+- `node tests/swagger.test.js` FAIL khi route và `api-spec.md` lệch nhau (thiếu hoặc thừa endpoint).
+
 ## Thêm một module mới
 
 ```mermaid
@@ -135,11 +143,11 @@ flowchart LR
 
 1. Cần bảng/cột mới thì báo Nam (xem `database.md`).
 2. Viết theo thứ tự Repository → Service → Validator → Controller → Route, rồi mount một dòng trong `app.js`.
-3. Ghi mục API vào `docs/api-spec.md` (quyền, body, response, lỗi, ghi chú) và cập nhật bảng ở mục cuối (trạng thái tài liệu theo module). **API chưa có trong `api-spec.md` thì chưa tính là xong.**
+3. Ghi mục API vào `docs/api-spec.md` (quyền, body, response, lỗi, ghi chú) và cập nhật bảng ở mục cuối (trạng thái tài liệu theo module). **API chưa có trong `api-spec.md` thì chưa tính là xong.** Swagger tự cập nhật theo, chạy `node tests/swagger.test.js` để chắc route và spec khớp.
 4. Enum mới thì cập nhật `docs/enum.md` cùng lúc.
 5. Viết test theo `testing.md`.
 
 ## Tài liệu tham khảo (đọc khi cần, không nạp sẵn)
 
-- `BE_RStudy/docs/api-spec.md`: nguồn chuẩn endpoint cho cả FE và BE. Chưa có Swagger/OpenAPI.
+- `BE_RStudy/docs/api-spec.md`: nguồn chuẩn endpoint cho cả FE và BE. Swagger UI (`/api-docs`) sinh tự động từ route, validator và file này (xem mục Swagger).
 - `BE_RStudy/docs/enum.md`: giá trị enum, trạng thái, loại thông báo.

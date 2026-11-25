@@ -60,6 +60,7 @@ cp FE_RStudy/.env.example FE_RStudy/.env
 | Server     | `PORT`, `NODE_ENV`                                                                                            | Mặc định cổng 5000                                                                                                                                                                                                                                                                                                                                                                                |
 | Redis      | `REDIS_URL`, `REDIS_KEY_ENV`, `REDIS_CONNECT_TIMEOUT_MS`, `REDIS_COMMAND_TIMEOUT_MS`                          | Tùy chọn. `REDIS_URL` trống = tắt Redis, hệ thống chạy như cũ. Có Redis: `docker compose --profile redis up -d redis` (đặt `REDIS_PASSWORD`), rồi đặt `REDIS_URL=redis://:<mật khẩu>@redis:6379` khi backend chạy trong Docker hoặc `redis://:<mật khẩu>@localhost:6379` khi chạy ngoài. Container Redis không publish cổng. Redis lỗi thì hệ thống vẫn chạy, `/health/ready` báo `redis: "down"` |
 | Cache      | `CACHE_TTL_SECONDS`                                                                                           | Thời gian giữ cache 4 API công khai (mặc định 60 giây). Chỉ có tác dụng khi bật Redis                                                                                                                                                                                                                                                                                                             |
+| Swagger    | `SWAGGER_ENABLED`                                                                                             | Để trống: bật `/api-docs` khi dev, tắt khi `NODE_ENV=production`. `true` hoặc `false` để ép bật hoặc tắt                                                                                                                                                                                                                                                                                          |
 | Pool DB    | `DB_CONNECTION_LIMIT`, `DB_POOL_TIMEOUT`                                                                      | Số kết nối tối đa tới DB và số giây chờ kết nối. Để trống = mặc định Prisma (thường 9 kết nối, chỉ khoảng 10 request/giây vì mỗi truy vấn tới Supabase mất ~165ms). Đã đo: 30 kết nối cho khoảng 33 request/giây. Chỉ tăng khi `DATABASE_URL` là pooler chế độ transaction (cổng 6543, `pgbouncer=true`)                                                                                          |
 | CORS       | `CORS_ORIGIN`                                                                                                 | Origin FE được gọi API, ngăn cách bằng dấu phẩy. Mặc định `http://localhost:5173`. FE chạy ở địa chỉ khác (ví dụ `127.0.0.1:5173`, domain thật) thì phải thêm vào                                                                                                                                                                                                                                 |
 | Proxy      | `TRUST_PROXY`                                                                                                 | Số lớp reverse proxy phía trước backend, mặc định 0. Đặt 1 khi chạy sau nginx để giới hạn tần suất lấy đúng IP; để sai thì client giả được IP                                                                                                                                                                                                                                                     |
@@ -120,6 +121,7 @@ cd FE_RStudy && npm run dev    # Vite, cổng 5173
 | `http://localhost:5000/api`          | Gốc của Backend API                                    |
 | `http://localhost:5000/health`       | Kiểm tra Backend sống                                  |
 | `http://localhost:5000/health/ready` | Backend sống và kết nối được database (503 nếu DB lỗi) |
+| `http://localhost:5000/api-docs`     | Swagger UI: xem và thử API (chỉ khi dev)               |
 | `http://localhost:5000/uploads/...`  | File tĩnh (`avatars`, `covers`, `resources`)           |
 
 Ảnh minh chứng thanh toán **không** được phục vụ công khai (thư mục `uploads/proofs` hoặc Cloudinary `type: authenticated`), chỉ truy cập qua API có kiểm tra quyền. Khi `STORAGE_DRIVER=cloudinary`, ảnh và tài liệu mới là URL `https://res.cloudinary.com/...`; thư mục `/uploads/...` chỉ còn phục vụ file local cũ.
@@ -183,9 +185,11 @@ Thành viên sau khi pull chỉ cần `npx prisma generate`; migration đã đư
 
 ## 9. Tài liệu API (Swagger)
 
-Dự án **chưa tích hợp Swagger/OpenAPI**. Nguồn chuẩn về endpoint là [`BE_RStudy/docs/api-spec.md`](BE_RStudy/docs/api-spec.md) (mục 21 là bảng trạng thái tài liệu theo module). Giá trị enum và trạng thái ở [`BE_RStudy/docs/enum.md`](BE_RStudy/docs/enum.md).
+Swagger UI ở `http://localhost:5000/api-docs` (file OpenAPI: `/api-docs.json`), mặc định chỉ bật khi dev. Tài liệu **sinh tự động** từ route, validator và `api-spec.md`, nên không có bản riêng để sửa. Bấm **Authorize**, dán `accessToken` (không cần chữ `Bearer`) để thử API cần đăng nhập. Image Docker không chép thư mục `docs/` nên nếu bật Swagger trong container thì thiếu phần mô tả.
 
-Thử API thủ công: gọi `POST /api/auth/login`, lấy `accessToken`, gửi kèm header `Authorization: Bearer <accessToken>` (token sống 15 phút, làm mới bằng `POST /api/auth/refresh`).
+Nguồn chuẩn về endpoint là [`BE_RStudy/docs/api-spec.md`](BE_RStudy/docs/api-spec.md) (mục 21 là bảng trạng thái tài liệu theo module). Giá trị enum và trạng thái ở [`BE_RStudy/docs/enum.md`](BE_RStudy/docs/enum.md).
+
+Thử API thủ công (hoặc trong Swagger): gọi `POST /api/auth/login`, lấy `accessToken`, gửi kèm header `Authorization: Bearer <accessToken>` (token sống 15 phút, làm mới bằng `POST /api/auth/refresh`).
 
 ## 10. Xử lý lỗi thường gặp
 

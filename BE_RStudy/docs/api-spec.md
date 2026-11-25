@@ -4,6 +4,8 @@ Base URL: `http://localhost:5000/api` (FE đặt trong `VITE_API_URL`). Đườn
 
 Trong file này, đường dẫn endpoint viết **không có tiền tố `/api`** (ví dụ `/auth/login` nghĩa là `POST http://localhost:5000/api/auth/login`).
 
+Swagger UI (`/api-docs`, chỉ khi dev) sinh tự động từ route, validator và file này. Giữ đúng định dạng mục `### METHOD /đường-dẫn`, `- Quyền:`, `- Query:`, `- Lỗi:` để Swagger đọc được.
+
 Quy tắc nhóm: **API chưa có trong file này thì chưa tính là xong.** Người viết API điền mục của mình trước khi báo Done. FE thấy spec sai hoặc thiếu thì báo người viết BE sửa spec, không tự đoán.
 
 ## 1. Quy ước chung

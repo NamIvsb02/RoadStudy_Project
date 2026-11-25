@@ -38,6 +38,10 @@ Nếu `.env` đặt `STORAGE_DRIVER=cloudinary`, mọi test có upload (`invoice
 - `node tests/scripts.test.js` kiểm tra hai script `migrate-uploads-to-cloudinary` và `cleanup-orphan-files` bằng DB và Cloudinary giả, không cần server, không đụng dữ liệu thật.
 - Không chạy `migrate-uploads-to-cloudinary.js --apply` hay `cleanup-orphan-files.js --apply` trên môi trường dùng chung khi chưa được Nam đồng ý.
 
+### Tài liệu API
+
+- `node tests/swagger.test.js` (không cần bật server trước, tự bật server cổng 5064, không đụng DB): mọi route có mục trong `api-spec.md` và ngược lại, OpenAPI hợp lệ, `/api-docs` bật khi dev và tắt khi production. Chạy mỗi khi thêm, đổi hoặc xóa route.
+
 ### Kiểm tra hiệu năng và chịu tải
 
 - `node tests/resilience.test.js` kiểm tra lỗi DB quá tải trả 503, cấu hình pool và việc đăng ký không chờ email. Test tự bật một server riêng ở cổng 5058, tạo rồi xóa 1 tài khoản tạm trên DB.
