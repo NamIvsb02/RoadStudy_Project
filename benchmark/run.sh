@@ -36,12 +36,25 @@ $DC exec -T db psql -U bench -d bench -qc "CREATE EXTENSION IF NOT EXISTS pg_sta
 $DC restart backend >/dev/null # khởi động lại để kết nối và bộ nhớ ở trạng thái sạch
 sleep 6
 
+REDIS=roadstudy-bench-redis-1
+redis_cli() { docker exec "$REDIS" redis-cli -a bench --no-auth-warning "$@"; }
+# Chỉ khi chạy với Redis bật. REDIS_KILL_AFTER=<giây>: dừng Redis giữa lúc đang tải để đo lúc Redis chết
+USE_REDIS=${REDIS_URL:+1}
+
 psql_db() { docker exec "$DB" psql -U bench -d bench -tAc "$1"; }
 
 for VUS in $LEVELS; do
   OUT="results/$LABEL/vus$VUS"
   rm -f "$OUT".stats "$OUT".conns "$OUT".stop "$OUT".calls
   psql_db "SELECT pg_stat_statements_reset();" >/dev/null
+  if [ -n "$USE_REDIS" ]; then
+    docker start "$REDIS" >/dev/null 2>&1 || true
+    sleep 2
+    redis_cli FLUSHALL >/dev/null && redis_cli CONFIG RESETSTAT >/dev/null # mỗi mức bắt đầu với cache trống
+    if [ -n "${REDIS_KILL_AFTER:-}" ]; then
+      ( sleep "$REDIS_KILL_AFTER"; docker stop -t 0 "$REDIS" >/dev/null 2>&1 ) &
+    fi
+  fi
   echo "== Mức $VUS người dùng đồng thời"
   (
     while [ ! -f "$OUT.stop" ]; do
@@ -56,6 +69,13 @@ for VUS in $LEVELS; do
     grafana/k6 run -e BASE=http://backend:5000 -e VUS="$VUS" --summary-export="/results/vus$VUS.json" /scripts/public.js \
     > "$OUT.k6.log" 2>&1 || echo "   (k6 báo ngưỡng/lỗi, xem $OUT.k6.log)"
   touch "$OUT.stop"
+  if [ -n "$USE_REDIS" ] && [ -z "${REDIS_KILL_AFTER:-}" ]; then
+    # get = 2 lượt mỗi request qua cache (phiên bản + dữ liệu), set = 1 lượt mỗi lần phải tải từ DB
+    GETS=$(redis_cli INFO commandstats | awk -F"[:,=]" '$1=="cmdstat_get"{print $3}')
+    SETS=$(redis_cli INFO commandstats | awk -F"[:,=]" '$1=="cmdstat_set"{print $3}')
+    MEM=$(redis_cli INFO memory | awk -F: '$1=="used_memory"{gsub(/[^0-9]/,"",$2);print $2}')
+    echo "get=${GETS:-0} set=${SETS:-0} mem=${MEM:-0}" > "$OUT.redis"
+  fi
   wait "$SAMPLER" 2>/dev/null || true
   psql_db "SELECT coalesce(sum(calls),0) FROM pg_stat_statements WHERE dbid=(SELECT oid FROM pg_database WHERE datname='bench') AND query NOT ILIKE '%pg_stat_statements%'" > "$OUT.calls"
   rm -f "$OUT.stop"

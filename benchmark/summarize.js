@@ -21,6 +21,11 @@ function loadLevel(label, vus) {
   const stats = readLines(`${base}.stats`).map((l) => ({ cpu: parseFloat(l), mem: mb(l) }));
   const conns = readLines(`${base}.conns`).map(Number).filter((n) => !Number.isNaN(n));
   const calls = Number(readLines(`${base}.calls`)[0] || 0);
+  const redisLine = readLines(`${base}.redis`)[0] || "";
+  const rg = Number(/get=(\d+)/.exec(redisLine)?.[1] || 0);
+  const rs = Number(/set=(\d+)/.exec(redisLine)?.[1] || 0);
+  const rm = Number(/mem=(\d+)/.exec(redisLine)?.[1] || 0);
+  const lookups = rg / 2; // mỗi lần tra cache = GET phiên bản + GET dữ liệu
   const dur = k6.http_req_duration;
   const reqs = k6.http_reqs;
   const failed = k6.http_req_failed;
@@ -41,6 +46,8 @@ function loadLevel(label, vus) {
     memMax: Math.max(0, ...stats.map((s) => s.mem)),
     connsMax: Math.max(0, ...conns),
     perEndpoint,
+    cacheHit: lookups > 0 ? Math.max(0, (1 - rs / lookups) * 100) : null,
+    redisMb: rm / 1048576,
   };
 }
 
@@ -50,10 +57,12 @@ const levelsOf = (label) =>
 function table(label) {
   const levels = levelsOf(label).map((v) => loadLevel(label, v)).filter(Boolean);
   let md = `### Kết quả: ${label}\n\n`;
-  md += "| Người dùng đồng thời | Trung bình (ms) | P50 | P95 | P99 | Req/giây | Lỗi (%) | Truy vấn SQL | SQL/request | CPU tối đa (%) | RAM tối đa (MB) | Kết nối DB tối đa |\n";
-  md += "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n";
+  const hasRedis = levels.some((l) => l.cacheHit !== null);
+  md += "| Người dùng đồng thời | Trung bình (ms) | P50 | P95 | P99 | Req/giây | Lỗi (%) | Truy vấn SQL | SQL/request | CPU tối đa (%) | RAM tối đa (MB) | Kết nối DB tối đa |" + (hasRedis ? " Cache hit (%) | Redis RAM (MB) |" : "") + "\n";
+  md += "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |" + (hasRedis ? " --- | --- |" : "") + "\n";
   for (const l of levels) {
-    md += `| ${l.vus} | ${num(l.avg)} | ${num(l.p50)} | ${num(l.p95)} | ${num(l.p99)} | ${num(l.rps, 1)} | ${num(l.errorRate, 2)} | ${l.queries} | ${num(l.queriesPerReq, 1)} | ${num(l.cpuMax)} | ${num(l.memMax)} | ${l.connsMax} |\n`;
+    const redisCols = hasRedis ? ` ${l.cacheHit === null ? "-" : num(l.cacheHit, 1)} | ${num(l.redisMb, 1)} |` : "";
+    md += `| ${l.vus} | ${num(l.avg)} | ${num(l.p50)} | ${num(l.p95)} | ${num(l.p99)} | ${num(l.rps, 1)} | ${num(l.errorRate, 2)} | ${l.queries} | ${num(l.queriesPerReq, 1)} | ${num(l.cpuMax)} | ${num(l.memMax)} | ${l.connsMax} |${redisCols}\n`;
   }
   md += "\nP95 (ms) theo từng API:\n\n| Người dùng | " + ENDPOINTS.join(" | ") + " |\n| --- |" + ENDPOINTS.map(() => " --- |").join("") + "\n";
   for (const l of levels) md += `| ${l.vus} | ${ENDPOINTS.map((e) => num(l.perEndpoint[e]?.["p(95)"])).join(" | ")} |\n`;

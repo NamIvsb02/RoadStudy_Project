@@ -23,11 +23,23 @@ services:
       timeout: 3s
       retries: 20
 
+  # Redis của môi trường đo (mật khẩu cố định, chỉ nằm trong mạng Docker của benchmark). Backend chỉ dùng khi REDIS_URL có giá trị.
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "bench", "--maxmemory", "128mb", "--maxmemory-policy", "volatile-lru", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a bench --no-auth-warning ping | grep -q PONG"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
   backend:
     build: ../BE_RStudy
     image: roadstudy-bench-backend
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     # Giới hạn tài nguyên giống một server nhỏ để số đo CPU/RAM có ý nghĩa
     cpus: 1.0
@@ -46,3 +58,6 @@ services:
       # Chỉ có tác dụng sau giai đoạn 1 (code mới đọc các biến này); để trống thì dùng mặc định của Prisma
       DB_CONNECTION_LIMIT: ${DB_CONNECTION_LIMIT:-}
       DB_POOL_TIMEOUT: ${DB_POOL_TIMEOUT:-}
+      # Để trống = tắt Redis (cache và rate limit trong RAM). Bật: REDIS_URL=redis://:bench@redis:6379 benchmark/run.sh <nhãn> ...
+      REDIS_URL: ${REDIS_URL:-}
+      REDIS_KEY_ENV: bench
