@@ -31,6 +31,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const learningRoutes = require("./routes/learningRoutes");
 
 const prisma = require("./config/database"); // ngoại lệ có chủ đích: chỉ để đóng kết nối khi tắt server
+const redis = require("./config/redis"); // tắt khi REDIS_URL trống
 
 const app = express();
 app.set("trust proxy", Number(process.env.TRUST_PROXY) || 0); // đặt TRUST_PROXY=1 khi chạy sau nginx/reverse proxy để rate limit lấy đúng IP
@@ -51,11 +52,12 @@ app.use(express.json());
 
 app.get("/health", (req, res) => res.json({ status: "ok" })); // process còn sống
 
-// Sẵn sàng phục vụ: kiểm tra được kết nối tới database
+// Sẵn sàng phục vụ: kiểm tra được kết nối tới database. Redis chỉ là phần tăng tốc nên Redis lỗi vẫn trả 200
+// (redis: "disabled" | "ok" | "down"), chỉ DB lỗi mới trả 503.
 app.get("/health/ready", async (req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: "ok" });
+    res.json({ status: "ok", redis: await redis.checkHealth() });
   } catch (err) {
     console.error(`[${req.id}] Health ready lỗi:`, err.message);
     res.status(503).json({ status: "unavailable" });
@@ -99,11 +101,12 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
-// Tắt an toàn: ngừng nhận request mới, chờ request đang chạy xong rồi đóng kết nối DB
+// Tắt an toàn: ngừng nhận request mới, chờ request đang chạy xong rồi đóng kết nối Redis và DB
 const shutdown = (signal) => {
   console.log(`Nhận ${signal}, đang tắt server...`);
   setTimeout(() => process.exit(1), 10000).unref(); // quá 10 giây thì ép thoát
   server.close(async () => {
+    await redis.close();
     await prisma.$disconnect().catch(() => {});
     console.log("Đã đóng kết nối, tắt server.");
     process.exit(0);
