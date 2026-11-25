@@ -36,11 +36,20 @@ const updateInvoice = (id, data, tx) => db(tx).invoice.update({ where: { id }, d
 
 // Chỉ cập nhật khi hóa đơn còn đúng trạng thái cũ: tránh duyệt/từ chối trùng khi hai admin thao tác cùng lúc
 const updateInvoiceIfStatus = async (tx, id, fromStatus, data) => {
-    const r = await tx.invoice.updateMany({ where: { id, status: fromStatus }, data });
+    const r = await tx.invoice.updateMany({
+        where: { id, status: Array.isArray(fromStatus) ? { in: fromStatus } : fromStatus },
+        data,
+    });
     return r.count === 1;
 };
 
 const updateRegistration = (tx, id, data) => tx.courseRegistration.update({ where: { id }, data });
+
+// Chỉ cập nhật đơn khi còn đúng trạng thái cũ: tránh lệch trạng thái giữa đơn và hóa đơn
+const updateRegistrationIfStatus = async (tx, id, fromStatus, data) => {
+    const r = await tx.courseRegistration.updateMany({ where: { id, status: fromStatus }, data });
+    return r.count === 1;
+};
 
 // Hủy đơn (chỉ khi đang CHO_THANH_TOAN) và hóa đơn của đơn đó
 const cancelRegistrationRecords = async (tx, registrationId, invoiceId) => {
@@ -59,7 +68,10 @@ const countPendingRefundByRegistration = (registrationId, tx) =>
         where: { registrationId, status: { in: ["CHO_XU_LY", "CHO_HOAN_TIEN"] } },
     });
 
-const createSupportRequest = (data) => prisma.supportRequest.create({ data });
+const createSupportRequest = (data, tx) => db(tx).supportRequest.create({ data });
+
+// Khóa dòng học viên (cùng khóa với enrollmentRepository.lockStudent): các thao tác của một học viên chạy lần lượt
+const lockStudent = (tx, studentId) => tx.$executeRaw`SELECT 1 FROM "Student" WHERE id = ${studentId} FOR UPDATE`;
 
 const findSupportRequestById = (id, tx) =>
     db(tx).supportRequest.findUnique({ where: { id }, include: supportInclude });
@@ -88,4 +100,6 @@ module.exports = {
     findSupportRequestById,
     findSupportRequests,
     updateSupportIfStatus,
+    updateRegistrationIfStatus,
+    lockStudent,
 };

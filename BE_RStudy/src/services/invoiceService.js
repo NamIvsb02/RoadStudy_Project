@@ -106,15 +106,20 @@ async function uploadProof(accountId, id, file) {
     if (!["CHO_THANH_TOAN", "THAT_BAI"].includes(invoice.status) || invoice.registration.status !== "CHO_THANH_TOAN") {
       throw new AppError("Hóa đơn này không thể gửi minh chứng thanh toán", 400);
     }
-    if ((await repo.countPendingRefundByRegistration(invoice.registrationId)) > 0) {
-      throw new AppError("Đơn đang có yêu cầu hoàn tiền chờ xử lý", 409);
-    }
-    // Gửi lại sau khi bị từ chối: quay về chờ duyệt, xóa lý do cũ và minh chứng cũ
-    const updated = await repo.updateInvoice(id, {
-      paymentProofUrl: newPath,
-      status: "CHO_THANH_TOAN",
-      rejectionReason: null,
+    // Gửi lại sau khi bị từ chối: quay về chờ duyệt, xóa lý do cũ và minh chứng cũ.
+    // Chỉ cập nhật khi hóa đơn còn đúng trạng thái: tránh ghi đè khi admin vừa duyệt.
+    await prisma.$transaction(async (tx) => {
+      if ((await repo.countPendingRefundByRegistration(invoice.registrationId, tx)) > 0) {
+        throw new AppError("Đơn đang có yêu cầu hoàn tiền chờ xử lý", 409);
+      }
+      const ok = await repo.updateInvoiceIfStatus(tx, id, ["CHO_THANH_TOAN", "THAT_BAI"], {
+        paymentProofUrl: newPath,
+        status: "CHO_THANH_TOAN",
+        rejectionReason: null,
+      });
+      if (!ok) throw new AppError("Hóa đơn vừa thay đổi trạng thái, vui lòng tải lại", 409);
     });
+    const updated = await repo.findInvoiceById(id);
     removeFile(invoice.paymentProofUrl);
     await notificationService.notifyAdmins(PERMISSIONS.QUAN_LY_THANH_TOAN, {
       type: "PAYMENT_PENDING",
@@ -172,9 +177,16 @@ async function loadPendingReview(id) {
 async function approve(id) {
   const invoice = await loadPendingReview(id);
   await prisma.$transaction(async (tx) => {
+    if ((await repo.countPendingRefundByRegistration(invoice.registrationId, tx)) > 0) {
+      throw new AppError("Đơn đang có yêu cầu hủy/hoàn tiền chờ xử lý", 409);
+    }
     const ok = await repo.updateInvoiceIfStatus(tx, id, "CHO_THANH_TOAN", { status: "DA_THANH_TOAN", paidAt: new Date() });
     if (!ok) throw new AppError("Hóa đơn đã được xử lý bởi người khác", 409);
-    await repo.updateRegistration(tx, invoice.registrationId, { status: "DA_THANH_TOAN", amountPaid: invoice.totalAmount });
+    const registrationOk = await repo.updateRegistrationIfStatus(tx, invoice.registrationId, "CHO_THANH_TOAN", {
+      status: "DA_THANH_TOAN",
+      amountPaid: invoice.totalAmount,
+    });
+    if (!registrationOk) throw new AppError("Đơn đăng ký đã thay đổi trạng thái, vui lòng tải lại", 409);
   });
   await notify(
     invoice.student.account.email,
@@ -187,8 +199,13 @@ async function approve(id) {
 
 async function reject(id, reason) {
   const invoice = await loadPendingReview(id);
-  const ok = await prisma.$transaction((tx) => repo.updateInvoiceIfStatus(tx, id, "CHO_THANH_TOAN", { status: "THAT_BAI", rejectionReason: reason }));
-  if (!ok) throw new AppError("Hóa đơn đã được xử lý bởi người khác", 409);
+  await prisma.$transaction(async (tx) => {
+    if ((await repo.countPendingRefundByRegistration(invoice.registrationId, tx)) > 0) {
+      throw new AppError("Đơn đang có yêu cầu hủy/hoàn tiền chờ xử lý", 409);
+    }
+    const ok = await repo.updateInvoiceIfStatus(tx, id, "CHO_THANH_TOAN", { status: "THAT_BAI", rejectionReason: reason });
+    if (!ok) throw new AppError("Hóa đơn đã được xử lý bởi người khác", 409);
+  });
   await notify(
     invoice.student.account.email,
     "RoadStudy: thanh toán bị từ chối",
@@ -217,10 +234,6 @@ async function requestRefund(accountId, invoiceId, description) {
   if (new Decimal(invoice.totalAmount).isZero()) {
     throw new AppError("Khóa học miễn phí không áp dụng hoàn tiền", 400);
   }
-  if ((await repo.countPendingRefundByRegistration(invoice.registrationId)) > 0) {
-    throw new AppError("Đã có yêu cầu hoàn tiền đang chờ xử lý cho đơn này", 409);
-  }
-
   const registration = invoice.registration;
   const sentProofUnpaid = invoice.status === "CHO_THANH_TOAN" && invoice.paymentProofUrl && registration.status === "CHO_THANH_TOAN";
   const paid = invoice.status === "DA_THANH_TOAN" && registration.status === "DA_THANH_TOAN";
@@ -234,13 +247,17 @@ async function requestRefund(accountId, invoiceId, description) {
     throw new AppError("Hóa đơn này không thể yêu cầu hoàn tiền", 400);
   }
 
-  const request = await repo.createSupportRequest({
-    type: "HOAN_TIEN_KHOA_HOC",
-    description,
-    studentId,
-    registrationId: invoice.registrationId,
+  // Khóa học viên rồi mới đếm và tạo: gửi hai lần liên tiếp chỉ tạo được một yêu cầu
+  return prisma.$transaction(async (tx) => {
+    await repo.lockStudent(tx, studentId);
+    if ((await repo.countPendingRefundByRegistration(invoice.registrationId, tx)) > 0) {
+      throw new AppError("Đã có yêu cầu hoàn tiền đang chờ xử lý cho đơn này", 409);
+    }
+    return repo.createSupportRequest(
+      { type: "HOAN_TIEN_KHOA_HOC", description, studentId, registrationId: invoice.registrationId },
+      tx,
+    );
   });
-  return request;
 }
 
 async function listMyRefundRequests(accountId, { skip, take }) {
