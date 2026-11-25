@@ -1,6 +1,7 @@
+const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 
-const generateOtpCode = () => String(Math.floor(100000 + Math.random() * 900000));
+const generateOtpCode = () => String(crypto.randomInt(100000, 1000000));
 const hashOtp = (code) => bcrypt.hash(code, 10);
 const compareOtp = (code, hash) => bcrypt.compare(code, hash);
 
