@@ -16,9 +16,13 @@ module.exports = (err, req, res, next) => {
   }
 
   const statusCode = err.statusCode || err.status || 500;
-  const message = err.isOperational ? err.message : statusCode >= 400 && statusCode < 500 ? "Yêu cầu không hợp lệ" : "Lỗi hệ thống, vui lòng thử lại sau";
+  const message = err.isOperational
+    ? err.message
+    : statusCode >= 400 && statusCode < 500
+      ? "Yêu cầu không hợp lệ"
+      : `Lỗi hệ thống, vui lòng thử lại sau (mã: ${req.id})`;
 
-  if (statusCode >= 500) console.error(err);
+  if (statusCode >= 500) console.error(`[${req.id}]`, err);
 
   return res.status(statusCode).json(formatResponse(false, null, message));
 };

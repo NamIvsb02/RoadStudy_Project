@@ -7,6 +7,7 @@ const path = require("path");
 
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
+const requestId = require("./middlewares/requestId");
 
 // ===== Routes - 17 module =====
 const authRoutes = require("./routes/authRoutes");
@@ -34,13 +35,32 @@ const prisma = require("./config/database"); // ngoại lệ có chủ đích: c
 const app = express();
 app.set("trust proxy", Number(process.env.TRUST_PROXY) || 0); // đặt TRUST_PROXY=1 khi chạy sau nginx/reverse proxy để rate limit lấy đúng IP
 
+app.use(requestId); // đầu tiên, để mọi log và lỗi đều có mã truy vết
 app.use(helmet());
 const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",").map((origin) => origin.trim());
 app.use(cors({ origin: corsOrigins }));
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+morgan.token("id", (req) => req.id);
+app.use(
+  morgan(
+    process.env.NODE_ENV === "production"
+      ? ':id :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
+      : ":id :method :url :status :response-time ms",
+  ),
+);
 app.use(express.json());
 
-app.get("/health", (req, res) => res.json({ status: "ok" }));
+app.get("/health", (req, res) => res.json({ status: "ok" })); // process còn sống
+
+// Sẵn sàng phục vụ: kiểm tra được kết nối tới database
+app.get("/health/ready", async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: "ok" });
+  } catch (err) {
+    console.error(`[${req.id}] Health ready lỗi:`, err.message);
+    res.status(503).json({ status: "unavailable" });
+  }
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/account", accountRoutes);
