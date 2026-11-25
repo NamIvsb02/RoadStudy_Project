@@ -30,6 +30,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const learningRoutes = require("./routes/learningRoutes");
 
 const app = express();
+app.set("trust proxy", Number(process.env.TRUST_PROXY) || 0); // đặt TRUST_PROXY=1 khi chạy sau nginx/reverse proxy để rate limit lấy đúng IP
 
 app.use(helmet());
 app.use(cors());
