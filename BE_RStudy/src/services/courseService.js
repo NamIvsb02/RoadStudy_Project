@@ -1,5 +1,6 @@
 const { CourseStatus, CategoryStatus, ApprovalStatus, Prisma } = require("@prisma/client");
 const AppError = require("../utils/AppError");
+const storage = require("../utils/storage");
 const courseRepository = require("../repositories/courseRepository");
 const categoryRepository = require("../repositories/categoryRepository");
 const notificationService = require("./notificationService");
@@ -216,6 +217,9 @@ const getPublicById = async (id) => {
 const approve = (id) => changeStatusByAdmin(id, CourseStatus.DA_PHE_DUYET);
 const reject = (id, reason) => changeStatusByAdmin(id, CourseStatus.BAN_NHAP, reason);
 
+// Ảnh bìa được lưu ngay khi tải lên; nếu giáo viên bỏ form không lưu khóa học thì ảnh thừa được dọn bằng scripts/cleanup-orphan-files.js
+const uploadCover = (file) => storage.save(file, "covers");
+
 module.exports = {
   createByTeacher,
   getMyList,
@@ -229,4 +233,5 @@ module.exports = {
   reject,
   getPublicList,
   getPublicById,
+  uploadCover,
 };

@@ -1,19 +1,8 @@
-const fs = require("fs/promises");
-const path = require("path");
 const { CategoryStatus } = require("@prisma/client");
 const AppError = require("../utils/AppError");
+const storage = require("../utils/storage");
 const resourceRepository = require("../repositories/resourceRepository");
 const categoryRepository = require("../repositories/categoryRepository");
-
-const RESOURCE_DIR = path.join(__dirname, "../../uploads/resources");
-
-const removeFile = async (fileUrl) => {
-  try {
-    await fs.unlink(path.join(RESOURCE_DIR, path.basename(fileUrl)));
-  } catch (e) {
-    /* file đã mất thì bỏ qua */
-  }
-};
 
 const getExistingOrThrow = async (id) => {
   const resource = await resourceRepository.findById(id);
@@ -44,12 +33,14 @@ const create = async (accountId, { resourceName, categoryId }, file) => {
     throw new AppError("Danh mục không tồn tại hoặc đang bị ẩn", 400);
   }
 
-  return resourceRepository.create({
-    resourceName,
-    categoryId,
-    fileUrl: `/uploads/resources/${file.filename}`,
-    uploadedByTeacherId: teacher.id,
-  });
+  // Lưu file sau khi đã kiểm tra quyền và danh mục; ghi DB lỗi thì xóa file vừa lưu
+  const fileUrl = await storage.save(file, "resources");
+  try {
+    return await resourceRepository.create({ resourceName, categoryId, fileUrl, uploadedByTeacherId: teacher.id });
+  } catch (err) {
+    await storage.remove(fileUrl);
+    throw err;
+  }
 };
 
 // Giáo viên chỉ xóa tài liệu của mình; admin xóa được tất cả
@@ -62,7 +53,7 @@ const remove = async (id, user) => {
     }
   }
   await resourceRepository.remove(id);
-  await removeFile(resource.fileUrl);
+  await storage.remove(resource.fileUrl);
 };
 
-module.exports = { getList, getById, create, remove, removeFile };
+module.exports = { getList, getById, create, remove };

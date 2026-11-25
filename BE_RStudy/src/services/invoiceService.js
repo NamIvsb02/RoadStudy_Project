@@ -1,8 +1,7 @@
-const fs = require("fs");
-const path = require("path");
 const { Prisma } = require("@prisma/client");
 const prisma = require("../config/database");
 const AppError = require("../utils/AppError");
+const storage = require("../utils/storage");
 const { sendMail } = require("../config/mail");
 const repo = require("../repositories/invoiceRepository");
 const couponService = require("./couponService");
@@ -10,8 +9,6 @@ const notificationService = require("./notificationService");
 const { PERMISSIONS } = require("../constants/permissions");
 
 const { Decimal } = Prisma;
-const UPLOAD_ROOT = path.join(__dirname, "../../uploads");
-const PROOF_DIR = path.join(UPLOAD_ROOT, "proofs");
 const REFUND_WINDOW_MS = 24 * 60 * 60 * 1000;
 const INVOICE_STATUSES = ["CHO_THANH_TOAN", "DA_THANH_TOAN", "THAT_BAI", "HOAN_TIEN", "DA_HUY"];
 const REFUND_STATUSES = ["CHO_XU_LY", "CHO_HOAN_TIEN", "DA_XU_LY", "TU_CHOI"];
@@ -50,11 +47,6 @@ function buildPaymentInfo(invoice) {
 function notify(email, subject, text) {
   sendMail({ to: email, subject, text }).catch((err) => console.error("Gửi email thất bại:", err.message));
 }
-
-const removeFile = (relativePath) => {
-  if (!relativePath) return;
-  fs.promises.unlink(path.join(UPLOAD_ROOT, relativePath)).catch(() => {});
-};
 
 // ---------- Dùng chung với module enrollment ----------
 // Hủy đơn + hóa đơn và trả lại lượt mã giảm giá. Gọi TRONG transaction.
@@ -97,48 +89,49 @@ async function getById(user, id) {
 
 async function uploadProof(accountId, id, file) {
   if (!file) throw new AppError("Vui lòng chọn ảnh minh chứng (trường proof)", 400);
-  const newPath = `proofs/${file.filename}`;
+  const invoice = await loadInvoiceFor({ id: accountId, role: "STUDENT" }, id);
+  if (!["CHO_THANH_TOAN", "THAT_BAI"].includes(invoice.status) || invoice.registration.status !== "CHO_THANH_TOAN") {
+    throw new AppError("Hóa đơn này không thể gửi minh chứng thanh toán", 400);
+  }
+
+  // Lưu ảnh mới -> cập nhật DB -> xóa ảnh cũ: sự cố giữa chừng chỉ để lại file thừa, hóa đơn luôn trỏ tới ảnh còn tồn tại
+  const newRef = await storage.save(file, "proofs", { isPrivate: true });
   try {
-    const invoice = await loadInvoiceFor({ id: accountId, role: "STUDENT" }, id);
-    if (!["CHO_THANH_TOAN", "THAT_BAI"].includes(invoice.status) || invoice.registration.status !== "CHO_THANH_TOAN") {
-      throw new AppError("Hóa đơn này không thể gửi minh chứng thanh toán", 400);
-    }
-    // Gửi lại sau khi bị từ chối: quay về chờ duyệt, xóa lý do cũ và minh chứng cũ.
+    // Gửi lại sau khi bị từ chối: quay về chờ duyệt, xóa lý do cũ.
     // Chỉ cập nhật khi hóa đơn còn đúng trạng thái: tránh ghi đè khi admin vừa duyệt.
     await prisma.$transaction(async (tx) => {
       if ((await repo.countPendingRefundByRegistration(invoice.registrationId, tx)) > 0) {
         throw new AppError("Đơn đang có yêu cầu hoàn tiền chờ xử lý", 409);
       }
-      const ok = await repo.updateInvoiceIfStatus(tx, id, ["CHO_THANH_TOAN", "THAT_BAI"], {
-        paymentProofUrl: newPath,
-        status: "CHO_THANH_TOAN",
-        rejectionReason: null,
-      });
+      // Thêm điều kiện minh chứng cũ (compare-and-set): hai lần gửi cùng lúc thì chỉ một lần thắng, lần kia nhận 409
+      const ok = await repo.updateInvoiceIfStatus(
+        tx,
+        id,
+        ["CHO_THANH_TOAN", "THAT_BAI"],
+        { paymentProofUrl: newRef, status: "CHO_THANH_TOAN", rejectionReason: null },
+        { paymentProofUrl: invoice.paymentProofUrl },
+      );
       if (!ok) throw new AppError("Hóa đơn vừa thay đổi trạng thái, vui lòng tải lại", 409);
     });
-    const updated = await repo.findInvoiceById(id);
-    removeFile(invoice.paymentProofUrl);
-    await notificationService.notifyAdmins(PERMISSIONS.QUAN_LY_THANH_TOAN, {
-      type: "PAYMENT_PENDING",
-      title: "Có thanh toán mới chờ xác nhận",
-      body: invoice.registration.course.courseName,
-      link: "/admin/payments",
-    });
-    return toInvoiceDto(updated);
   } catch (err) {
-    removeFile(newPath);
+    await storage.remove(newRef);
     throw err;
   }
+  await storage.remove(invoice.paymentProofUrl);
+  await notificationService.notifyAdmins(PERMISSIONS.QUAN_LY_THANH_TOAN, {
+    type: "PAYMENT_PENDING",
+    title: "Có thanh toán mới chờ xác nhận",
+    body: invoice.registration.course.courseName,
+    link: "/admin/payments",
+  });
+  return toInvoiceDto(await repo.findInvoiceById(id));
 }
 
-async function getProofFile(user, id) {
+// Trả { file } (lưu local, dùng sendFile) hoặc { buffer, contentType } (lưu Cloudinary)
+async function getProof(user, id) {
   const invoice = await loadInvoiceFor(user, id);
   if (!invoice.paymentProofUrl) throw new AppError("Hóa đơn chưa có minh chứng thanh toán", 404);
-  const file = path.resolve(UPLOAD_ROOT, invoice.paymentProofUrl);
-  if (!file.startsWith(PROOF_DIR + path.sep) || !fs.existsSync(file)) {
-    throw new AppError("Tệp minh chứng không còn tồn tại", 404);
-  }
-  return file;
+  return storage.readPrivate(invoice.paymentProofUrl, "proofs");
 }
 
 // ---------- Hóa đơn: admin duyệt thanh toán ----------
@@ -358,7 +351,7 @@ module.exports = {
   listMine,
   getById,
   uploadProof,
-  getProofFile,
+  getProof,
   listAll,
   approve,
   reject,

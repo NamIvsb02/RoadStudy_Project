@@ -10,7 +10,6 @@ const { rejectInvoiceSchema, refundRequestSchema, refundNoteSchema, rejectRefund
 
 // Ảnh minh chứng: JPG/PNG/WEBP, tối đa 5MB, lưu ở uploads/proofs (không mở công khai)
 const uploadProof = buildUploader({
-    folder: "proofs",
     allowedMimes: { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp" },
     maxSizeMB: 5,
     field: "proof",

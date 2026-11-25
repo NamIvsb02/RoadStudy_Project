@@ -19,13 +19,8 @@ exports.getById = async (req, res) => {
 
 exports.create = async (req, res) => {
   if (!req.file) throw new AppError('Vui lòng chọn tệp PDF hoặc DOCX (field "file")', 400);
-  try {
-    const data = await resourceService.create(req.user.id, req.body, req.file);
-    res.status(201).json(formatResponse(true, data, "Tải tài liệu lên thành công"));
-  } catch (err) {
-    await resourceService.removeFile(req.file.filename); // lỗi thì xóa file vừa lưu
-    throw err;
-  }
+  const data = await resourceService.create(req.user.id, req.body, req.file);
+  res.status(201).json(formatResponse(true, data, "Tải tài liệu lên thành công"));
 };
 
 exports.remove = async (req, res) => {

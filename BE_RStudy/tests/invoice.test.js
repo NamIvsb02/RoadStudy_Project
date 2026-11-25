@@ -100,7 +100,14 @@ async function main() {
         check('Không đính kèm file -> 400', r.status === 400, `${r.status} ${r.msg}`);
         r = await call('POST', `/invoice/${A.inv.id}/proof`, { ...S1.auth, form: pngForm() });
         check('Gửi ảnh hợp lệ -> 200, vẫn CHO_THANH_TOAN', r.status === 200 && r.json?.data?.status === 'CHO_THANH_TOAN', `${r.status} ${r.msg}`);
-        check('Hóa đơn đã lưu đường dẫn minh chứng', /^proofs\//.test((await state(A)).inv.paymentProofUrl || ''));
+        check('Hóa đơn đã lưu đường dẫn minh chứng', /^(proofs\/|https:\/\/res\.cloudinary\.com\/)/.test((await state(A)).inv.paymentProofUrl || ''));
+        const getProof = (actor) => fetch(API + `/invoice/${A.inv.id}/proof`, { headers: actor ? { Authorization: `Bearer ${signAccessToken({ sub: actor.id, role: actor.role })}` } : {} });
+        const proofRes = await getProof(S1.auth);
+        const proofBytes = Buffer.from(await proofRes.arrayBuffer());
+        check('Chủ hóa đơn xem minh chứng -> 200, đúng ảnh PNG', proofRes.status === 200 && /^image\//.test(proofRes.headers.get('content-type') || '') && proofBytes.subarray(1, 4).toString() === 'PNG', `${proofRes.status} ${proofRes.headers.get('content-type')}`);
+        check('Học viên khác xem minh chứng -> 404', (await getProof(S2.auth)).status === 404);
+        check('Không đăng nhập xem minh chứng -> 401', (await getProof(null)).status === 401);
+        check('Leader xem minh chứng -> 200', (await getProof(LEADER)).status === 200);
         const Free = await mkInvoice(S1, { course: freeCourse, status: 'DA_THANH_TOAN' });
         r = await call('POST', `/invoice/${Free.inv.id}/proof`, { ...S1.auth, form: pngForm() });
         check('Hóa đơn đã thanh toán gửi thêm minh chứng -> 400', r.status === 400, `${r.status} ${r.msg}`);

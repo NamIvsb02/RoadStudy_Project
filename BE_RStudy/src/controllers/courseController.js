@@ -100,5 +100,6 @@ exports.getPublicById = async (req, res) => {
 
 exports.uploadCover = async (req, res) => {
   if (!req.file) return res.status(400).json(formatResponse(false, null, 'Vui lòng chọn ảnh bìa (trường "cover")'));
-  res.status(201).json(formatResponse(true, { coverImageUrl: `/uploads/covers/${req.file.filename}` }, "Tải ảnh bìa thành công"));
+  const coverImageUrl = await courseService.uploadCover(req.file);
+  res.status(201).json(formatResponse(true, { coverImageUrl }, "Tải ảnh bìa thành công"));
 };

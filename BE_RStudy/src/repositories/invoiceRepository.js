@@ -35,9 +35,10 @@ const findInvoices = (where, { skip, take }) =>
 const updateInvoice = (id, data, tx) => db(tx).invoice.update({ where: { id }, data });
 
 // Chỉ cập nhật khi hóa đơn còn đúng trạng thái cũ: tránh duyệt/từ chối trùng khi hai admin thao tác cùng lúc
-const updateInvoiceIfStatus = async (tx, id, fromStatus, data) => {
+// extraWhere: điều kiện thêm, ví dụ { paymentProofUrl: <giá trị đã đọc> } để compare-and-set minh chứng
+const updateInvoiceIfStatus = async (tx, id, fromStatus, data, extraWhere = {}) => {
     const r = await tx.invoice.updateMany({
-        where: { id, status: Array.isArray(fromStatus) ? { in: fromStatus } : fromStatus },
+        where: { id, status: Array.isArray(fromStatus) ? { in: fromStatus } : fromStatus, ...extraWhere },
         data,
     });
     return r.count === 1;
