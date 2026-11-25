@@ -73,6 +73,7 @@ stateDiagram-v2
 ## AI và gợi ý
 
 - Chatbot gợi ý khóa `DANG_MO` (trong ngân sách nếu học viên nêu), chỉ từ danh sách ứng viên có thật, kèm lý do. Lưu lịch sử hội thoại.
+- Hạn mức chatbot mỗi học viên: 6 tin/phút, 50 tin/24 giờ, và mỗi lúc chỉ một tin đang chờ trả lời (tránh tốn chi phí AI).
 - AI lỗi hoặc hết giờ: trả câu dự phòng, hướng học viên dùng tìm kiếm và bộ lọc. AI không tự đăng ký hay thanh toán.
 - "Dành cho bạn" (`GET /recommendation/me`, không gọi AI): khóa `DANG_MO` thuộc danh mục đang hiển thị, cùng danh mục với khóa học viên đã đăng ký, thiếu thì bù khóa nhiều người đăng ký.
 

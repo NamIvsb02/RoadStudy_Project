@@ -28,8 +28,8 @@ Lỗi: `success: false`, `data: null`, `message` là nội dung hiển thị đ�
 | 403       | Không đủ quyền, hoặc tài khoản bị khóa / chưa xác minh                                                |
 | 404       | Không tìm thấy (kể cả URL không tồn tại)                                                              |
 | 409       | Trùng dữ liệu (ví dụ email đã dùng) hoặc xung đột trạng thái (ví dụ duyệt khóa không ở `CHO_DUYET`)   |
-| 429       | Gửi quá nhanh (chatbot: 6 tin mỗi phút)                                                               |
-| 500       | Lỗi hệ thống: `"Lỗi hệ thống, vui lòng thử lại sau"`                                                  |
+| 429       | Gửi quá nhanh hoặc vượt hạn mức (xem mục "Giới hạn tần suất")                                         |
+| 500       | Lỗi hệ thống: `"Lỗi hệ thống, vui lòng thử lại sau (mã: <requestId>)"`                                |
 
 ### Xác thực
 
@@ -38,6 +38,7 @@ Lỗi: `success: false`, `data: null`, `message` là nội dung hiển thị đ�
 - Khi gặp 401 "Token không hợp lệ hoặc hết hạn": gọi `POST /auth/refresh`. Refresh thành công thì gọi lại request cũ. Refresh cũng 401 thì xóa token và chuyển về trang đăng nhập.
 - Refresh token **xoay vòng**: mỗi lần refresh nhận cặp token mới, token cũ mất hiệu lực. FE phải lưu cặp mới.
 - Nhiều request cùng lúc gặp 401: chỉ gọi /auth/refresh MỘT lần, các request còn lại chờ rồi gọi lại. Refresh token xoay vòng nên gọi hai lần cùng một token sẽ bị 401 ở lần hai.
+- Dùng lại một refresh token đã bị thu hồi (quá 10 giây sau khi bị thu hồi) bị coi là nghi đánh cắp: mọi phiên của tài khoản bị thu hồi và phải đăng nhập lại. Trong 10 giây đầu chỉ trả 401 để hai tab refresh gần cùng lúc không bị đăng xuất; tab đến sau nên dùng cặp token tab kia vừa lưu.
 - Không tự refresh khi chính /auth/login hoặc /auth/refresh trả 401 (tránh lặp vô hạn). Nhận biết theo URL, không theo nội dung message.
 - Lỗi thường gặp ở mọi API cần đăng nhập:
   - 401 `Thiếu token xác thực`
@@ -48,6 +49,22 @@ Lỗi: `success: false`, `data: null`, `message` là nội dung hiển thị đ�
   - 403 `Bạn không có quyền thực hiện chức năng này` (thiếu quyền chức năng)
   - 403 `Chỉ Leader mới được thực hiện chức năng này` (API chỉ dành cho Leader)
 - Lỗi validate tham số, query và body có dạng `"tênTrường: nội dung"`, nhiều lỗi nối bằng `"; "`. Lỗi kiểm tra trên cả body (ví dụ "cần ít nhất một trường") không gắn với trường nào nên chỉ có nội dung, không có tiền tố.
+
+### Giới hạn tần suất
+
+Vượt giới hạn trả **429** `Bạn thao tác quá nhanh, vui lòng thử lại sau ít phút` (header `RateLimit` cho biết thời gian còn lại). Bộ đếm lưu trong bộ nhớ server nên reset khi server khởi động lại.
+
+| Phạm vi                                                                                                                        | Giới hạn                                     | Tính theo            |
+| ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | -------------------- |
+| Mọi `/auth/*`                                                                                                                  | 60 lần/phút                                  | IP                   |
+| `/auth/login`, `verify-email`, `resend-otp`, `forgot-password`, `reset-password`                                               | 10 lần/phút                                  | IP + email           |
+| `POST` bình luận, trả lời, đánh giá, phản hồi đánh giá, báo cáo vi phạm, và mọi upload (avatar, ảnh bìa, tài liệu, minh chứng) | 10 lần/phút (dùng chung)                     | Tài khoản            |
+| `POST /chatbot/messages`                                                                                                       | 6 tin/phút và 50 tin/24 giờ                  | Học viên             |
+| OTP                                                                                                                            | Sai tối đa 5 lần mỗi mã; gửi lại sau 60 giây | Tài khoản + mục đích |
+
+Khi chạy sau reverse proxy phải đặt `TRUST_PROXY` (xem `SETUP.md`) để giới hạn theo IP đúng.
+
+Mọi upload được kiểm tra nội dung thật của file (JPEG, PNG, WebP, PDF, DOCX). File có đuôi hoặc `Content-Type` đúng nhưng nội dung sai bị từ chối: 400 `Nội dung tệp không đúng định dạng`.
 
 ### Vai trò
 
@@ -76,9 +93,11 @@ Response danh sách dùng dạng:
 }
 ```
 
-### Kiểm tra server
+### Kiểm tra server và truy vết
 
-`GET /health` trả `{ "status": "ok" }` (nằm ngoài `/api`).
+- `GET /health` trả `{ "status": "ok" }`: tiến trình còn sống (nằm ngoài `/api`).
+- `GET /health/ready` trả `{ "status": "ok" }` khi kết nối được database, ngược lại 503 `{ "status": "unavailable" }`. Docker dùng endpoint này làm healthcheck.
+- Mọi response có header `X-Request-Id`. FE có thể gửi header này (chữ, số, `-`, `_`, tối đa 64 ký tự) để dùng mã của mình. Lỗi 500 kèm mã này trong `message` để báo lại cho nhóm tra log.
 
 ---
 
@@ -124,14 +143,16 @@ Mã OTP gồm 6 chữ số, hết hạn sau 10 phút. Khi server chưa cấu hì
 - Quyền: công khai
 - Body: `{ "email": string, "code": string }` (`code` đúng 6 ký tự, không có khoảng trắng)
 - 200: `data: null`, message `Xác minh email thành công`. Tài khoản chuyển sang `HOAT_DONG`.
-- Lỗi: 400 `Mã xác thực không tồn tại hoặc đã hết hạn` | 400 `Mã xác thực không đúng` | 400 `Tài khoản đã được xác minh trước đó` | 404 `Tài khoản không tồn tại`
+- Lỗi: 400 `Mã xác thực không đúng hoặc đã hết hạn` (cũng trả khi email không tồn tại hoặc đã xác minh, để không lộ email nào đã đăng ký) | 400 `Mã xác thực không đúng` | 400 `Bạn đã nhập sai quá nhiều lần, vui lòng yêu cầu mã mới` | 429
+- Ghi chú: mỗi mã OTP chỉ được nhập sai tối đa 5 lần, sau đó phải yêu cầu mã mới (`resend-otp`). Mã chỉ dùng được một lần.
 
 ### POST /auth/resend-otp
 
 - Quyền: công khai
 - Body: `{ "email": string, "purpose": "XAC_MINH_EMAIL" | "QUEN_MAT_KHAU" }`
 - 200: `data: null`, message `Mã xác thực đã được gửi tới email` (hoặc `Nếu email tồn tại, mã xác thực đã được gửi` khi email không có trong hệ thống)
-- Lỗi: 400 `Tài khoản đã được xác minh trước đó` (khi purpose là `XAC_MINH_EMAIL`)
+- Lỗi: 400 `Tài khoản đã được xác minh trước đó` (khi purpose là `XAC_MINH_EMAIL`) | 429 `Vui lòng đợi N giây trước khi yêu cầu mã mới` (chỉ khi purpose là `XAC_MINH_EMAIL`; với `QUEN_MAT_KHAU` yêu cầu gửi quá sớm vẫn trả 200 nhưng không gửi mã mới)
+- Ghi chú: phải chờ 60 giây giữa hai lần gửi mã cho cùng một tài khoản và mục đích.
 
 ### POST /auth/login
 
@@ -156,7 +177,7 @@ Mã OTP gồm 6 chữ số, hết hạn sau 10 phút. Khi server chưa cấu hì
 }
 ```
 
-- Lỗi: 401 `Email hoặc mật khẩu không đúng` | 403 `Tài khoản đã bị khóa` | 403 `Tài khoản chưa xác minh email, vui lòng kiểm tra email hoặc yêu cầu gửi lại mã` | 403 `Tài khoản giáo viên đang chờ quản trị viên duyệt` | 403 `Tài khoản giáo viên đã bị từ chối`
+- Lỗi: 401 `Email hoặc mật khẩu không đúng` | 403 `Tài khoản đã bị khóa` | 403 `Tài khoản chưa xác minh email, vui lòng kiểm tra email hoặc yêu cầu gửi lại mã` | 403 `Tài khoản giáo viên đang chờ quản trị viên duyệt` | 403 `Tài khoản giáo viên đã bị từ chối` | 429 (quá 10 lần/phút với cùng email)
 - Ghi chú: `account` ở đây **không** có `student`/`teacher`/`administrator`. Cần hồ sơ đầy đủ thì gọi `GET /auth/me`. FE dùng `account.role` để chuyển trang: STUDENT về trang chủ, TEACHER vào `/teacher`, ADMINISTRATOR vào `/admin`. Giáo viên `CHO_DUYET` hoặc `TU_CHOI` **không đăng nhập được** (403), FE hiển thị nguyên message của BE.
 
 ### POST /auth/refresh
@@ -164,7 +185,7 @@ Mã OTP gồm 6 chữ số, hết hạn sau 10 phút. Khi server chưa cấu hì
 - Quyền: công khai
 - Body: `{ "refreshToken": string }`
 - 200: message `Làm mới token thành công`, `data: { "accessToken": "...", "refreshToken": "..." }`
-- Lỗi: 401 `Refresh token không hợp lệ hoặc hết hạn` | 401 `Refresh token không hợp lệ hoặc đã bị thu hồi` | 403 `Tài khoản không khả dụng` | 403 `Tài khoản giáo viên đang chờ quản trị viên duyệt` | 403 `Tài khoản giáo viên đã bị từ chối`
+- Lỗi: 401 `Refresh token không hợp lệ hoặc hết hạn` | 401 `Refresh token không hợp lệ hoặc đã bị thu hồi` | 401 `Phiên đăng nhập không hợp lệ, vui lòng đăng nhập lại` (token cũ bị dùng lại, mọi phiên bị thu hồi) | 403 `Tài khoản không khả dụng` | 403 `Tài khoản giáo viên đang chờ quản trị viên duyệt` | 403 `Tài khoản giáo viên đã bị từ chối`
 - Ghi chú: token cũ bị thu hồi ngay, dùng lại sẽ 401. Giáo viên đang đăng nhập mà bị chuyển về chưa duyệt thì refresh trả 403.
 
 ### POST /auth/logout
@@ -180,14 +201,14 @@ Mã OTP gồm 6 chữ số, hết hạn sau 10 phút. Khi server chưa cấu hì
 - Quyền: công khai
 - Body: `{ "email": string }`
 - 200: `data: null`, message `Nếu email tồn tại trong hệ thống, mã đặt lại mật khẩu đã được gửi`
-- Ghi chú: luôn trả 200 dù email có tồn tại hay không. Gửi OTP với mục đích `QUEN_MAT_KHAU`.
+- Ghi chú: luôn trả 200 dù email có tồn tại hay không, kể cả khi gọi lại trong vòng 60 giây (khi đó không gửi mã mới). Gửi OTP với mục đích `QUEN_MAT_KHAU`.
 
 ### POST /auth/reset-password
 
 - Quyền: công khai
 - Body: `{ "email": string, "code": string, "newPassword": string }` (`code` đúng 6 ký tự, `newPassword` tối thiểu 8)
 - 200: `data: null`, message `Đặt lại mật khẩu thành công`
-- Lỗi: 400 `Mã xác thực không đúng hoặc đã hết hạn` | 400 `Mã xác thực không đúng`
+- Lỗi: 400 `Mã xác thực không đúng hoặc đã hết hạn` | 400 `Mã xác thực không đúng` | 400 `Bạn đã nhập sai quá nhiều lần, vui lòng yêu cầu mã mới` (OTP tối đa 5 lần sai mỗi mã)
 - Ghi chú: mọi refresh token cũ của tài khoản bị thu hồi, phải đăng nhập lại.
 
 ### POST /auth/change-password
@@ -239,7 +260,7 @@ Hồ sơ của chính mình xem bằng `GET /auth/me`. Đổi mật khẩu xem m
 - Quyền: đã đăng nhập
 - Body: `multipart/form-data`, trường file tên `avatar`. Chỉ nhận jpg, png, webp, tối đa 2MB.
 - 200: `data` là tài khoản đầy đủ có `avatarUrl` mới, message `Cập nhật ảnh đại diện thành công`
-- Lỗi: 400 `Chưa chọn ảnh (trường tên "avatar")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 2MB`
+- Lỗi: 400 `Chưa chọn ảnh (trường tên "avatar")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 2MB` | 400 `Nội dung tệp không đúng định dạng` | 429
 - Ghi chú: ảnh cũ bị xóa khỏi server.
 
 ### GET /account
@@ -1962,8 +1983,8 @@ AI chỉ gợi ý trong các khóa `DANG_MO` có thật (tối đa 5 khóa, mỗ
 }
 ```
 
-- Lỗi: 400 `content: Vui lòng nhập nội dung tin nhắn` | 400 `content: Tin nhắn tối đa 500 ký tự` | 400 `Không được gửi các trường: ...` | 403 `Chỉ học viên mới sử dụng được chatbot` | 404 `Cuộc trò chuyện không tồn tại` (không phải của mình) | 429 `Bạn gửi tin nhắn quá nhanh, vui lòng thử lại sau ít phút`
-- Ghi chú: AI đọc 6 tin gần nhất của cuộc trò chuyện làm ngữ cảnh. Thời gian phản hồi phụ thuộc dịch vụ AI (chờ tối đa `AI_TIMEOUT_MS`, mặc định 20 giây, cho mỗi lần gọi), FE nên hiện trạng thái đang trả lời.
+- Lỗi: 400 `content: Vui lòng nhập nội dung tin nhắn` | 400 `content: Tin nhắn tối đa 500 ký tự` | 400 `Không được gửi các trường: ...` | 403 `Chỉ học viên mới sử dụng được chatbot` | 404 `Cuộc trò chuyện không tồn tại` (không phải của mình) | 429 `Bạn gửi tin nhắn quá nhanh, vui lòng thử lại sau ít phút` (quá 6 tin/phút, hoặc đang có một tin chưa được trả lời) | 429 `Bạn đã dùng hết 50 tin nhắn trong 24 giờ qua, vui lòng quay lại sau`
+- Ghi chú: mỗi học viên chỉ gửi được tin tiếp theo sau khi tin trước đã có câu trả lời; FE nên khóa nút gửi trong lúc chờ. AI đọc 6 tin gần nhất của cuộc trò chuyện làm ngữ cảnh. Thời gian phản hồi phụ thuộc dịch vụ AI (chờ tối đa `AI_TIMEOUT_MS`, mặc định 20 giây, cho mỗi lần gọi), FE nên hiện trạng thái đang trả lời.
 
 ### GET /chatbot/conversations
 

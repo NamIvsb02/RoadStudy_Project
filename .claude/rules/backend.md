@@ -51,7 +51,9 @@ Tên module khác tên bảng:
 | `utils/hash.js`, `utils/jwt.js`   | Băm mật khẩu, ký/kiểm tra token                                                                                            |
 | `middlewares/validateMiddleware`  | `validate(schema)` kiểm tra body; `validate(schema, "params")` cho params                                                  |
 | `middlewares/uploadMiddleware`    | `uploadAvatar`, `uploadCover`, `uploadResource`, `buildUploader({...})`                                                    |
-| `middlewares/errorHandler`        | Ánh xạ Prisma: P2002→409, P2003→400, P2025→404                                                                             |
+| `middlewares/errorHandler`        | Ánh xạ Prisma: P2002→409, P2003→400, P2025→404. Lỗi 500 kèm `req.id` trong message và log                                  |
+| `middlewares/rateLimitMiddleware` | `authIpLimiter`, `authCredentialLimiter`, `contentWriteLimiter` (sau `authenticate`, trước multer)                         |
+| `middlewares/requestId`           | Gán `req.id` và header `X-Request-Id`, dùng trong log                                                                      |
 | `config/ai.js`                    | `generateJson({ system, prompt })`, ném `AiError` khi lỗi hoặc hết giờ                                                     |
 | `services/notificationService.js` | `notify`, `notifyStudent`, `notifyTeacher`, `notifyCourseTeacher`, `notifyCourseStudents`, `notifyAdmins(functionName, …)` |
 

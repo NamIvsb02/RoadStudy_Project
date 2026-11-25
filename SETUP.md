@@ -55,15 +55,17 @@ cp FE_RStudy/.env.example FE_RStudy/.env
 
 ### Backend (`BE_RStudy/.env`)
 
-| Nhóm       | Biến                                                                                                      | Ghi chú                                                                                  |
-| ---------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Server     | `PORT`, `NODE_ENV`                                                                                        | Mặc định cổng 5000                                                                       |
-| Database   | `DATABASE_URL`, `DIRECT_URL`                                                                              | App dùng chuỗi qua pooler; Prisma CLI dùng chuỗi trực tiếp. Nam cấp                      |
-| JWT        | `JWT_ACCESS_SECRET`, `JWT_ACCESS_EXPIRES`, `JWT_REFRESH_SECRET`, `JWT_REFRESH_EXPIRES`                    | Access 15 phút, refresh 7 ngày                                                           |
-| OTP        | `OTP_EXPIRES_MINUTES`                                                                                     | Mặc định 10                                                                              |
-| Mail       | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`                                           | Gmail + app password để gửi OTP                                                          |
-| Thanh toán | `PAYMENT_BANK_ID`, `PAYMENT_ACCOUNT_NO`, `PAYMENT_ACCOUNT_NAME`                                           | Thông tin nhận chuyển khoản, tạo mã VietQR                                               |
-| AI         | `AI_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`, `AI_TIMEOUT_MS` | `gemini` dùng `GEMINI_*`; `openai` dùng `AI_*` (mặc định Groq). Timeout mặc định 20000ms |
+| Nhóm       | Biến                                                                                                      | Ghi chú                                                                                                                                                           |
+| ---------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Server     | `PORT`, `NODE_ENV`                                                                                        | Mặc định cổng 5000                                                                                                                                                |
+| CORS       | `CORS_ORIGIN`                                                                                             | Origin FE được gọi API, ngăn cách bằng dấu phẩy. Mặc định `http://localhost:5173`. FE chạy ở địa chỉ khác (ví dụ `127.0.0.1:5173`, domain thật) thì phải thêm vào |
+| Proxy      | `TRUST_PROXY`                                                                                             | Số lớp reverse proxy phía trước backend, mặc định 0. Đặt 1 khi chạy sau nginx để giới hạn tần suất lấy đúng IP; để sai thì client giả được IP                     |
+| Database   | `DATABASE_URL`, `DIRECT_URL`                                                                              | App dùng chuỗi qua pooler; Prisma CLI dùng chuỗi trực tiếp. Nam cấp                                                                                               |
+| JWT        | `JWT_ACCESS_SECRET`, `JWT_ACCESS_EXPIRES`, `JWT_REFRESH_SECRET`, `JWT_REFRESH_EXPIRES`                    | Access 15 phút, refresh 7 ngày                                                                                                                                    |
+| OTP        | `OTP_EXPIRES_MINUTES`                                                                                     | Mặc định 10                                                                                                                                                       |
+| Mail       | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`                                           | Gmail + app password để gửi OTP                                                                                                                                   |
+| Thanh toán | `PAYMENT_BANK_ID`, `PAYMENT_ACCOUNT_NO`, `PAYMENT_ACCOUNT_NAME`                                           | Thông tin nhận chuyển khoản, tạo mã VietQR                                                                                                                        |
+| AI         | `AI_PROVIDER`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`, `AI_TIMEOUT_MS` | `gemini` dùng `GEMINI_*`; `openai` dùng `AI_*` (mặc định Groq). Timeout mặc định 20000ms                                                                          |
 
 ### Frontend (`FE_RStudy/.env`)
 
@@ -108,12 +110,13 @@ cd BE_RStudy && npm run dev    # nodemon src/app.js, cổng 5000
 cd FE_RStudy && npm run dev    # Vite, cổng 5173
 ```
 
-| URL                                 | Mô tả                                        |
-| ----------------------------------- | -------------------------------------------- |
-| `http://localhost:5173`             | Frontend                                     |
-| `http://localhost:5000/api`         | Gốc của Backend API                          |
-| `http://localhost:5000/health`      | Kiểm tra Backend sống                        |
-| `http://localhost:5000/uploads/...` | File tĩnh (`avatars`, `covers`, `resources`) |
+| URL                                  | Mô tả                                                  |
+| ------------------------------------ | ------------------------------------------------------ |
+| `http://localhost:5173`              | Frontend                                               |
+| `http://localhost:5000/api`          | Gốc của Backend API                                    |
+| `http://localhost:5000/health`       | Kiểm tra Backend sống                                  |
+| `http://localhost:5000/health/ready` | Backend sống và kết nối được database (503 nếu DB lỗi) |
+| `http://localhost:5000/uploads/...`  | File tĩnh (`avatars`, `covers`, `resources`)           |
 
 Ảnh minh chứng thanh toán (`uploads/proofs`) **không** được phục vụ công khai, chỉ truy cập qua API có kiểm tra quyền.
 
@@ -131,13 +134,14 @@ docker compose logs -f backend  # xem log backend
 docker compose down             # dừng và xóa container
 ```
 
-| Service    | Image                          | Cổng        | Ghi chú                                                          |
-| ---------- | ------------------------------ | ----------- | ---------------------------------------------------------------- |
-| `backend`  | `BE_RStudy/Dockerfile`         | `5000:5000` | Đọc `BE_RStudy/.env`, gắn `BE_RStudy/uploads` vào `/app/uploads` |
-| `frontend` | `FE_RStudy/Dockerfile` + nginx | `5173:80`   | `VITE_*` nhúng lúc build qua `frontend.build.args`               |
+| Service    | Image                          | Cổng        | Ghi chú                                                                                                                  |
+| ---------- | ------------------------------ | ----------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `backend`  | `BE_RStudy/Dockerfile`         | `5000:5000` | Đọc `BE_RStudy/.env`, gắn `BE_RStudy/uploads` vào `/app/uploads`. Chạy bằng user `node`, healthcheck gọi `/health/ready` |
+| `frontend` | `FE_RStudy/Dockerfile` + nginx | `5173:80`   | `VITE_*` nhúng lúc build qua `frontend.build.args`                                                                       |
 
 - Cùng cổng với cách chạy thường, nên tắt `npm run dev` trước.
 - Container backend vẫn kết nối database Supabase dùng chung, không có Postgres riêng.
+- Container chạy bằng user `node` (không phải root). Trên Linux, thư mục `BE_RStudy/uploads` phải ghi được bởi uid 1000 (`chown 1000:1000 BE_RStudy/uploads`), nếu không upload sẽ lỗi.
 - Đây là bản build như production: sửa code xong phải chạy lại `docker compose up -d --build`. Khi đang code nên dùng `npm run dev`.
 
 ## 7. Database migration
