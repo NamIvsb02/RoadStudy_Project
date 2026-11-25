@@ -43,20 +43,20 @@ Tên module khác tên bảng:
 
 ## Tiện ích có sẵn, không viết lại
 
-| File                              | Dùng                                                                                                                       |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `utils/AppError.js`               | `throw new AppError("thông báo", status)`                                                                                  |
-| `utils/response.js`               | `formatResponse(success, data, message)` → `{ success, message, data }`                                                    |
-| `utils/pagination.js`             | `getPagination`, `buildPaginationMeta` (mặc định `page=1`, `limit=10`, tối đa 100)                                         |
-| `utils/hash.js`, `utils/jwt.js`   | Băm mật khẩu, ký/kiểm tra token                                                                                            |
-| `middlewares/validateMiddleware`  | `validate(schema)` kiểm tra body; `validate(schema, "params")` cho params                                                  |
-| `middlewares/uploadMiddleware`    | `uploadAvatar`, `uploadCover`, `uploadResource`, `buildUploader({...})` (lưu tạm trong RAM, chưa ghi đĩa)                  |
-| `utils/storage.js`                | `save(file, folder, { isPrivate })`, `remove(ref)`, `readPrivate(ref)`: lưu local hoặc Cloudinary                          |
-| `middlewares/errorHandler`        | Ánh xạ Prisma: P2002→409, P2003→400, P2025→404. Lỗi 500 kèm `req.id` trong message và log                                  |
-| `middlewares/rateLimitMiddleware` | `authIpLimiter`, `authCredentialLimiter`, `contentWriteLimiter` (sau `authenticate`, trước multer)                         |
-| `middlewares/requestId`           | Gán `req.id` và header `X-Request-Id`, dùng trong log                                                                      |
-| `config/ai.js`                    | `generateJson({ system, prompt })`, ném `AiError` khi lỗi hoặc hết giờ                                                     |
-| `services/notificationService.js` | `notify`, `notifyStudent`, `notifyTeacher`, `notifyCourseTeacher`, `notifyCourseStudents`, `notifyAdmins(functionName, …)` |
+| File                              | Dùng                                                                                                                                                            |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `utils/AppError.js`               | `throw new AppError("thông báo", status)`                                                                                                                       |
+| `utils/response.js`               | `formatResponse(success, data, message)` → `{ success, message, data }`                                                                                         |
+| `utils/pagination.js`             | `getPagination`, `buildPaginationMeta` (mặc định `page=1`, `limit=10`, tối đa 100)                                                                              |
+| `utils/hash.js`, `utils/jwt.js`   | Băm mật khẩu, ký/kiểm tra token                                                                                                                                 |
+| `middlewares/validateMiddleware`  | `validate(schema)` kiểm tra body; `validate(schema, "params")` cho params                                                                                       |
+| `middlewares/uploadMiddleware`    | `uploadAvatar`, `uploadCover`, `uploadResource`, `buildUploader({...})` (lưu tạm trong RAM, chưa ghi đĩa)                                                       |
+| `utils/storage.js`                | `save(file, folder, { isPrivate })`, `remove(ref)`, `readPrivate(ref)`: lưu local hoặc Cloudinary                                                               |
+| `middlewares/errorHandler`        | Ánh xạ Prisma: P2002→409, P2003→400, P2025→404. Lỗi 500 kèm `req.id` trong message và log                                                                       |
+| `middlewares/rateLimitMiddleware` | `authIpLimiter`, `authCredentialLimiter`, `contentWriteLimiter` (sau `authenticate`, trước multer; limiter mới truyền `name` riêng để khóa Redis không đè nhau) |
+| `middlewares/requestId`           | Gán `req.id` và header `X-Request-Id`, dùng trong log                                                                                                           |
+| `config/ai.js`                    | `generateJson({ system, prompt })`, ném `AiError` khi lỗi hoặc hết giờ                                                                                          |
+| `services/notificationService.js` | `notify`, `notifyStudent`, `notifyTeacher`, `notifyCourseTeacher`, `notifyCourseStudents`, `notifyAdmins(functionName, …)`                                      |
 
 ## Response và lỗi
 

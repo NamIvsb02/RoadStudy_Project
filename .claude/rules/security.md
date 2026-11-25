@@ -13,7 +13,7 @@ Backend là nơi chặn thật. Ẩn menu, nút ở FE chỉ để giao diện g
 - JWT Bearer: access token 15 phút, refresh token 7 ngày (xoay vòng), OTP 10 phút.
 - OTP 6 chữ số tạo bằng `crypto.randomInt`, sai tối đa 5 lần mỗi mã, dùng một lần, gửi lại cách nhau 60 giây. Luồng quên mật khẩu không báo thời gian chờ và `verify-email` không phân biệt email lạ với sai mã, để không lộ email nào đã đăng ký.
 - Refresh token xoay vòng nguyên tử (thu hồi bằng `updateMany` có điều kiện). Token đã thu hồi quá 10 giây mà bị dùng lại thì thu hồi mọi phiên của tài khoản; trong 10 giây chỉ trả 401 để hai tab refresh cùng lúc không bị đăng xuất.
-- Giới hạn tần suất (`middlewares/rateLimitMiddleware`, bộ đếm trong RAM): `/auth` 60 lần/phút/IP, đăng nhập và OTP 10 lần/phút theo IP + email, ghi nội dung và upload 10 lần/phút/tài khoản. Đặt `TRUST_PROXY` đúng số lớp proxy, nếu không client giả được IP.
+- Giới hạn tần suất (`middlewares/rateLimitMiddleware`, bộ đếm trong Redis khi có `REDIS_URL`, dùng chung mọi instance và sống qua lần khởi động lại; Redis tắt hoặc lỗi thì tự lùi về bộ đếm trong RAM của từng instance, `utils/rateLimitStore.js`): `/auth` 60 lần/phút/IP, đăng nhập và OTP 10 lần/phút theo IP + email, ghi nội dung và upload 10 lần/phút/tài khoản. Đặt `TRUST_PROXY` đúng số lớp proxy, nếu không client giả được IP.
 - Upload đối chiếu magic bytes (`uploadMiddleware`), không chỉ tin `Content-Type`.
 - `authenticate` gán `req.user = { id, role }`. Vai trò luôn lấy từ token, không tin dữ liệu client gửi.
 - Không còn đăng nhập giả: header `x-dev-role` và `DEV_AUTH_BYPASS` không còn tác dụng.
