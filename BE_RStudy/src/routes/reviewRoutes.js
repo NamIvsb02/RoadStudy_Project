@@ -2,6 +2,7 @@ const router = require('express').Router();
 const reviewController = require('../controllers/reviewController');
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
 const validate = require('../middlewares/validateMiddleware');
+const { contentWriteLimiter } = require('../middlewares/rateLimitMiddleware');
 const {
   courseIdParamSchema,
   idParamSchema,
@@ -19,6 +20,7 @@ router.get('/course/:courseId/mine', ...studentOnly, validate(courseIdParamSchem
 router.post(
   '/course/:courseId',
   ...studentOnly,
+  contentWriteLimiter,
   validate(courseIdParamSchema, 'params'),
   validate(createReviewSchema),
   reviewController.create
@@ -43,6 +45,7 @@ router.delete(
 router.post(
   '/:id/responses',
   ...teacherOnly,
+  contentWriteLimiter,
   validate(idParamSchema, 'params'),
   validate(responseBodySchema),
   reviewController.respond

@@ -2,6 +2,7 @@ const router = require("express").Router();
 const reportController = require("../controllers/reportController");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 const validate = require("../middlewares/validateMiddleware");
+const { contentWriteLimiter } = require("../middlewares/rateLimitMiddleware");
 const { idParamSchema, createReportSchema, processReportSchema, rejectReportSchema } = require("../validators/reportValidator");
 
 const { requirePermission } = require("../middlewares/permissionMiddleware");
@@ -9,7 +10,7 @@ const { PERMISSIONS } = require("../constants/permissions");
 
 const adminOnly = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.XU_LY_BAO_CAO_VI_PHAM)];
 // HỌC VIÊN / GIÁO VIÊN gửi báo cáo
-router.post("/", authenticate, authorize("STUDENT", "TEACHER"), validate(createReportSchema), reportController.create);
+router.post("/", authenticate, authorize("STUDENT", "TEACHER"), contentWriteLimiter, validate(createReportSchema), reportController.create);
 
 // ADMIN
 router.get("/", ...adminOnly, reportController.getList);
