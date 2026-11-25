@@ -233,7 +233,7 @@ Mã OTP gồm 6 chữ số, hết hạn sau 10 phút. Khi server chưa cấu hì
 
 Hồ sơ của chính mình xem bằng `GET /auth/me`. Đổi mật khẩu xem mục Auth.
 
-`avatarUrl` là đường dẫn tương đối, ví dụ `/uploads/avatars/abc.jpg`. FE tự ghép với địa chỉ BE (`http://localhost:5000` + `avatarUrl`).
+`avatarUrl` là đường dẫn tương đối khi BE lưu local (ví dụ `/uploads/avatars/abc.jpg`, FE ghép với địa chỉ BE) hoặc URL đầy đủ `https://res.cloudinary.com/...` khi BE lưu trên Cloudinary. FE luôn dùng `assetUrl(path)`, hàm này giữ nguyên URL `https://`. Quy tắc này áp dụng cho mọi trường file: `avatarUrl`, `coverImageUrl`, `fileUrl`.
 
 ### PATCH /account/profile
 
@@ -260,7 +260,7 @@ Hồ sơ của chính mình xem bằng `GET /auth/me`. Đổi mật khẩu xem m
 - Quyền: đã đăng nhập
 - Body: `multipart/form-data`, trường file tên `avatar`. Chỉ nhận jpg, png, webp, tối đa 2MB.
 - 200: `data` là tài khoản đầy đủ có `avatarUrl` mới, message `Cập nhật ảnh đại diện thành công`
-- Lỗi: 400 `Chưa chọn ảnh (trường tên "avatar")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 2MB` | 400 `Nội dung tệp không đúng định dạng` | 429
+- Lỗi: 400 `Chưa chọn ảnh (trường tên "avatar")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 2MB` | 400 `Nội dung tệp không đúng định dạng` | 409 `Ảnh đại diện vừa được thay đổi ở nơi khác, vui lòng tải lại trang` (hai lần đổi ảnh cùng lúc, chỉ một lần thành công) | 429 | 503 `Không tải được tệp lên, vui lòng thử lại sau`
 - Ghi chú: ảnh cũ bị xóa khỏi server.
 
 ### GET /account
@@ -1078,7 +1078,7 @@ Phân quyền: các API của admin cần quyền `XU_LY_HOAN_TIEN` (Leader mặ
 - Quyền: `STUDENT` (chủ hóa đơn)
 - Body: `multipart/form-data`, trường `proof` là **tệp ảnh** (JPG, PNG hoặc WEBP, tối đa 5MB). Không đặt header `Content-Type` thủ công khi dùng `FormData`.
 - 200: message `Gửi minh chứng thanh toán thành công, vui lòng chờ xác nhận`, `data` là `Invoice` (`hasPaymentProof: true`, `status: "CHO_THANH_TOAN"`)
-- Lỗi: 400 `Vui lòng chọn ảnh minh chứng (trường proof)` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 5MB` | 400 `Hóa đơn này không thể gửi minh chứng thanh toán` | 404 `Hóa đơn không tồn tại` | 409 `Đơn đang có yêu cầu hoàn tiền chờ xử lý`
+- Lỗi: 400 `Vui lòng chọn ảnh minh chứng (trường proof)` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 5MB` | 400 `Hóa đơn này không thể gửi minh chứng thanh toán` | 404 `Hóa đơn không tồn tại` | 409 `Đơn đang có yêu cầu hoàn tiền chờ xử lý` | 409 `Hóa đơn vừa thay đổi trạng thái, vui lòng tải lại` (admin vừa duyệt, hoặc một lần gửi minh chứng khác vừa thành công) | 503 `Không tải được tệp lên, vui lòng thử lại sau`
 - Ghi chú: gửi được khi hóa đơn `CHO_THANH_TOAN` hoặc `THAT_BAI`. Gửi lại sau khi bị từ chối thì hóa đơn về `CHO_THANH_TOAN`, xóa `rejectionReason` và ảnh cũ. Mỗi lần gửi, admin có quyền `QUAN_LY_THANH_TOAN` nhận thông báo `PAYMENT_PENDING`.
 
 ### GET /invoice/:id/proof
@@ -1360,6 +1360,7 @@ Lỗi chung của API giáo viên: 403 `Tài khoản này không phải giáo vi
 - Body: `multipart/form-data`, trường file tên `cover`. Chỉ nhận jpg, png, webp, tối đa 3MB.
 - 201: message `Tải ảnh bìa thành công`, `data: { "coverImageUrl": "/uploads/covers/abc.jpg" }`
 - Lỗi: 400 `Vui lòng chọn ảnh bìa (trường "cover")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 3MB`
+- Lỗi thêm: 503 `Không tải được tệp lên, vui lòng thử lại sau` (dịch vụ lưu trữ lỗi hoặc quá 20 giây)
 - Ghi chú: API chỉ lưu ảnh. FE lấy `coverImageUrl` gửi kèm khi tạo hoặc sửa khóa học. FE cắt ảnh về 16:9 (1280×720) trước khi tải lên.
 
 ### GET /course/mine

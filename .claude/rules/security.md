@@ -45,12 +45,12 @@ Backend là nơi chặn thật. Ẩn menu, nút ở FE chỉ để giao diện g
 
 ## Dữ liệu nhạy cảm
 
-| Dữ liệu                         | Quy tắc                                                                    |
-| ------------------------------- | -------------------------------------------------------------------------- |
-| `passwordHash`                  | Không bao giờ trả ra response                                              |
-| `isCorrect` của đáp án          | Không trả khi đang thi. Sau khi nộp chỉ trả khi `Exam.showAnswers = true`  |
-| Ảnh minh chứng `uploads/proofs` | Không phục vụ tĩnh. Chỉ qua `GET /invoice/:id/proof` có kiểm tra quyền     |
-| `classUrl`, `driveUrl`          | Chỉ trả cho học viên có đơn `DA_THANH_TOAN` (và giáo viên/admin liên quan) |
+| Dữ liệu                   | Quy tắc                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `passwordHash`            | Không bao giờ trả ra response                                                                                 |
+| `isCorrect` của đáp án    | Không trả khi đang thi. Sau khi nộp chỉ trả khi `Exam.showAnswers = true`                                     |
+| Ảnh minh chứng thanh toán | Không phục vụ tĩnh, Cloudinary dùng `type: authenticated`. Chỉ qua `GET /invoice/:id/proof` có kiểm tra quyền |
+| `classUrl`, `driveUrl`    | Chỉ trả cho học viên có đơn `DA_THANH_TOAN` (và giáo viên/admin liên quan)                                    |
 
 ## AI và prompt
 

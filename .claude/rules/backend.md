@@ -50,7 +50,8 @@ Tên module khác tên bảng:
 | `utils/pagination.js`             | `getPagination`, `buildPaginationMeta` (mặc định `page=1`, `limit=10`, tối đa 100)                                         |
 | `utils/hash.js`, `utils/jwt.js`   | Băm mật khẩu, ký/kiểm tra token                                                                                            |
 | `middlewares/validateMiddleware`  | `validate(schema)` kiểm tra body; `validate(schema, "params")` cho params                                                  |
-| `middlewares/uploadMiddleware`    | `uploadAvatar`, `uploadCover`, `uploadResource`, `buildUploader({...})`                                                    |
+| `middlewares/uploadMiddleware`    | `uploadAvatar`, `uploadCover`, `uploadResource`, `buildUploader({...})` (lưu tạm trong RAM, chưa ghi đĩa)                  |
+| `utils/storage.js`                | `save(file, folder, { isPrivate })`, `remove(ref)`, `readPrivate(ref)`: lưu local hoặc Cloudinary                          |
 | `middlewares/errorHandler`        | Ánh xạ Prisma: P2002→409, P2003→400, P2025→404. Lỗi 500 kèm `req.id` trong message và log                                  |
 | `middlewares/rateLimitMiddleware` | `authIpLimiter`, `authCredentialLimiter`, `contentWriteLimiter` (sau `authenticate`, trước multer)                         |
 | `middlewares/requestId`           | Gán `req.id` và header `X-Request-Id`, dùng trong log                                                                      |
@@ -95,16 +96,21 @@ Tên module khác tên bảng:
 
 ## Upload
 
-| Loại             | Field    | Định dạng      | Tối đa | Thư mục             | Công khai |
-| ---------------- | -------- | -------------- | ------ | ------------------- | --------- |
-| Ảnh đại diện     | `avatar` | jpg, png, webp | 2MB    | `uploads/avatars`   | Có        |
-| Ảnh bìa khóa học | `cover`  | jpg, png, webp | 3MB    | `uploads/covers`    | Có        |
-| Tài liệu         | `file`   | pdf, docx      | 10MB   | `uploads/resources` | Có        |
-| Minh chứng TT    | `proof`  | jpg, png, webp | 5MB    | `uploads/proofs`    | **Không** |
+| Loại             | Field    | Định dạng      | Tối đa | Thư mục (`folder`) | Công khai |
+| ---------------- | -------- | -------------- | ------ | ------------------ | --------- |
+| Ảnh đại diện     | `avatar` | jpg, png, webp | 2MB    | `avatars`          | Có        |
+| Ảnh bìa khóa học | `cover`  | jpg, png, webp | 3MB    | `covers`           | Có        |
+| Tài liệu         | `file`   | pdf, docx      | 10MB   | `resources`        | Có        |
+| Minh chứng TT    | `proof`  | jpg, png, webp | 5MB    | `proofs`           | **Không** |
 
-- Mọi upload đi qua `uploadMiddleware` / `buildUploader`. DB lưu đường dẫn tương đối.
-- Thay ảnh (ví dụ ảnh đại diện) thì xóa tệp cũ.
-- Thư mục tĩnh chỉ gồm `avatars`, `covers`, `resources` (khai báo trong `app.js`). Chuyển sang Cloudinary để giai đoạn cuối.
+- Mọi upload đi qua `uploadMiddleware` / `buildUploader`: chỉ nhận và kiểm tra file (loại, kích thước, magic bytes), giữ trong RAM (`req.file.buffer`), **chưa lưu**.
+- Việc lưu và xóa file nằm ở **service**, qua `utils/storage` (`save`, `remove`, `readPrivate`). Không dùng `fs` hay `cloudinary` trực tiếp ở nơi khác.
+- `STORAGE_DRIVER=local` (mặc định) ghi vào `BE_RStudy/uploads`; `cloudinary` cần `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (thiếu thì server không khởi động). File nằm trong `roadstudy/dev|prod/<folder>`.
+- Giá trị lưu trong DB: local công khai `/uploads/<folder>/<tên>`, local riêng tư `proofs/<tên>`, Cloudinary là URL `https://res.cloudinary.com/...`. Minh chứng trên Cloudinary dùng `type: authenticated`, chỉ xem qua `GET /invoice/:id/proof`.
+- Thứ tự bắt buộc khi thay file: **lưu file mới → cập nhật DB → xóa file cũ**. DB lỗi thì xóa file mới vừa lưu. Cập nhật DB kiểu compare-and-set (`updateMany` có điều kiện giá trị cũ, ví dụ `updateAvatarIfCurrent`): request thua xóa file của mình và trả 409. Làm vậy sự cố giữa chừng (server sập, mất mạng) chỉ để lại file thừa, không bao giờ làm DB trỏ vào file không tồn tại.
+- Gọi `storage.save` **sau** khi đã kiểm tra quyền và dữ liệu, không lưu trong middleware.
+- File thừa dọn bằng `node scripts/cleanup-orphan-files.js` (mặc định chỉ liệt kê, `--apply` mới xóa; chỉ xóa file cũ hơn 24 giờ). Chuyển file local sang Cloudinary: `node scripts/migrate-uploads-to-cloudinary.js` (xem trước, `--apply` để ghi; ghi vào DB dùng chung nên cần Nam đồng ý).
+- Thư mục tĩnh `avatars`, `covers`, `resources` (trong `app.js`) chỉ còn phục vụ file local cũ.
 
 ## AI
 

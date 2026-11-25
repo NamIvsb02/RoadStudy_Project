@@ -24,6 +24,20 @@ Thiếu dependency, `.env` hoặc quyền truy cập thì báo rõ "chưa kiểm
 - Tài khoản seed, mật khẩu chung `Password123!`: `leader@`, `admin@`, `teacher@`, `student@roadstudy.vn`. Trong Git Bash chạy `set +H` trước khi gõ `!`.
 - Test mới viết trong `BE_RStudy/tests/<module>.test.js`, phủ luồng chính và các nhánh 401, 403, 404, 409. DB dùng chung nên hạn chế tạo dữ liệu rác và không sửa dữ liệu seed.
 
+### Test có upload file (không làm bẩn lưu trữ dùng chung)
+
+Nếu `.env` đặt `STORAGE_DRIVER=cloudinary`, mọi test có upload (`invoice`, `hardening.p2`, `account`, `security.p0`, `storage`...) sẽ đẩy file lên thư mục Cloudinary `roadstudy/dev` mà cả nhóm đang dùng. Biến môi trường đặt trên dòng lệnh được ưu tiên hơn `.env`, nên chọn một trong hai cách, **đặt giống nhau cho cả server và lệnh test**:
+
+| Cách                      | Khi nào                           | Lệnh (Git Bash)                                                                                                                     |
+| ------------------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Lưu local                 | Test thường, không cần Cloudinary | `export STORAGE_DRIVER=local PORT=5055`, rồi `npm run dev` ở terminal 1 và `node tests/<file>.test.js` ở terminal 2 (cùng `export`) |
+| Cloudinary, thư mục riêng | Test driver Cloudinary            | `export STORAGE_DRIVER=cloudinary CLOUDINARY_FOLDER="roadstudy/test-$(date +%s)" PORT=5055`, rồi chạy server và test như trên       |
+
+- `tests/cloudinary.integration.test.js` tự dừng nếu `CLOUDINARY_FOLDER` không bắt đầu bằng `roadstudy/test-`, và xóa mọi file trong thư mục đó khi kết thúc.
+- Chạy server ở cổng riêng (ví dụ 5055) để không gọi nhầm vào server khác hoặc container Docker đang giữ cổng 5000.
+- `node tests/scripts.test.js` kiểm tra hai script `migrate-uploads-to-cloudinary` và `cleanup-orphan-files` bằng DB và Cloudinary giả, không cần server, không đụng dữ liệu thật.
+- Không chạy `migrate-uploads-to-cloudinary.js --apply` hay `cleanup-orphan-files.js --apply` trên môi trường dùng chung khi chưa được Nam đồng ý.
+
 ## Kiểm tra frontend thủ công
 
 - FE chưa có test tự động.
