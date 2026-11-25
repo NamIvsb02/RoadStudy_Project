@@ -20,16 +20,17 @@ Lỗi: `success: false`, `data: null`, `message` là nội dung hiển thị đ�
 
 ### Mã HTTP
 
-| Mã        | Nghĩa                                                                                                 |
-| --------- | ----------------------------------------------------------------------------------------------------- |
-| 200 / 201 | Thành công / tạo mới thành công                                                                       |
-| 400       | Dữ liệu sai hoặc vi phạm nghiệp vụ. Lỗi validate có dạng `"tênTrường: nội dung lỗi; tênTrường2: ..."` |
-| 401       | Chưa đăng nhập, token sai hoặc hết hạn                                                                |
-| 403       | Không đủ quyền, hoặc tài khoản bị khóa / chưa xác minh                                                |
-| 404       | Không tìm thấy (kể cả URL không tồn tại)                                                              |
-| 409       | Trùng dữ liệu (ví dụ email đã dùng) hoặc xung đột trạng thái (ví dụ duyệt khóa không ở `CHO_DUYET`)   |
-| 429       | Gửi quá nhanh hoặc vượt hạn mức (xem mục "Giới hạn tần suất")                                         |
-| 500       | Lỗi hệ thống: `"Lỗi hệ thống, vui lòng thử lại sau (mã: <requestId>)"`                                |
+| Mã        | Nghĩa                                                                                                                                                          |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 200 / 201 | Thành công / tạo mới thành công                                                                                                                                |
+| 400       | Dữ liệu sai hoặc vi phạm nghiệp vụ. Lỗi validate có dạng `"tênTrường: nội dung lỗi; tênTrường2: ..."`                                                          |
+| 401       | Chưa đăng nhập, token sai hoặc hết hạn                                                                                                                         |
+| 403       | Không đủ quyền, hoặc tài khoản bị khóa / chưa xác minh                                                                                                         |
+| 404       | Không tìm thấy (kể cả URL không tồn tại)                                                                                                                       |
+| 409       | Trùng dữ liệu (ví dụ email đã dùng) hoặc xung đột trạng thái (ví dụ duyệt khóa không ở `CHO_DUYET`)                                                            |
+| 429       | Gửi quá nhanh hoặc vượt hạn mức (xem mục "Giới hạn tần suất")                                                                                                  |
+| 503       | Database đang quá tải hoặc không kết nối được: `"Hệ thống đang bận, vui lòng thử lại sau ít giây"`. Có header `Retry-After: 5`. FE có thể thử lại sau vài giây |
+| 500       | Lỗi hệ thống: `"Lỗi hệ thống, vui lòng thử lại sau (mã: <requestId>)"`                                                                                         |
 
 ### Xác thực
 
