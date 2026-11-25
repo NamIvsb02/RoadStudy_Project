@@ -165,8 +165,26 @@ async function main() {
             if (inv.paymentProofUrl && inv.paymentProofUrl !== 'proofs/seed-p0.png') await safe(() => fs.promises.unlink(path.join(PROOF_DIR, inv.paymentProofUrl)));
         }
         check('10 vòng upload + approve: hóa đơn và đơn luôn cùng trạng thái hợp lệ', lệch === 0, `lệch ${lệch} vòng; kết quả upload/approve: ${outcomes.join(' ')}`);
+
+        // ========== 6. Chatbot: giới hạn khi gửi dồn và hạn mức ngày ==========
+        console.log('[6. Chatbot: gửi dồn và hạn mức 50 tin/24 giờ]');
+        const CB = await mkStudent('HV Chatbot');
+        const STU_CB = { id: CB.account.id, role: 'STUDENT' };
+        const burst = await Promise.all(Array.from({ length: 20 }, (_, i) => call('POST', '/chatbot/messages', { ...STU_CB, body: { content: `khoa hoc test ${i}` } })));
+        const okCount = burst.filter((x) => x.status === 201 || x.status === 200).length;
+        check('Gửi 20 tin cùng lúc: tối đa 6 tin qua, còn lại 429, không lỗi 500', okCount >= 1 && okCount <= 6 && okCount + countBy(burst, 429) === 20, burst.map((x) => x.status).join(','));
+        check('DB lưu đúng số tin đã qua (không vượt 6)', (await prisma.aiMessage.count({ where: { senderType: 'STUDENT', conversation: { studentId: CB.student.id } } })) === okCount);
+        const CB2 = await mkStudent('HV Chatbot Hai');
+        const STU_CB2 = { id: CB2.account.id, role: 'STUDENT' };
+        const conv = await prisma.aiConversation.create({ data: { studentId: CB2.student.id } });
+        await prisma.aiMessage.createMany({ data: Array.from({ length: 50 }, (_, i) => ({ senderType: 'STUDENT', content: `cu ${i}`, conversationId: conv.id, sentAt: new Date(Date.now() - 3600 * 1000 - i) })) });
+        r = await call('POST', '/chatbot/messages', { ...STU_CB2, body: { content: 'them mot tin' } });
+        check('Đã đủ 50 tin trong 24 giờ -> 429 báo hạn mức ngày', r.status === 429 && /24 giờ/.test(r.msg || ''), `${r.status} ${r.msg}`);
     } finally {
         const ids = fx.accounts;
+        await safe(() => prisma.courseRecommendation.deleteMany({ where: { message: { conversation: { studentId: { in: fx.students } } } } }));
+        await safe(() => prisma.aiMessage.deleteMany({ where: { conversation: { studentId: { in: fx.students } } } }));
+        await safe(() => prisma.aiConversation.deleteMany({ where: { studentId: { in: fx.students } } }));
         await safe(() => prisma.notification.deleteMany({ where: { accountId: { in: ids } } }));
         await safe(() => prisma.otpCode.deleteMany({ where: { accountId: { in: ids } } }));
         await safe(() => prisma.refreshToken.deleteMany({ where: { accountId: { in: ids } } }));
