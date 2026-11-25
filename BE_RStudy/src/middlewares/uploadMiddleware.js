@@ -29,7 +29,7 @@ const buildUploader = ({ allowedMimes, maxSizeMB, field }) => {
     },
   }).single(field);
 
-  return (req, res, next) => {
+  const middleware = (req, res, next) => {
     upload(req, res, (err) => {
       if (!err) {
         if (!req.file || hasValidSignature(req.file)) return next();
@@ -40,6 +40,8 @@ const buildUploader = ({ allowedMimes, maxSizeMB, field }) => {
       return next(err);
     });
   };
+  middleware.apiDoc = { upload: { field, maxSizeMB, types: Object.values(allowedMimes) } }; // cho Swagger
+  return middleware;
 };
 
 const IMAGE_MIMES = { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp" };

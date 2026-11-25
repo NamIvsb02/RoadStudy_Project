@@ -26,14 +26,16 @@ function readToken(header, req, next) {
   }
 }
 
-const authorize =
-  (...roles) =>
-  (req, res, next) => {
+const authorize = (...roles) => {
+  const middleware = (req, res, next) => {
     if (!req.user) return next(new AppError("Chưa xác thực", 401));
     if (!roles.includes(req.user.role)) {
       return next(new AppError("Không đủ quyền truy cập", 403));
     }
     next();
   };
+  middleware.apiDoc = { roles }; // cho Swagger
+  return middleware;
+};
 
 module.exports = { authenticate, optionalAuthenticate, authorize };

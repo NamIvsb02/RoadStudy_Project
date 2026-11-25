@@ -95,6 +95,19 @@ app.use("/api/report", reportRoutes);
     }),
   );
 });
+
+// ===== Swagger UI (/api-docs) =====
+// Mặc định bật khi dev, tắt khi NODE_ENV=production (không công khai toàn bộ API admin). Ghi đè bằng SWAGGER_ENABLED=true|false.
+const swaggerEnabled = process.env.SWAGGER_ENABLED ? process.env.SWAGGER_ENABLED === "true" : process.env.NODE_ENV !== "production";
+if (swaggerEnabled) {
+  const swaggerUi = require("swagger-ui-express");
+  const openapi = require("./docs/openapi").buildOpenApi();
+  app.get("/api-docs.json", (req, res) => res.json(openapi));
+  // Giữ CSP của helmet, chỉ bỏ upgrade-insecure-requests để "Try it out" chạy được qua http:// khi dev
+  const docsCsp = helmet.contentSecurityPolicy({ directives: { upgradeInsecureRequests: null } });
+  app.use("/api-docs", docsCsp, swaggerUi.serve, swaggerUi.setup(openapi, { customSiteTitle: "RoadStudy API", swaggerOptions: { persistAuthorization: true } }));
+}
+
 app.use(notFound);
 app.use(errorHandler);
 
