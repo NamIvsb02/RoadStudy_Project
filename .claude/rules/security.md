@@ -13,6 +13,7 @@ Backend là nơi chặn thật. Ẩn menu, nút ở FE chỉ để giao diện g
 - JWT Bearer: access token 15 phút, refresh token 7 ngày (xoay vòng), OTP 10 phút.
 - `authenticate` gán `req.user = { id, role }`. Vai trò luôn lấy từ token, không tin dữ liệu client gửi.
 - Không còn đăng nhập giả: header `x-dev-role` và `DEV_AUTH_BYPASS` không còn tác dụng.
+- Rủi ro đã chấp nhận: FE lưu access và refresh token trong `localStorage` (qua `utils/tokenStorage`), nên nếu có lỗ hổng XSS thì token bị lấy. Hiện không dùng `dangerouslySetInnerHTML`. Hướng nâng cấp: chuyển refresh token sang cookie `httpOnly` (phải đổi cả luồng auth FE và BE).
 - Tài khoản `CHO_XAC_MINH` chưa đăng nhập được. Giáo viên `CHO_DUYET` / `TU_CHOI` bị 403 ở cả `login` lẫn `refresh` (`assertTeacherApproved`).
 
 ## Phân quyền ở backend
