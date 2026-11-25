@@ -55,6 +55,7 @@ Tên module khác tên bảng:
 | `middlewares/errorHandler`        | Ánh xạ Prisma: P2002→409, P2003→400, P2025→404. Lỗi 500 kèm `req.id` trong message và log                                                                       |
 | `middlewares/rateLimitMiddleware` | `authIpLimiter`, `authCredentialLimiter`, `contentWriteLimiter` (sau `authenticate`, trước multer; limiter mới truyền `name` riêng để khóa Redis không đè nhau) |
 | `middlewares/requestId`           | Gán `req.id` và header `X-Request-Id`, dùng trong log                                                                                                           |
+| `utils/cache.js`                  | `getOrSet(name, params, loader)` cache-aside qua Redis cho API đọc công khai; `bump()` làm mới. Xem mục Cache bên dưới                                          |
 | `config/ai.js`                    | `generateJson({ system, prompt })`, ném `AiError` khi lỗi hoặc hết giờ                                                                                          |
 | `services/notificationService.js` | `notify`, `notifyStudent`, `notifyTeacher`, `notifyCourseTeacher`, `notifyCourseStudents`, `notifyAdmins(functionName, …)`                                      |
 
@@ -117,6 +118,13 @@ Tên module khác tên bảng:
 - `AI_PROVIDER=gemini` dùng `GEMINI_API_KEY`, `GEMINI_MODEL`. `AI_PROVIDER=openai` dùng mọi API tương thích OpenAI (mặc định Groq) với `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`. Không đặt `AI_PROVIDER` thì tự chọn `gemini` khi chỉ có `GEMINI_API_KEY`. `AI_TIMEOUT_MS` mặc định 20000.
 - Chỉ chatbot gọi AI (`generateJson` trong `recommendationService.recommend`). `GET /recommendation/me` không gọi AI.
 - Mọi lời gọi LLM đi qua `config/ai.js`, có timeout và câu trả lời dự phòng khi lỗi.
+
+## Cache (Redis)
+
+- Cache chỉ dành cho API **đọc công khai, dữ liệu giống nhau với mọi người**: `GET /category`, `GET /teacher`, `GET /course`, `GET /course/:id`. Bọc ở service bằng `cache.getOrSet("tên:nhóm", params, () => loader())`. Không cache API có `authenticate`, dữ liệu theo người dùng, hoặc yêu cầu có từ khóa tìm kiếm (số khóa không giới hạn).
+- Làm mới tự động ở `config/database.js`: mọi lệnh ghi vào `Course`, `Category`, `Teacher`, `Review` (và `Account` khi đổi `fullName`, `avatarUrl`, `status`) đều gọi `cache.bump()`. Service **không** tự bump. Thêm bảng mới ảnh hưởng API công khai thì thêm vào `PUBLIC_MODELS` ở đó.
+- Độ cũ tối đa: ghi trong `prisma.$transaction` bump trước khi commit nên một request đọc đúng lúc đó có thể cache dữ liệu cũ, tối đa `CACHE_TTL_SECONDS` (60 giây). Redis tắt hoặc lỗi thì đọc thẳng DB.
+- Lỗi (404...) không bao giờ được cache. Cache chỉ chạy khi `REDIS_URL` có giá trị.
 
 ## Thêm một module mới
 
