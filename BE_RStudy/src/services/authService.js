@@ -80,8 +80,8 @@ const checkOtp = async (accountId, purpose, code) => {
 
 const verifyEmail = async (email, code) => {
   const account = await authRepository.findByEmail(email);
-  if (!account) throw new AppError("Tài khoản không tồn tại", 404);
-  if (account.status !== "CHO_XAC_MINH") throw new AppError("Tài khoản đã được xác minh trước đó", 400);
+  // Email không tồn tại trả cùng lỗi với sai mã: không để dò email nào đã đăng ký
+  if (!account || account.status !== "CHO_XAC_MINH") throw new AppError("Mã xác thực không đúng hoặc đã hết hạn", 400);
 
   await checkOtp(account.id, "XAC_MINH_EMAIL", code);
   await authRepository.updateAccountStatus(account.id, "HOAT_DONG");
