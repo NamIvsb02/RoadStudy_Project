@@ -1,4 +1,4 @@
-import LoadingState from "../../components/ui/LoadingState";
+import LoadingState from "../../components/common/LoadingState";
 import { useMyRegistration } from "../../hooks/useMyRegistration";
 import EnrollForm from "./EnrollForm";
 import EnrolledNotice from "./EnrolledNotice";

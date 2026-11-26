@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { reviewApi } from '../../api/reviewApi';
-import EmptyState from '../../components/ui/EmptyState';
-import ErrorState from '../../components/ui/ErrorState';
-import LoadingState from '../../components/ui/LoadingState';
-import Pagination from '../../components/ui/Pagination';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
+import LoadingState from '../../components/common/LoadingState';
+import Pagination from '../../components/common/Pagination';
 import { ROLES } from '../../constants/roles';
 import { useAuth } from '../../hooks/useAuth';
 import { useFetch } from '../../hooks/useFetch';
@@ -57,7 +57,7 @@ export default function ReviewSection({ courseId, teacherId }) {
         <ReviewSummary summary={summary} rating={rating} onFilter={filterByRating} />
         {isStudent && !mine.loading && <MyReviewBox review={mine.data} onSave={saveMine} />}
         {items.length === 0 ? (
-          <EmptyState message="Chưa có đánh giá nào" />
+          <EmptyState title="Chưa có đánh giá nào" />
         ) : (
           <ul>
             {items.map((review) => (
@@ -71,14 +71,14 @@ export default function ReviewSection({ courseId, teacherId }) {
             ))}
           </ul>
         )}
-        <Pagination page={page} totalPages={pagination.totalPages} onChange={setPage} />
+        <Pagination pagination={pagination} onChange={setPage} />
       </>
     );
   }
 
   return (
-    <section className="mt-6 rounded-xl bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-lg font-bold text-slate-800">Đánh giá</h2>
+    <section className="rounded-xl border border-line bg-white p-5 shadow-card">
+      <h2 className="mb-4 text-lg font-bold text-ink-strong">Đánh giá</h2>
       {content}
     </section>
   );

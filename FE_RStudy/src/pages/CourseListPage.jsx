@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { categoryApi } from '../api/categoryApi';
 import { courseApi } from '../api/courseApi';
+import CourseCardSkeleton from '../components/common/CourseCardSkeleton';
 import CourseGrid from '../components/common/CourseGrid';
+import EmptyState from '../components/common/EmptyState';
+import ErrorState from '../components/common/ErrorState';
 import PageColumns from '../components/common/PageColumns';
-import EmptyState from '../components/ui/EmptyState';
-import ErrorState from '../components/ui/ErrorState';
-import LoadingState from '../components/ui/LoadingState';
-import Pagination from '../components/ui/Pagination';
+import Pagination from '../components/common/Pagination';
 import { useFetch } from '../hooks/useFetch';
 import CategoryChips from './courseList/CategoryChips';
 import CourseFilterBar from './courseList/CourseFilterBar';
@@ -18,7 +18,6 @@ const loadCategories = () => categoryApi.getPublicList({ limit: 100 });
 export default function CourseListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.toString();
-  const page = Number(searchParams.get('page')) || 1;
 
   const request = useCallback(
     () => courseApi.getPublicList({ ...Object.fromEntries(new URLSearchParams(query)), limit: PAGE_SIZE }),
@@ -57,24 +56,30 @@ export default function CourseListPage() {
   const { items = [], pagination } = courses.data ?? {};
 
   let content;
-  if (courses.loading) content = <LoadingState />;
+  if (courses.loading) content = <CourseCardSkeleton count={PAGE_SIZE} />;
   else if (courses.error) content = <ErrorState message={courses.error} onRetry={courses.reload} />;
-  else if (items.length === 0) content = <EmptyState message="Không tìm thấy khóa học phù hợp" />;
+  else if (items.length === 0)
+    content = (
+      <EmptyState
+        title="Không tìm thấy khóa học phù hợp"
+        description="Thử bỏ bớt từ khóa, mở rộng khoảng giá hoặc chọn danh mục Tất cả."
+      />
+    );
   else
     content = (
       <>
         <CourseGrid courses={items} />
-        <Pagination
-          page={page}
-          totalPages={pagination?.totalPages}
-          onChange={(next) => updateParams({ page: String(next) })}
-        />
+        <Pagination pagination={pagination} onChange={(next) => updateParams({ page: String(next) })} />
       </>
     );
 
   return (
     <PageColumns>
-      <h1 className="mb-4 text-2xl font-bold text-slate-800">Khóa học</h1>
+      <header className="mb-5">
+        <p className="mb-1 text-xs font-semibold tracking-wider text-primary uppercase">Khám phá</p>
+        <h1 className="text-headline font-bold text-ink-strong">Khóa học</h1>
+        {pagination && <p className="mt-1 text-sm text-muted">{pagination.total} khóa học phù hợp</p>}
+      </header>
       <div className="space-y-4">
         {categories.data && (
           <CategoryChips

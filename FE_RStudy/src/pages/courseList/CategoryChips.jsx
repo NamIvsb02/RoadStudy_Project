@@ -1,23 +1,32 @@
+import { motion } from 'framer-motion';
+import { tabIndicator } from '../../constants/motion';
+
 const chipClass = (active) =>
-  `rounded-full px-4 py-1.5 text-sm transition-colors duration-150 ${
-    active ? 'bg-primary text-white' : 'bg-soft text-slate-700 hover:bg-slate-200'
+  `relative inline-flex min-h-11 shrink-0 items-center rounded-full px-4 text-sm font-medium whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light ${
+    active ? 'text-white' : 'border border-line bg-white text-ink hover:bg-primary-100'
   }`;
+
+function Chip({ active, onClick, children }) {
+  return (
+    <button type="button" onClick={onClick} aria-pressed={active} className={chipClass(active)}>
+      {active && (
+        <motion.span layoutId="category-chip" transition={tabIndicator} className="absolute inset-0 rounded-full bg-primary" />
+      )}
+      <span className="relative">{children}</span>
+    </button>
+  );
+}
 
 export default function CategoryChips({ categories, activeId, onSelect }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      <button type="button" onClick={() => onSelect('')} className={chipClass(!activeId)}>
+    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0">
+      <Chip active={!activeId} onClick={() => onSelect('')}>
         Tất cả
-      </button>
+      </Chip>
       {categories.map((category) => (
-        <button
-          key={category.id}
-          type="button"
-          onClick={() => onSelect(category.id)}
-          className={chipClass(activeId === category.id)}
-        >
+        <Chip key={category.id} active={activeId === category.id} onClick={() => onSelect(category.id)}>
           {category.categoryName} ({category.courseCount})
-        </button>
+        </Chip>
       ))}
     </div>
   );

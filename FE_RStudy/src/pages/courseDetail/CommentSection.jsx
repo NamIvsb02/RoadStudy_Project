@@ -2,10 +2,10 @@ import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { commentApi } from '../../api/commentApi';
 import ContentForm from '../../components/common/ContentForm';
-import EmptyState from '../../components/ui/EmptyState';
-import ErrorState from '../../components/ui/ErrorState';
-import LoadingState from '../../components/ui/LoadingState';
-import Pagination from '../../components/ui/Pagination';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
+import LoadingState from '../../components/common/LoadingState';
+import Pagination from '../../components/common/Pagination';
 import { ROLES } from '../../constants/roles';
 import { ROUTES } from '../../constants/routes';
 import { useAuth } from '../../hooks/useAuth';
@@ -61,7 +61,7 @@ function CommentList({ courseId }) {
           </p>
         )}
         {data.items.length === 0 ? (
-          <EmptyState message="Chưa có bình luận nào" />
+          <EmptyState title="Chưa có bình luận nào" />
         ) : (
           <ul>
             {data.items.map((comment) => (
@@ -69,14 +69,14 @@ function CommentList({ courseId }) {
             ))}
           </ul>
         )}
-        <Pagination page={page} totalPages={data.pagination.totalPages} onChange={setPage} />
+        <Pagination pagination={data.pagination} onChange={setPage} />
       </>
     );
   }
 
   return (
-    <section className="mt-6 rounded-xl bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-lg font-bold text-slate-800">Bình luận</h2>
+    <section className="rounded-xl border border-line bg-white p-5 shadow-card">
+      <h2 className="mb-4 text-lg font-bold text-ink-strong">Bình luận</h2>
       {content}
     </section>
   );

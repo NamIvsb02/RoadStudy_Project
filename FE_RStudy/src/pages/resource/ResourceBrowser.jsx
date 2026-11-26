@@ -1,13 +1,14 @@
 import { useCallback, useState } from "react";
 import { resourceApi } from "../../api/resourceApi";
 import DashboardPanel from "../../components/common/DashboardPanel";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { useFetch } from "../../hooks/useFetch";
+import ResourceCategoryChips from "./ResourceCategoryChips";
 import ResourceCard from "./ResourceCard";
 import { useCategories } from "./useCategories";
 
 const LIMIT = 12;
-const fieldClass = "h-10 rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/30";
+const fieldClass = "h-11 rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/30";
 
 export default function ResourceBrowser({ reloadKey = 0, canDelete, onDelete }) {
   const categories = useCategories();
@@ -28,33 +29,24 @@ export default function ResourceBrowser({ reloadKey = 0, canDelete, onDelete }) 
     setPage(1);
   };
 
-  const handleCategory = (event) => {
-    setFilters((prev) => ({ ...prev, categoryId: event.target.value }));
+  const handleCategory = (categoryId) => {
+    setFilters((prev) => ({ ...prev, categoryId }));
     setPage(1);
   };
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <form role="search" onSubmit={handleSearch} className="flex-1">
-          <input
-            type="search"
-            value={keyword}
-            onChange={(event) => setKeyword(event.target.value)}
-            placeholder="Tìm tài liệu, nhấn Enter"
-            aria-label="Tìm tài liệu"
-            className={`${fieldClass} w-full`}
-          />
-        </form>
-        <select aria-label="Lọc theo danh mục" value={filters.categoryId} onChange={handleCategory} className={fieldClass}>
-          <option value="">Tất cả danh mục</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.categoryName}
-            </option>
-          ))}
-        </select>
-      </div>
+      <form role="search" onSubmit={handleSearch}>
+        <input
+          type="search"
+          value={keyword}
+          onChange={(event) => setKeyword(event.target.value)}
+          placeholder="Tìm tài liệu, nhấn Enter"
+          aria-label="Tìm tài liệu"
+          className={`${fieldClass} w-full`}
+        />
+      </form>
+      <ResourceCategoryChips categories={categories} activeId={filters.categoryId} onSelect={handleCategory} />
       <DashboardPanel title="Danh sách tài liệu" loading={loading} error={error} empty={items.length === 0} emptyText="Chưa có tài liệu nào.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {items.map((resource) => (
@@ -62,7 +54,7 @@ export default function ResourceBrowser({ reloadKey = 0, canDelete, onDelete }) 
           ))}
         </div>
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
     </div>
   );
 }
