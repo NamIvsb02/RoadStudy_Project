@@ -1,50 +1,44 @@
-import { teacherApi } from "../api/teacherApi";
 import { categoryApi } from "../api/categoryApi";
-import PageColumns from "../components/common/PageColumns";
-import SectionHeader from "../components/common/SectionHeader";
-import TeacherAvatarList from "../components/common/TeacherAvatarList";
-import EmptyState from "../components/ui/EmptyState";
-import ErrorState from "../components/ui/ErrorState";
-import LoadingState from "../components/ui/LoadingState";
+import { courseApi } from "../api/courseApi";
+import { teacherApi } from "../api/teacherApi";
+import ScrollProgress from "../components/common/ScrollProgress";
 import { useFetch } from "../hooks/useFetch";
+import AiAdvisorSection from "./home/AiAdvisorSection";
+import CategoryBento from "./home/CategoryBento";
 import CategoryCourseSection from "./home/CategoryCourseSection";
-import CategorySidebar from "./home/CategorySidebar";
-import HomeBanner from "./home/HomeBanner";
 import ForYouSection from "./home/ForYouSection";
+import HomeCta from "./home/HomeCta";
+import HomeHero from "./home/HomeHero";
+import HomeStats from "./home/HomeStats";
+import LearningJourney from "./home/LearningJourney";
+import TeacherShowcase from "./home/TeacherShowcase";
 
 const FEATURED_CATEGORIES = 3;
+const loadLatestCourse = () => courseApi.getPublicList({ limit: 1 });
 const loadCategories = () => categoryApi.getPublicList({ limit: 100 });
 const loadTeachers = () => teacherApi.getPublicList({ limit: 8 });
 
 export default function HomePage() {
+  const latest = useFetch(loadLatestCourse);
   const categories = useFetch(loadCategories);
   const teachers = useFetch(loadTeachers);
 
-  const categoryItems = categories.data?.items ?? [];
-  const featured = categoryItems.filter((c) => c.courseCount > 0).slice(0, FEATURED_CATEGORIES);
-
-  let sidebar;
-  if (categories.loading) sidebar = <LoadingState />;
-  else if (categories.error) sidebar = <ErrorState message={categories.error} onRetry={categories.reload} />;
-  else sidebar = <CategorySidebar categories={categoryItems} />;
-
-  let teacherContent;
-  if (teachers.loading) teacherContent = <LoadingState />;
-  else if (teachers.error) teacherContent = <ErrorState message={teachers.error} onRetry={teachers.reload} />;
-  else if (teachers.data.items.length === 0) teacherContent = <EmptyState message="Chưa có giáo viên" />;
-  else teacherContent = <TeacherAvatarList teachers={teachers.data.items} />;
+  const featured = (categories.data?.items ?? []).filter((category) => category.courseCount > 0).slice(0, FEATURED_CATEGORIES);
 
   return (
-    <PageColumns left={sidebar}>
-      <HomeBanner />
+    <>
+      <ScrollProgress />
+      <HomeHero latest={latest} />
+      <HomeStats courses={latest} teachers={teachers} categories={categories} />
+      <CategoryBento categories={categories} />
       <ForYouSection />
-      <section className="mt-8">
-        <SectionHeader title="Giáo viên tiêu biểu" />
-        {teacherContent}
-      </section>
-      {featured.map((category) => (
-        <CategoryCourseSection key={category.id} category={category} />
+      <LearningJourney />
+      <AiAdvisorSection />
+      {featured.map((category, index) => (
+        <CategoryCourseSection key={category.id} category={category} reversed={index % 2 === 1} />
       ))}
-    </PageColumns>
+      <TeacherShowcase teachers={teachers} />
+      <HomeCta />
+    </>
   );
 }
