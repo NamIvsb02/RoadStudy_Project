@@ -1,12 +1,15 @@
 const teacherRepository = require("../repositories/teacherRepository");
 const AppError = require("../utils/AppError");
+const cache = require("../utils/cache");
 const { getPagination, buildPaginationMeta } = require("../utils/pagination");
 const notificationService = require("./notificationService");
 
 const APPROVALS = ["CHO_DUYET", "DA_DUYET", "TU_CHOI"];
 const cleanSearch = (q) => (typeof q === "string" ? q.trim() : "");
 
-const listPublic = async (query) => {
+const listPublic = (query) => (cleanSearch(query.search) ? loadPublicList(query) : cache.getOrSet("teacher:list", { page: query.page, limit: query.limit }, () => loadPublicList(query)));
+
+const loadPublicList = async (query) => {
   const { page, limit, skip, take } = getPagination(query);
   const [items, total] = await teacherRepository.listPublic({ search: cleanSearch(query.search), skip, take });
   return { items, pagination: buildPaginationMeta(total, page, limit) };

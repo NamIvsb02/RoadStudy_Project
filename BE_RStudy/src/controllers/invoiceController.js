@@ -24,9 +24,10 @@ exports.uploadProof = asyncHandler(async (req, res) => {
 });
 
 exports.getProof = asyncHandler(async (req, res) => {
-    const file = await service.getProofFile(req.user, req.params.id);
+    const proof = await service.getProof(req.user, req.params.id);
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.sendFile(file);
+    if (proof.file) return res.sendFile(proof.file);
+    res.type(proof.contentType).send(proof.buffer);
 });
 
 exports.requestRefund = asyncHandler(async (req, res) => {

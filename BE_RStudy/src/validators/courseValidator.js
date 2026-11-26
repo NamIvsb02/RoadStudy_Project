@@ -57,9 +57,15 @@ const updateCourseSchema = z
     path: ['endDate'],
   });
 
+const rejectReason = z.string({ error: 'Vui lòng nhập lý do từ chối' }).trim().min(1, 'Vui lòng nhập lý do từ chối').max(500, 'Lý do tối đa 500 ký tự');
+
+// reason chỉ dùng khi từ chối khóa đang chờ duyệt (CHO_DUYET sang BAN_NHAP); bắt buộc kiểm ở service
 const changeStatusSchema = z.object({
   status: z.enum(Object.values(CourseStatus)),
+  reason: rejectReason.optional(),
 });
+
+const rejectCourseSchema = z.strictObject({ reason: rejectReason });
 
 // Tham số tìm kiếm/lọc/sắp xếp của danh sách công khai (page và limit do getPagination xử lý riêng)
 const PUBLIC_SORT_VALUES = ['newest', 'price_asc', 'price_desc', 'start_soon', 'name'];
@@ -83,5 +89,6 @@ module.exports = {
   createCourseSchema,
   updateCourseSchema,
   changeStatusSchema,
+  rejectCourseSchema,
   publicListQuerySchema,
 };

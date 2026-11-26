@@ -17,7 +17,7 @@ const fixed = (value) => (value == null ? null : new Decimal(value).toFixed(2));
 
 // ---------- Chấm điểm ----------
 // Chấm theo đáp án đã lưu trên server, đóng bài. Trả false nếu bài đã được đóng bởi request khác.
-async function gradeAndClose(attempt, endTime) {
+async function gradeAndClose(attempt, endTime, tx) {
   const questions = await repo.findQuestionsWithOptions(attempt.examId);
   const chosen = new Map(attempt.details.map((d) => [d.questionId, d.answerOptionId]));
 
@@ -26,7 +26,7 @@ async function gradeAndClose(attempt, endTime) {
     const picked = chosen.get(q.id);
     if (picked && q.options.some((o) => o.id === picked && o.isCorrect)) score = score.add(q.score);
   }
-  return repo.closeAttempt(attempt.id, score, endTime);
+  return repo.closeAttempt(attempt.id, score, endTime, tx);
 }
 
 // Hết giờ mà chưa nộp: tự nộp với các đáp án đã chọn
@@ -110,7 +110,7 @@ async function assertActive(attempt) {
 }
 
 // Câu hỏi phải thuộc đề của bài làm, đáp án phải thuộc đúng câu hỏi đó
-async function persistAnswers(attempt, answers) {
+async function persistAnswers(attempt, answers, tx) {
   const questions = await repo.findQuestionsWithOptions(attempt.examId);
   const optionsOf = new Map(questions.map((q) => [q.id, new Set(q.options.map((o) => o.id))]));
 
@@ -122,7 +122,7 @@ async function persistAnswers(attempt, answers) {
     }
     latest.set(a.questionId, a); // cùng một câu gửi nhiều lần: lấy lần cuối
   }
-  await repo.upsertAnswers(attempt.id, [...latest.values()]);
+  await repo.upsertAnswers(attempt.id, [...latest.values()], tx);
 }
 
 // ---------- Học viên làm bài ----------
@@ -164,7 +164,9 @@ async function start(accountId, examId) {
 async function saveAnswers(accountId, attemptId, answers) {
   const attempt = await loadOwnAttempt(accountId, attemptId);
   await assertActive(attempt);
-  await persistAnswers(attempt, answers);
+  // Khóa bài làm khi ghi: không ghi đè đáp án sau khi bài đã được nộp và chấm bởi request khác
+  const saved = await repo.withActiveAttempt(attempt.id, (tx) => persistAnswers(attempt, answers, tx).then(() => true));
+  if (!saved) throw new AppError("Bài làm đã được nộp trước đó", 409);
   return { saved: new Set(answers.map((a) => a.questionId)).size, remainingSeconds: remainingSeconds(attempt) };
 }
 
@@ -174,14 +176,14 @@ async function submit(accountId, attemptId, answers) {
 
   const now = new Date();
   const expired = isExpired(attempt, now);
-  let current = attempt;
 
-  // Quá hạn thì bỏ qua đáp án gửi kèm, chỉ chấm theo đáp án đã lưu trước đó
-  if (!expired && answers && answers.length > 0) {
-    await persistAnswers(attempt, answers);
-    current = await repo.findAttemptById(attemptId);
-  }
-  const closed = await gradeAndClose(current, expired ? deadlineOf(attempt) : now);
+  // Lưu đáp án gửi kèm và chấm điểm trong cùng một khóa bài làm: điểm luôn khớp đáp án đã lưu.
+  // Quá hạn thì bỏ qua đáp án gửi kèm, chỉ chấm theo đáp án đã lưu trước đó.
+  const closed = await repo.withActiveAttempt(attemptId, async (tx) => {
+    if (!expired && answers && answers.length > 0) await persistAnswers(attempt, answers, tx);
+    const current = await repo.findAttemptById(attemptId, tx);
+    return gradeAndClose(current, expired ? deadlineOf(attempt) : now, tx);
+  });
   if (!closed) throw new AppError("Bài làm đã được nộp trước đó", 409);
 
   const done = await repo.findAttemptById(attemptId);

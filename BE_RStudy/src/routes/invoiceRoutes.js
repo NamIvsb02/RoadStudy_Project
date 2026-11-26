@@ -3,13 +3,13 @@ const { authenticate, authorize } = require("../middlewares/authMiddleware");
 const { requirePermission } = require("../middlewares/permissionMiddleware");
 const { buildUploader } = require("../middlewares/uploadMiddleware");
 const validate = require("../middlewares/validateMiddleware");
+const { contentWriteLimiter } = require("../middlewares/rateLimitMiddleware");
 const { PERMISSIONS } = require("../constants/permissions");
 const controller = require("../controllers/invoiceController");
 const { rejectInvoiceSchema, refundRequestSchema, refundNoteSchema, rejectRefundSchema } = require("../validators/invoiceValidator");
 
 // Ảnh minh chứng: JPG/PNG/WEBP, tối đa 5MB, lưu ở uploads/proofs (không mở công khai)
 const uploadProof = buildUploader({
-    folder: "proofs",
     allowedMimes: { "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp" },
     maxSizeMB: 5,
     field: "proof",
@@ -41,7 +41,7 @@ router.patch("/:id/approve", canHandlePayment, controller.approve);
 router.patch("/:id/reject", canHandlePayment, validate(rejectInvoiceSchema), controller.reject);
 
 // ----- Học viên: gửi minh chứng / yêu cầu hoàn tiền -----
-router.post("/:id/proof", authorize("STUDENT"), uploadProof, controller.uploadProof);
+router.post("/:id/proof", authorize("STUDENT"), contentWriteLimiter, uploadProof, controller.uploadProof);
 router.post("/:id/refund-request", authorize("STUDENT"), validate(refundRequestSchema), controller.requestRefund);
 
 // ----- Xem hóa đơn và minh chứng: chủ hóa đơn hoặc admin có quyền -----

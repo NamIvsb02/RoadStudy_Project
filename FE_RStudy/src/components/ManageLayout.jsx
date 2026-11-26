@@ -12,6 +12,7 @@ import UserMenu from "./common/UserMenu";
 import { getManageNav } from "./manage/manageNav";
 import Avatar from "./ui/Avatar";
 import NotificationBell from "./common/NotificationBell";
+import logo from "../assets/images/logo_text-white.png";
 
 const APPROVAL_NOTICE = {
   CHO_DUYET: "Hồ sơ của bạn đang chờ quản trị viên duyệt. Trong lúc chờ, bạn chưa tạo được khóa học.",
@@ -21,7 +22,11 @@ const APPROVAL_NOTICE = {
 function SidebarContent({ items, onNavigate, onLogout }) {
   return (
     <>
-      <div className="px-6 py-5 text-xl font-bold text-white">RoadStudy</div>
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 lg:px-6 my-2">
+        <Link to={ROUTES.HOME} className="shrink-0" aria-label="RoadStudy">
+          <img src={logo} alt="RoadStudy" className="h-16 w-auto" />
+        </Link>
+      </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
         {items.map(({ label, to, icon: Icon, end }) => (
           <NavLink

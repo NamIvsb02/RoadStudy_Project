@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ["feature/**"]
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: FE_RStudy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: FE_RStudy/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          VITE_API_URL: http://localhost:5000/api
+          VITE_ASSET_URL: http://localhost:5000
+      # Lần đầu chỉ báo cáo, chưa chặn PR vì có thể còn lỗ hổng cũ trong dependency
+      - run: npm audit --audit-level=high
+        continue-on-error: true
+
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: BE_RStudy
+    env:
+      # Chuỗi giả: chỉ để Prisma đọc schema, không kết nối database
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      DIRECT_URL: postgresql://ci:ci@localhost:5432/ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: BE_RStudy/package-lock.json
+      - run: npm ci
+      - run: npx prisma validate
+      - run: npx prisma generate
+      - run: npm audit --audit-level=high
+        continue-on-error: true

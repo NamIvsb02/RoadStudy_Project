@@ -39,6 +39,12 @@ const findAndCount = async ({ q, status, categoryId, teacherId, skip, take }) =>
   return { items, total };
 };
 
+// Số đơn còn hiệu lực (đang chờ thanh toán hoặc đã thanh toán) của khóa học
+const countActiveRegistrations = (courseId) =>
+  prisma.courseRegistration.count({
+    where: { courseId, status: { in: ['CHO_THANH_TOAN', 'DA_THANH_TOAN'] } },
+  });
+
 const findById = (id) => prisma.course.findUnique({ where: { id }, include: courseInclude });
 
 // Chỉ tìm khóa học thuộc giáo viên này
@@ -162,6 +168,7 @@ module.exports = {
   findAndCount,
   findById,
   findOwnById,
+  countActiveRegistrations,
   create,
   update,
   transition,

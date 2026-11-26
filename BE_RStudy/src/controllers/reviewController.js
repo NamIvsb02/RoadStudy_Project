@@ -13,7 +13,7 @@ const parseListQuery = (query) => {
   const cleaned = Object.fromEntries(Object.entries(query).filter(([, v]) => v !== ''));
   const result = listQuerySchema.safeParse(cleaned);
   if (!result.success) {
-    const message = result.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
+    const message = result.error.issues.map((i) => (i.path.length > 0 ? `${i.path.join('.')}: ${i.message}` : i.message)).join('; ');
     throw new AppError(message, 400);
   }
   return result.data;

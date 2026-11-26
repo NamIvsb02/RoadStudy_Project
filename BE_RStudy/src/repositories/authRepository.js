@@ -51,11 +51,20 @@ const createOtp = (accountId, purpose, codeHash, expiresAt) => prisma.otpCode.cr
 
 const findLatestValidOtp = (accountId, purpose) =>
   prisma.otpCode.findFirst({
-    where: { accountId, purpose, consumedAt: null, expiresAt: { gt: new Date() } },
+    where: { accountId, purpose, consumedAt: null, expiresAt: { gt: new Date() }, attempts: { lt: 5 } },
     orderBy: { createdAt: "desc" },
   });
 
-const consumeOtp = (id) => prisma.otpCode.update({ where: { id }, data: { consumedAt: new Date() } });
+// Bản ghi OTP mới nhất (kể cả đã hết hạn/đã dùng): để tính thời gian chờ gửi lại
+const findLatestOtp = (accountId, purpose) => prisma.otpCode.findFirst({ where: { accountId, purpose }, orderBy: { createdAt: "desc" } });
+
+const incrementOtpAttempts = (id) => prisma.otpCode.update({ where: { id }, data: { attempts: { increment: 1 } } });
+
+// Chỉ dùng được một lần: request song song đến sau nhận false
+const consumeOtp = async (id) => {
+  const r = await prisma.otpCode.updateMany({ where: { id, consumedAt: null }, data: { consumedAt: new Date() } });
+  return r.count === 1;
+};
 
 const createRefreshToken = (accountId, tokenHash, expiresAt) => prisma.refreshToken.create({ data: { accountId, tokenHash, expiresAt } });
 
@@ -63,7 +72,13 @@ const findValidRefreshToken = (accountId, tokenHash) => prisma.refreshToken.find
 
 const findRefreshTokenByHash = (tokenHash) => prisma.refreshToken.findFirst({ where: { tokenHash, revokedAt: null } });
 
-const revokeRefreshToken = (id) => prisma.refreshToken.update({ where: { id }, data: { revokedAt: new Date() } });
+// Chỉ thu hồi được token còn hiệu lực: request song song đến sau nhận false
+const revokeRefreshToken = async (id) => {
+  const r = await prisma.refreshToken.updateMany({ where: { id, revokedAt: null }, data: { revokedAt: new Date() } });
+  return r.count === 1;
+};
+
+const findRefreshTokenByHashAnyState = (tokenHash) => prisma.refreshToken.findUnique({ where: { tokenHash } });
 
 const revokeAllRefreshTokens = (accountId) => prisma.refreshToken.updateMany({ where: { accountId, revokedAt: null }, data: { revokedAt: new Date() } });
 
@@ -77,10 +92,13 @@ module.exports = {
   updateAccountPassword,
   createOtp,
   findLatestValidOtp,
+  findLatestOtp,
+  incrementOtpAttempts,
   consumeOtp,
   createRefreshToken,
   findValidRefreshToken,
   findRefreshTokenByHash,
   revokeRefreshToken,
+  findRefreshTokenByHashAnyState,
   revokeAllRefreshTokens,
 };

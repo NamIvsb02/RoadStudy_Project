@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { courseApi } from "../../api/courseApi";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import DashboardPanel from "../../components/common/DashboardPanel";
+import NoteDialog from "../../components/common/NoteDialog";
 import Pagination from "../../components/ui/Pagination";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { STATUS_MAPS } from "../../constants/statuses";
@@ -29,7 +30,8 @@ export default function AdminCoursesPage() {
   const request = useCallback(() => courseApi.getAdminList({ ...(status && { status }), ...(search && { q: search }), page, limit: LIMIT }), [status, search, page]);
   const { data, loading, error, reload } = useFetch(request);
   const items = data?.items ?? [];
-  const confirm = action ? CONFIRMS[action.key] : null;
+  const isReject = action?.key === "reject";
+  const confirm = action && !isReject ? CONFIRMS[action.key] : null;
 
   const handleTab = (value) => {
     setStatus(value);
@@ -55,6 +57,13 @@ export default function AdminCoursesPage() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const handleReject = async (reason) => {
+    await runAction(action.course, "reject", reason);
+    setActionError("");
+    setAction(null);
+    reload();
   };
 
   return (
@@ -124,8 +133,18 @@ export default function AdminCoursesPage() {
         </table>
       </DashboardPanel>
       <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <NoteDialog
+        open={isReject}
+        title={`Từ chối khóa học${action ? `: ${action.course.courseName}` : ""}`}
+        label="Lý do từ chối"
+        confirmLabel="Từ chối"
+        danger
+        maxLength={500}
+        onSubmit={handleReject}
+        onCancel={() => setAction(null)}
+      />
       <ConfirmDialog
-        open={Boolean(action)}
+        open={Boolean(action) && !isReject}
         title={confirm?.title}
         message={action ? `${action.course.courseName}. ${confirm.message}` : ""}
         confirmLabel={confirm?.label}

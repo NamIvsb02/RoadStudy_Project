@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const commentController = require('../controllers/commentController');
-const { authenticate, authorize } = require('../middlewares/authMiddleware');
+const { authenticate, optionalAuthenticate, authorize } = require('../middlewares/authMiddleware');
 const validate = require('../middlewares/validateMiddleware');
+const { contentWriteLimiter } = require('../middlewares/rateLimitMiddleware');
 const {
   courseIdParamSchema,
   idParamSchema,
@@ -13,10 +14,11 @@ const {
 const writers = [authenticate, authorize('STUDENT', 'TEACHER')];
 
 // ---------- theo khóa học ----------
-router.get('/course/:courseId', authenticate, validate(courseIdParamSchema, 'params'), commentController.listByCourse);
+router.get('/course/:courseId', optionalAuthenticate, validate(courseIdParamSchema, 'params'), commentController.listByCourse);
 router.post(
   '/course/:courseId',
   ...writers,
+  contentWriteLimiter,
   validate(courseIdParamSchema, 'params'),
   validate(contentBodySchema),
   commentController.create
@@ -35,6 +37,7 @@ router.delete('/replies/:replyId', ...writers, validate(replyIdParamSchema, 'par
 router.post(
   '/:id/replies',
   ...writers,
+  contentWriteLimiter,
   validate(idParamSchema, 'params'),
   validate(contentBodySchema),
   commentController.reply

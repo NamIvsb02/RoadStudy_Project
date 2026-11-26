@@ -5,7 +5,7 @@ import Button from "../ui/Button";
 import FormAlert from "../ui/FormAlert";
 import TextField from "../ui/TextField";
 
-function NoteForm({ label, confirmLabel, danger, children, onSubmit, onCancel }) {
+function NoteForm({ label, confirmLabel, danger, maxLength, children, onSubmit, onCancel }) {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -37,7 +37,7 @@ function NoteForm({ label, confirmLabel, danger, children, onSubmit, onCancel })
 
   return (
     <form onSubmit={handleSubmit} noValidate className="mt-4 flex flex-col gap-4">
-      <TextField id="note-text" label={label} required multiline rows={4} maxLength={1000} value={text} onChange={(event) => setText(event.target.value)} />
+      <TextField id="note-text" label={label} required multiline rows={4} maxLength={maxLength} value={text} onChange={(event) => setText(event.target.value)} />
       {children}
       <FormAlert message={error} />
       <div className="flex justify-end gap-3">
@@ -52,7 +52,7 @@ function NoteForm({ label, confirmLabel, danger, children, onSubmit, onCancel })
   );
 }
 
-export default function NoteDialog({ open, title, label, confirmLabel, danger = false, children, onSubmit, onCancel }) {
+export default function NoteDialog({ open, title, label, confirmLabel, danger = false, maxLength = 1000, children, onSubmit, onCancel }) {
   const titleId = useId();
 
   return (
@@ -63,7 +63,7 @@ export default function NoteDialog({ open, title, label, confirmLabel, danger = 
             <h2 id={titleId} className="text-lg font-semibold text-ink">
               {title}
             </h2>
-            <NoteForm label={label} confirmLabel={confirmLabel} danger={danger} onSubmit={onSubmit} onCancel={onCancel}>
+            <NoteForm label={label} confirmLabel={confirmLabel} danger={danger} maxLength={maxLength} onSubmit={onSubmit} onCancel={onCancel}>
               {children}
             </NoteForm>
           </motion.div>

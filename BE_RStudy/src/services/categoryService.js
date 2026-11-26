@@ -1,5 +1,6 @@
 const { CategoryStatus } = require('@prisma/client');
 const AppError = require('../utils/AppError');
+const cache = require('../utils/cache');
 const categoryRepository = require('../repositories/categoryRepository');
 
 const buildPagination = ({ page, limit }, total) => ({
@@ -21,7 +22,9 @@ const assertNameAvailable = async (name, excludeId) => {
 };
 
 //PUBLIC: chỉ danh mục đang hoạt động
-const getPublicList = async ({ q, ...pg }) => {
+const getPublicList = (params) => (params.q ? loadPublicList(params) : cache.getOrSet("category:list", params, () => loadPublicList(params)));
+
+const loadPublicList = async ({ q, ...pg }) => {
   const { items, total } = await categoryRepository.findAndCount({
     q,
     status: CategoryStatus.HOAT_DONG,

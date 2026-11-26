@@ -15,12 +15,18 @@ let refreshPromise = null;
 
 const refreshTokens = () => {
   if (!refreshPromise) {
+    const sent = tokenStorage.getRefresh();
     refreshPromise = axios
-      .post(`${baseURL}/auth/refresh`, { refreshToken: tokenStorage.getRefresh() })
+      .post(`${baseURL}/auth/refresh`, { refreshToken: sent })
       .then((res) => {
         const { accessToken, refreshToken } = res.data.data;
         tokenStorage.set(accessToken, refreshToken);
         return accessToken;
+      })
+      .catch((err) => {
+        // Tab khác đã refresh xong trước (token trong localStorage đã đổi): dùng token mới, không đăng xuất
+        if (tokenStorage.getRefresh() !== sent && tokenStorage.getAccess()) return tokenStorage.getAccess();
+        throw err;
       })
       .finally(() => {
         refreshPromise = null;

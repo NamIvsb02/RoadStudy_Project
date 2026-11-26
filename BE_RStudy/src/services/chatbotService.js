@@ -4,6 +4,9 @@ const recommendationService = require("./recommendationService");
 
 const HISTORY_LIMIT = 6;
 const MAX_MESSAGES_PER_MINUTE = 6;
+const MAX_MESSAGES_PER_DAY = 50;
+const TOO_FAST_TEXT = "Bạn gửi tin nhắn quá nhanh, vui lòng thử lại sau ít phút";
+const inFlight = new Set();
 const AI_UNAVAILABLE_TEXT =
     "Xin lỗi, trợ lý AI hiện chưa phản hồi được. Bạn vui lòng dùng chức năng tìm kiếm và bộ lọc khóa học để tìm khóa phù hợp nhé.";
 
@@ -19,18 +22,38 @@ async function loadOwnConversation(studentId, id) {
     return conversation;
 }
 
-// Không gửi conversationId thì tạo cuộc trò chuyện mới
-async function sendMessage(accountId, { conversationId, content }) {
+// Không gửi conversationId thì tạo cuộc trò chuyện mới.
+// Mỗi học viên chỉ có một tin được xử lý (chờ AI) tại một thời điểm: tin thứ hai bị từ chối ngay, không chạm DB,
+// nên gửi dồn không làm cạn pool kết nối. Chỉ đúng với một instance; khóa DB trong withStudentLock là lớp dự phòng.
+async function sendMessage(accountId, payload) {
     const studentId = await requireStudentId(accountId);
-
-    const since = new Date(Date.now() - 60 * 1000);
-    if ((await repo.countRecentStudentMessages(studentId, since)) >= MAX_MESSAGES_PER_MINUTE) {
-        throw new AppError("Bạn gửi tin nhắn quá nhanh, vui lòng thử lại sau ít phút", 429);
+    if (inFlight.has(studentId)) throw new AppError(TOO_FAST_TEXT, 429);
+    inFlight.add(studentId);
+    try {
+        return await processMessage(studentId, payload);
+    } finally {
+        inFlight.delete(studentId);
     }
+}
 
-    const conversation = conversationId ? await loadOwnConversation(studentId, conversationId) : await repo.createConversation(studentId);
-    const history = conversationId ? await repo.findRecentMessages(conversation.id, HISTORY_LIMIT) : [];
-    const userMessage = await repo.createStudentMessage(conversation.id, content);
+async function processMessage(studentId, { conversationId, content }) {
+    const existing = conversationId ? await loadOwnConversation(studentId, conversationId) : null;
+    const history = existing ? await repo.findRecentMessages(existing.id, HISTORY_LIMIT) : [];
+
+    // Kiểm tra hạn mức và lưu tin nhắn trong cùng một khóa: gửi dồn nhiều tin cùng lúc không lọt qua giới hạn
+    const saved = await repo.withStudentLock(studentId, async (tx) => {
+        const now = Date.now();
+        if ((await repo.countRecentStudentMessages(studentId, new Date(now - 60 * 1000), tx)) >= MAX_MESSAGES_PER_MINUTE) {
+            throw new AppError(TOO_FAST_TEXT, 429);
+        }
+        if ((await repo.countRecentStudentMessages(studentId, new Date(now - 24 * 60 * 60 * 1000), tx)) >= MAX_MESSAGES_PER_DAY) {
+            throw new AppError(`Bạn đã dùng hết ${MAX_MESSAGES_PER_DAY} tin nhắn trong 24 giờ qua, vui lòng quay lại sau`, 429);
+        }
+        const target = existing ?? (await repo.createConversation(studentId, tx));
+        return { conversation: target, userMessage: await repo.createStudentMessage(target.id, content, tx) };
+    });
+    if (!saved) throw new AppError(TOO_FAST_TEXT, 429);
+    const { conversation, userMessage } = saved;
 
     let reply;
     let degraded = false;

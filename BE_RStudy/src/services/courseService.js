@@ -1,5 +1,7 @@
-const { CourseStatus, CategoryStatus, ApprovalStatus } = require("@prisma/client");
+const { CourseStatus, CategoryStatus, ApprovalStatus, Prisma } = require("@prisma/client");
 const AppError = require("../utils/AppError");
+const storage = require("../utils/storage");
+const cache = require("../utils/cache");
 const courseRepository = require("../repositories/courseRepository");
 const categoryRepository = require("../repositories/categoryRepository");
 const notificationService = require("./notificationService");
@@ -93,6 +95,14 @@ const updateByTeacher = async (accountId, id, data) => {
   const end = data.endDate ?? course.endDate;
   if (end <= start) throw new AppError("Ngày kết thúc phải sau ngày bắt đầu", 400);
 
+  // Khóa đã có học viên thì không đổi học phí và thời gian học (gửi lại đúng giá trị cũ vẫn được)
+  const priceChanged = data.price !== undefined && !new Prisma.Decimal(data.price).toDecimalPlaces(2).equals(course.price);
+  const startChanged = data.startDate !== undefined && data.startDate.getTime() !== course.startDate.getTime();
+  const endChanged = data.endDate !== undefined && data.endDate.getTime() !== course.endDate.getTime();
+  if ((priceChanged || startChanged || endChanged) && (await courseRepository.countActiveRegistrations(id)) > 0) {
+    throw new AppError("Khóa học đã có học viên đăng ký nên không thể đổi học phí hoặc thời gian học", 409);
+  }
+
   return courseRepository.update(id, data);
 };
 
@@ -138,8 +148,10 @@ const getAdminById = async (id) => {
   return course;
 };
 
-const changeStatusByAdmin = async (id, toStatus) => {
+const changeStatusByAdmin = async (id, toStatus, reason) => {
   const course = await getAdminById(id);
+  const isRejection = course.status === CourseStatus.CHO_DUYET && toStatus === CourseStatus.BAN_NHAP;
+  if (isRejection && !reason) throw new AppError("Vui lòng nhập lý do từ chối", 400);
   const allowed = ADMIN_TRANSITIONS[course.status] || [];
   if (!allowed.includes(toStatus)) {
     throw new AppError(`Không thể chuyển khóa học từ ${course.status} sang ${toStatus}`, 409);
@@ -160,7 +172,7 @@ const changeStatusByAdmin = async (id, toStatus) => {
     await notificationService.notifyTeacher(course.teacherId, {
       type: approved ? "COURSE_APPROVED" : "COURSE_REJECTED",
       title: approved ? "Khóa học đã được duyệt" : "Khóa học bị từ chối, cần chỉnh sửa",
-      body: course.courseName,
+      body: approved ? course.courseName : `${course.courseName}. Lý do: ${reason}`,
       link: "/teacher/courses",
     });
   }
@@ -177,7 +189,10 @@ const attachRating = (course, stats) => {
   };
 };
 
-const getPublicList = async ({ q, categoryId, teacherId, minPrice, maxPrice, sort, ...pg }) => {
+// Cache cho khách xem (dữ liệu giống nhau với mọi người). Tìm kiếm theo từ khóa không cache: số khóa khác nhau không giới hạn
+const getPublicList = (params) => (params.q ? loadPublicList(params) : cache.getOrSet("course:list", params, () => loadPublicList(params)));
+
+const loadPublicList = async ({ q, categoryId, teacherId, minPrice, maxPrice, sort, ...pg }) => {
   const { items, total } = await courseRepository.findPublicAndCount({
     q,
     categoryId,
@@ -196,7 +211,9 @@ const getPublicList = async ({ q, categoryId, teacherId, minPrice, maxPrice, sor
 };
 
 // Khóa chưa mở, đã ngưng/kết thúc hoặc thuộc danh mục ẩn đều trả 404 như không tồn tại
-const getPublicById = async (id) => {
+const getPublicById = (id) => cache.getOrSet("course:detail", { id }, () => loadPublicById(id));
+
+const loadPublicById = async (id) => {
   const course = await courseRepository.findPublicById(id);
   if (!course) throw new AppError("Khóa học không tồn tại", 404);
   const stats = await courseRepository.getRatingStats([course.id]);
@@ -204,7 +221,10 @@ const getPublicById = async (id) => {
 };
 
 const approve = (id) => changeStatusByAdmin(id, CourseStatus.DA_PHE_DUYET);
-const reject = (id) => changeStatusByAdmin(id, CourseStatus.BAN_NHAP);
+const reject = (id, reason) => changeStatusByAdmin(id, CourseStatus.BAN_NHAP, reason);
+
+// Ảnh bìa được lưu ngay khi tải lên; nếu giáo viên bỏ form không lưu khóa học thì ảnh thừa được dọn bằng scripts/cleanup-orphan-files.js
+const uploadCover = (file) => storage.save(file, "covers");
 
 module.exports = {
   createByTeacher,
@@ -219,4 +239,5 @@ module.exports = {
   reject,
   getPublicList,
   getPublicById,
+  uploadCover,
 };

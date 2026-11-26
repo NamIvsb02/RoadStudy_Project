@@ -2,7 +2,8 @@ const commentService = require('../services/commentService');
 const { getPagination } = require('../utils/pagination');
 const { formatResponse } = require('../utils/response');
 
-const currentUser = (req) => ({ id: req.user.id, role: req.user.role });
+// Khách chưa đăng nhập (API công khai) thì không có req.user
+const currentUser = (req) => (req.user ? { id: req.user.id, role: req.user.role } : null);
 
 //BÌNH LUẬN
 exports.listByCourse = async (req, res) => {

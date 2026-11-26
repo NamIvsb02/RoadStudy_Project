@@ -88,7 +88,10 @@ const callOpenAiCompatible = async (request, { apiKey, baseUrl, model, jsonMode 
     }
     await failIfNotOk(res, "Dịch vụ AI");
     const body = await res.json();
-    return body.choices?.[0]?.message?.content ?? "";
+    return {
+        text: body.choices?.[0]?.message?.content ?? "",
+        usage: { input: body.usage?.prompt_tokens, output: body.usage?.completion_tokens },
+    };
 };
 
 const callGemini = async ({ system, prompt, temperature, signal }, { apiKey, model }) => {
@@ -105,7 +108,10 @@ const callGemini = async ({ system, prompt, temperature, signal }, { apiKey, mod
     });
     await failIfNotOk(res, "Gemini");
     const body = await res.json();
-    return (body.candidates?.[0]?.content?.parts ?? []).map((part) => part.text ?? "").join("");
+    return {
+        text: (body.candidates?.[0]?.content?.parts ?? []).map((part) => part.text ?? "").join(""),
+        usage: { input: body.usageMetadata?.promptTokenCount, output: body.usageMetadata?.candidatesTokenCount },
+    };
 };
 
 // Gọi mô hình AI và nhận về một object JSON. Mọi lỗi (thiếu key, quá thời gian, HTTP lỗi, sai định dạng) đều ném AiError.
@@ -114,9 +120,12 @@ const generateJson = async ({ system, prompt, temperature = 0.2 }) => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), config.timeoutMs);
     const request = { system, prompt, temperature, signal: controller.signal };
+    const startedAt = Date.now();
 
     try {
-        const text = config.provider === "gemini" ? await callGemini(request, config.gemini) : await callOpenAiCompatible(request, config.openai);
+        const { text, usage } = config.provider === "gemini" ? await callGemini(request, config.gemini) : await callOpenAiCompatible(request, config.openai);
+        // Theo dõi chi phí: chỉ ghi số token và thời gian, không ghi nội dung prompt
+        console.log(`[AI] provider=${config.provider} model=${(config.provider === "gemini" ? config.gemini : config.openai).model} in=${usage.input ?? "?"} out=${usage.output ?? "?"} ms=${Date.now() - startedAt}`);
         if (!text) throw new AiError("AI không trả về nội dung");
         return parseJson(text);
     } catch (err) {

@@ -18,14 +18,13 @@ export const STEPS = {
 
 export const CONFIRMS = {
   approve: { title: "Duyệt khóa học?", message: "Khóa học chuyển sang Đã phê duyệt, bạn mở đăng ký sau.", label: "Duyệt" },
-  reject: { title: "Từ chối khóa học?", message: "Khóa học quay về bản nháp để giáo viên chỉnh sửa.", label: "Từ chối", danger: true },
   DANG_MO: { title: "Mở đăng ký khóa học?", message: "Học viên sẽ thấy và đăng ký được khóa học này.", label: "Mở đăng ký" },
   TAM_NGUNG: { title: "Tạm ngưng khóa học?", message: "Khóa học sẽ không hiển thị với học viên cho đến khi mở lại.", label: "Tạm ngưng" },
   DA_KET_THUC: { title: "Kết thúc khóa học?", message: "Khóa học đã kết thúc không thể mở lại.", label: "Kết thúc", danger: true },
 };
 
-export const runAction = (course, key) => {
+export const runAction = (course, key, reason) => {
   if (key === "approve") return courseApi.approve(course.id);
-  if (key === "reject") return courseApi.reject(course.id);
+  if (key === "reject") return courseApi.reject(course.id, reason);
   return courseApi.changeStatus(course.id, key);
 };
