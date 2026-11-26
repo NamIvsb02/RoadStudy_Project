@@ -3,40 +3,38 @@ import ResultBadge from "../../../components/common/ResultBadge";
 import { ROUTES } from "../../../constants/routes";
 import { formatDateTime } from "../../../utils/format";
 import { formatScore } from "../../exam/examFormat";
-
-const th = "bg-primary/10 px-3 py-2 text-left text-xs font-semibold text-primary";
-const td = "border-b border-line px-3 py-2.5 text-sm text-ink";
+import { ACTION_LINK, TABLE, TBODY, TD, TD_ACTION, TH, TR } from "../../manage/tableStyles";
 
 export default function SubmissionTable({ items, showCourse }) {
   return (
-    <table className="w-full min-w-[760px]">
+    <table className={`${TABLE} min-w-[760px]`}>
       <thead>
         <tr>
-          <th className={th}>Học viên</th>
-          {showCourse && <th className={th}>Khóa học</th>}
-          <th className={th}>Đề thi</th>
-          <th className={th}>Bắt đầu</th>
-          <th className={th}>Điểm</th>
-          <th className={th}>Kết quả</th>
-          <th className={th} />
+          <th className={TH}>Học viên</th>
+          {showCourse && <th className={TH}>Khóa học</th>}
+          <th className={TH}>Đề thi</th>
+          <th className={TH}>Bắt đầu</th>
+          <th className={TH}>Điểm</th>
+          <th className={TH}>Kết quả</th>
+          <th className={TH} />
         </tr>
       </thead>
-      <tbody>
+      <tbody className={TBODY}>
         {items.map((attempt) => (
-          <tr key={attempt.id}>
-            <td className={td}>
+          <tr key={attempt.id} className={TR}>
+            <td className={TD}>
               <p className="font-medium">{attempt.student.account.fullName}</p>
               <p className="text-xs text-muted">{attempt.student.account.email}</p>
             </td>
-            {showCourse && <td className={td}>{attempt.course.courseName}</td>}
-            <td className={td}>{attempt.examName}</td>
-            <td className={td}>{formatDateTime(attempt.startTime)}</td>
-            <td className={td}>{formatScore(attempt.score)}</td>
-            <td className={td}>
+            {showCourse && <td className={TD}>{attempt.course.courseName}</td>}
+            <td className={TD}>{attempt.examName}</td>
+            <td className={TD}>{formatDateTime(attempt.startTime)}</td>
+            <td className={TD}>{formatScore(attempt.score)}</td>
+            <td className={TD}>
               <ResultBadge passed={attempt.passed} status={attempt.status} />
             </td>
-            <td className={td}>
-              <Link to={generatePath(ROUTES.TEACHER.ATTEMPT, { id: attempt.id })} className="text-xs font-semibold text-primary hover:underline">
+            <td className={TD_ACTION}>
+              <Link to={generatePath(ROUTES.TEACHER.ATTEMPT, { id: attempt.id })} className={ACTION_LINK}>
                 Xem chi tiết
               </Link>
             </td>

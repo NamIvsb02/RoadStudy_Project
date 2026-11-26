@@ -3,6 +3,7 @@ import { resourceApi } from "../../api/resourceApi";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useAuth } from "../../hooks/useAuth";
 import ResourceBrowser from "../resource/ResourceBrowser";
+import ActionError from "../manage/ActionError";
 import UploadForm from "./resource/UploadForm";
 
 export default function TeacherResourcesPage() {
@@ -30,11 +31,7 @@ export default function TeacherResourcesPage() {
   return (
     <div className="flex flex-col gap-4">
       <UploadForm onUploaded={reload} />
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-          {actionError}
-        </p>
-      )}
+      <ActionError message={actionError} />
       <ResourceBrowser reloadKey={reloadKey} canDelete={(resource) => resource.uploadedBy?.id === account.teacher?.id} onDelete={setTarget} />
       <ConfirmDialog
         open={Boolean(target)}

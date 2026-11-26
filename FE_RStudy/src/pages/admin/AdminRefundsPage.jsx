@@ -3,16 +3,26 @@ import { invoiceApi } from "../../api/invoiceApi";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import DashboardPanel from "../../components/common/DashboardPanel";
 import NoteDialog from "../../components/common/NoteDialog";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { STATUS_MAPS } from "../../constants/statuses";
 import { useFetch } from "../../hooks/useFetch";
 import RefundCard from "./refund/RefundCard";
+import StatusTabs from "../manage/StatusTabs";
+import ActionError from "../manage/ActionError";
 
 const LIMIT = 10;
 const TABS = [["", "Tất cả"], ...Object.entries(STATUS_MAPS.SupportRequestStatus).map(([value, { label }]) => [value, label])];
 const CONFIRMS = {
-  approve: { title: "Chấp thuận hoàn tiền?", message: "Học viên sẽ được báo là yêu cầu đã được chấp thuận. Đơn chưa bị đổi trạng thái cho đến khi bạn xác nhận đã hoàn tiền.", label: "Chấp thuận" },
-  complete: { title: "Xác nhận đã hoàn tiền?", message: "Chỉ bấm khi bạn đã chuyển khoản hoàn tiền cho học viên. Đơn đăng ký và hóa đơn sẽ chuyển sang Đã hoàn tiền.", label: "Đã hoàn tiền" },
+  approve: {
+    title: "Chấp thuận hoàn tiền?",
+    message: "Học viên sẽ được báo là yêu cầu đã được chấp thuận. Đơn chưa bị đổi trạng thái cho đến khi bạn xác nhận đã hoàn tiền.",
+    label: "Chấp thuận",
+  },
+  complete: {
+    title: "Xác nhận đã hoàn tiền?",
+    message: "Chỉ bấm khi bạn đã chuyển khoản hoàn tiền cho học viên. Đơn đăng ký và hóa đơn sẽ chuyển sang Đã hoàn tiền.",
+    label: "Đã hoàn tiền",
+  },
 };
 
 export default function AdminRefundsPage() {
@@ -23,7 +33,15 @@ export default function AdminRefundsPage() {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
 
-  const request = useCallback(() => invoiceApi.getRefundRequests({ ...(status && { status }), page, limit: LIMIT }), [status, page]);
+  const request = useCallback(
+    () =>
+      invoiceApi.getRefundRequests({
+        ...(status && { status }),
+        page,
+        limit: LIMIT,
+      }),
+    [status, page],
+  );
   const { data, loading, error, reload } = useFetch(request);
   const items = data?.items ?? [];
   const confirm = action && action.type !== "reject" ? CONFIRMS[action.type] : null;
@@ -62,25 +80,8 @@ export default function AdminRefundsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" className="flex flex-wrap gap-2">
-        {TABS.map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            role="tab"
-            aria-selected={status === value}
-            onClick={() => handleTab(value)}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${status === value ? "bg-primary text-white" : "bg-white text-ink hover:bg-soft"}`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-          {actionError}
-        </p>
-      )}
+      <StatusTabs tabs={TABS} value={status} onChange={handleTab} />
+      <ActionError message={actionError} />
       <DashboardPanel title="Yêu cầu hoàn tiền" loading={loading} error={error} empty={items.length === 0} emptyText="Không có yêu cầu nào trong mục này.">
         <div className="flex flex-col gap-3">
           {items.map((item) => (
@@ -88,9 +89,24 @@ export default function AdminRefundsPage() {
           ))}
         </div>
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
-      <ConfirmDialog open={Boolean(confirm)} title={confirm?.title} message={confirm?.message} confirmLabel={confirm?.label} onConfirm={handleConfirm} onCancel={() => setAction(null)} />
-      <NoteDialog open={action?.type === "reject"} title="Từ chối yêu cầu hoàn tiền" label="Lý do từ chối" confirmLabel="Từ chối" danger onSubmit={handleReject} onCancel={() => setAction(null)}>
+      <Pagination pagination={data?.pagination} onChange={setPage} />
+      <ConfirmDialog
+        open={Boolean(confirm)}
+        title={confirm?.title}
+        message={confirm?.message}
+        confirmLabel={confirm?.label}
+        onConfirm={handleConfirm}
+        onCancel={() => setAction(null)}
+      />
+      <NoteDialog
+        open={action?.type === "reject"}
+        title="Từ chối yêu cầu hoàn tiền"
+        label="Lý do từ chối"
+        confirmLabel="Từ chối"
+        danger
+        onSubmit={handleReject}
+        onCancel={() => setAction(null)}
+      >
         {unpaid && (
           <label className="flex cursor-pointer items-start gap-3 text-sm text-ink">
             <input type="checkbox" checked={cancelRegistration} onChange={(event) => setCancelRegistration(event.target.checked)} className="mt-0.5 size-4 accent-primary" />

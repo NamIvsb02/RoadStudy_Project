@@ -1,12 +1,13 @@
+import { ACTION_LINK, ACTIONS } from "../../manage/tableStyles";
 import { STEPS } from "./courseActions";
 
 export default function AdminCourseActions({ course, busy, onAction }) {
   const steps = STEPS[course.status] ?? [];
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <div className={ACTIONS}>
       {steps.map((step) => (
-        <button key={step.key} type="button" disabled={busy} onClick={() => onAction(course, step.key)} className="text-xs font-semibold text-primary hover:underline disabled:opacity-50">
+        <button key={step.key} type="button" disabled={busy} onClick={() => onAction(course, step.key)} className={ACTION_LINK}>
           {step.label}
         </button>
       ))}

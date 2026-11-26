@@ -3,33 +3,31 @@ import DashboardPanel from "../../../components/common/DashboardPanel";
 import { ROUTES } from "../../../constants/routes";
 import { useFetch } from "../../../hooks/useFetch";
 import { fetchPendingPayments } from "./dashboardConfig";
-
-const th = "bg-primary/10 px-3 py-2 text-left text-xs font-semibold text-primary";
-const td = "border-b border-line px-3 py-2.5 text-sm text-ink";
+import { ACTION_LINK, TABLE, TBODY, TD, TD_ACTION, TH, TR } from "../../manage/tableStyles";
 
 export default function PaymentsTable() {
   const { data, loading, error } = useFetch(fetchPendingPayments);
   const items = data?.items ?? [];
 
   return (
-    <DashboardPanel title="Thanh toán chờ xác nhận" loading={loading} error={error} empty={items.length === 0} emptyText="Không có thanh toán nào đang chờ.">
-      <table className="w-full">
+    <DashboardPanel title="Thanh toán chờ xác nhận" skeleton="table" flush loading={loading} error={error} empty={items.length === 0} emptyText="Không có thanh toán nào đang chờ.">
+      <table className={TABLE}>
         <thead>
           <tr>
-            <th className={th}>Học viên</th>
-            <th className={th}>Khóa học</th>
-            <th className={th}>Số tiền</th>
-            <th className={th} />
+            <th className={TH}>Học viên</th>
+            <th className={TH}>Khóa học</th>
+            <th className={TH}>Số tiền</th>
+            <th className={TH} />
           </tr>
         </thead>
-        <tbody>
+        <tbody className={TBODY}>
           {items.map((invoice) => (
-            <tr key={invoice.id}>
-              <td className={td}>{invoice.student.account.fullName}</td>
-              <td className={td}>{invoice.registration.course.courseName}</td>
-              <td className={td}>{Number(invoice.totalAmount).toLocaleString("vi-VN")}đ</td>
-              <td className={td}>
-                <Link to={ROUTES.ADMIN.PAYMENTS} className="text-xs font-semibold text-primary hover:underline">
+            <tr key={invoice.id} className={TR}>
+              <td className={TD}>{invoice.student.account.fullName}</td>
+              <td className={TD}>{invoice.registration.course.courseName}</td>
+              <td className={TD}>{Number(invoice.totalAmount).toLocaleString("vi-VN")}đ</td>
+              <td className={TD_ACTION}>
+                <Link to={ROUTES.ADMIN.PAYMENTS} className={ACTION_LINK}>
                   Xem
                 </Link>
               </td>

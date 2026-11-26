@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from "react-router-dom";
 import BackButton from "../../components/common/BackButton";
+import EmptyState from "../../components/common/EmptyState";
 import { ROUTES } from "../../constants/routes";
 import ExamForm from "./exam/ExamForm";
 
@@ -9,11 +10,15 @@ export default function ExamNewPage() {
 
   if (!courseId) {
     return (
-      <div className="rounded-xl border border-line bg-white p-8 text-center">
-        <p className="text-sm text-muted">Chưa chọn khóa học để tạo đề thi.</p>
-        <Link to={ROUTES.TEACHER.EXAMS} className="mt-3 inline-block text-sm font-semibold text-primary hover:underline">
-          Về trang Đề thi
-        </Link>
+      <div className="rounded-xl border border-line bg-white">
+        <EmptyState
+          title="Chưa chọn khóa học để tạo đề thi."
+          action={
+            <Link to={ROUTES.TEACHER.EXAMS} className="inline-flex min-h-11 items-center text-sm font-semibold text-primary hover:underline">
+              Về trang Đề thi
+            </Link>
+          }
+        />
       </div>
     );
   }

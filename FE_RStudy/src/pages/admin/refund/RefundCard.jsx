@@ -17,7 +17,7 @@ export default function RefundCard({ request, busy, onApprove, onComplete, onRej
           {student.account.fullName} ({student.account.email}) · {formatVND(invoice?.totalAmount)}
         </p>
       </div>
-      <p className="rounded-lg bg-soft p-3 text-sm whitespace-pre-line text-ink">{request.description}</p>
+      <p className="rounded-lg bg-surface p-3 text-sm whitespace-pre-line text-ink">{request.description}</p>
       {request.adminNote && (
         <p className="text-sm text-ink">
           <span className="font-medium">Ghi chú xử lý:</span> {request.adminNote}

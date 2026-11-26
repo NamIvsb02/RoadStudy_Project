@@ -3,31 +3,37 @@ import DashboardPanel from "../../../components/common/DashboardPanel";
 import { ROUTES } from "../../../constants/routes";
 import { useFetch } from "../../../hooks/useFetch";
 import { fetchPendingTeachers } from "./dashboardConfig";
-
-const th = "bg-primary/10 px-3 py-2 text-left text-xs font-semibold text-primary";
-const td = "border-b border-line px-3 py-2.5 text-sm text-ink";
+import { ACTION_LINK, TABLE, TBODY, TD, TD_ACTION, TH, TR } from "../../manage/tableStyles";
 
 export default function TeachersTable() {
   const { data, loading, error } = useFetch(fetchPendingTeachers);
   const items = data?.items ?? [];
 
   return (
-    <DashboardPanel title="Giáo viên chờ duyệt" loading={loading} error={error} empty={items.length === 0} emptyText="Không có giáo viên nào đang chờ duyệt.">
-      <table className="w-full">
+    <DashboardPanel
+      title="Giáo viên chờ duyệt"
+      skeleton="table"
+      flush
+      loading={loading}
+      error={error}
+      empty={items.length === 0}
+      emptyText="Không có giáo viên nào đang chờ duyệt."
+    >
+      <table className={TABLE}>
         <thead>
           <tr>
-            <th className={th}>Họ tên</th>
-            <th className={th}>Chuyên môn</th>
-            <th className={th} />
+            <th className={TH}>Họ tên</th>
+            <th className={TH}>Chuyên môn</th>
+            <th className={TH} />
           </tr>
         </thead>
-        <tbody>
+        <tbody className={TBODY}>
           {items.map((teacher) => (
-            <tr key={teacher.id}>
-              <td className={td}>{teacher.account.fullName}</td>
-              <td className={td}>{teacher.specialization}</td>
-              <td className={td}>
-                <Link to={ROUTES.ADMIN.TEACHER_APPROVAL} className="text-xs font-semibold text-primary hover:underline">
+            <tr key={teacher.id} className={TR}>
+              <td className={TD}>{teacher.account.fullName}</td>
+              <td className={TD}>{teacher.specialization}</td>
+              <td className={TD_ACTION}>
+                <Link to={ROUTES.ADMIN.TEACHER_APPROVAL} className={ACTION_LINK}>
                   Xem xét
                 </Link>
               </td>

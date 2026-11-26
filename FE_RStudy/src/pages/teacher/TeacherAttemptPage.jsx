@@ -4,7 +4,7 @@ import { submissionApi } from "../../api/submissionApi";
 import BackButton from "../../components/common/BackButton";
 import ResultBadge from "../../components/common/ResultBadge";
 import FormAlert from "../../components/ui/FormAlert";
-import LoadingState from "../../components/ui/LoadingState";
+import ListSkeleton from "../../components/common/ListSkeleton";
 import { ROUTES } from "../../constants/routes";
 import { useFetch } from "../../hooks/useFetch";
 import { formatDateTime } from "../../utils/format";
@@ -18,7 +18,7 @@ export default function TeacherAttemptPage() {
   const fallback = data ? generatePath(ROUTES.TEACHER.EXAM_SUBMISSIONS, { id: data.examId }) : ROUTES.TEACHER.EXAMS;
   const back = <BackButton fallback={fallback}>Quay lại danh sách bài làm</BackButton>;
 
-  if (loading) return <LoadingState />;
+  if (loading) return <ListSkeleton />;
   if (error) {
     return (
       <div className="flex flex-col gap-4">

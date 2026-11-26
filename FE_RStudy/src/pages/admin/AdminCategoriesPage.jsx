@@ -3,18 +3,20 @@ import { categoryApi } from "../../api/categoryApi";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import DashboardPanel from "../../components/common/DashboardPanel";
 import Button from "../../components/ui/Button";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { STATUS_MAPS } from "../../constants/statuses";
 import { useFetch } from "../../hooks/useFetch";
 import CategoryDialog from "./category/CategoryDialog";
 import CategoryTable from "./category/CategoryTable";
+import ActionError from "../manage/ActionError";
+import StatusTabs from "../manage/StatusTabs";
+import SearchField from "../manage/SearchField";
 
 const LIMIT = 10;
 const TABS = [["", "Tất cả"], ...Object.entries(STATUS_MAPS.CategoryStatus).map(([value, { label }]) => [value, label])];
 
 export default function AdminCategoriesPage() {
   const [status, setStatus] = useState("");
-  const [keyword, setKeyword] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [dialog, setDialog] = useState(null);
@@ -22,7 +24,16 @@ export default function AdminCategoriesPage() {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
 
-  const request = useCallback(() => categoryApi.getAdminList({ ...(status && { status }), ...(search && { q: search }), page, limit: LIMIT }), [status, search, page]);
+  const request = useCallback(
+    () =>
+      categoryApi.getAdminList({
+        ...(status && { status }),
+        ...(search && { q: search }),
+        page,
+        limit: LIMIT,
+      }),
+    [status, search, page],
+  );
   const { data, loading, error, reload } = useFetch(request);
   const items = data?.items ?? [];
   const isDelete = confirm?.type === "delete";
@@ -33,9 +44,8 @@ export default function AdminCategoriesPage() {
     setPage(1);
   };
 
-  const handleSearch = (event) => {
-    event.preventDefault();
-    setSearch(keyword.trim());
+  const handleSearch = (value) => {
+    setSearch(value);
     setPage(1);
   };
 
@@ -76,39 +86,21 @@ export default function AdminCategoriesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="tablist" className="flex flex-wrap gap-2">
-          {TABS.map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={status === value}
-              onClick={() => handleTab(value)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${status === value ? "bg-primary text-white" : "bg-white text-ink hover:bg-soft"}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <Button onClick={() => setDialog({ category: null })}>Tạo danh mục</Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <StatusTabs tabs={TABS} value={status} onChange={handleTab} />
+        <SearchField placeholder="Tìm theo tên danh mục, nhấn Enter" label="Tìm danh mục" onSearch={handleSearch} />
       </div>
-      <form role="search" onSubmit={handleSearch}>
-        <input
-          type="search"
-          value={keyword}
-          onChange={(event) => setKeyword(event.target.value)}
-          placeholder="Tìm theo tên danh mục, nhấn Enter"
-          aria-label="Tìm danh mục"
-          className="h-10 w-full max-w-md rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/30"
-        />
-      </form>
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-          {actionError}
-        </p>
-      )}
-      <DashboardPanel title="Danh mục khóa học" loading={loading} error={error} empty={items.length === 0} emptyText="Chưa có danh mục nào.">
+      <ActionError message={actionError} />
+      <DashboardPanel
+        title="Danh mục khóa học"
+        actions={<Button onClick={() => setDialog({ category: null })}>Tạo danh mục</Button>}
+        skeleton="table"
+        flush
+        loading={loading}
+        error={error}
+        empty={items.length === 0}
+        emptyText="Chưa có danh mục nào."
+      >
         <CategoryTable
           items={items}
           busy={busy}
@@ -117,7 +109,7 @@ export default function AdminCategoriesPage() {
           onDelete={(category) => setConfirm({ type: "delete", category })}
         />
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
       <CategoryDialog dialog={dialog} onSubmit={handleSave} onClose={() => setDialog(null)} />
       <ConfirmDialog
         open={Boolean(confirm)}

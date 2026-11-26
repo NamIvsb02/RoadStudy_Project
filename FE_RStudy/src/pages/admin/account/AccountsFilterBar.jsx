@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ROLE_LABELS, STATUS_MAPS } from "../../../constants/statuses";
 
-const fieldClass = "h-10 rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/30";
+const fieldClass = "h-11 rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/30";
 
 export default function AccountsFilterBar({ filters, onChange }) {
   const [keyword, setKeyword] = useState(filters.search);
@@ -12,8 +12,8 @@ export default function AccountsFilterBar({ filters, onChange }) {
   };
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
-      <form role="search" onSubmit={handleSubmit} className="flex-1">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <form role="search" onSubmit={handleSubmit} className="min-w-0 flex-1 sm:max-w-md">
         <input
           type="search"
           value={keyword}
