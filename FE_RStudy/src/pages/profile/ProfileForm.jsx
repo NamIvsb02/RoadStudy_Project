@@ -40,7 +40,7 @@ export default function ProfileForm() {
   };
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-card">
+    <section className="rounded-xl border border-line bg-white p-5 shadow-card sm:p-6">
       <h2 className="mb-4 text-lg font-semibold text-ink">Hồ sơ</h2>
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <TextField id="email" label="Email" defaultValue={account.email} disabled hint="Email không thể thay đổi." />

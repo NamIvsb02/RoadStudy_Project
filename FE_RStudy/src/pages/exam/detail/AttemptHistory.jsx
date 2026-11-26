@@ -5,7 +5,7 @@ import { ROUTES } from "../../../constants/routes";
 import { formatDateTime } from "../../../utils/format";
 import { durationBetween, formatDuration, formatScore } from "../examFormat";
 
-const th = "bg-primary/10 px-3 py-2 text-left text-xs font-semibold text-primary";
+const th = "bg-primary/5 px-3 py-3 text-left text-xs font-semibold tracking-wide text-muted uppercase";
 const td = "border-b border-line px-3 py-2.5 text-sm text-ink";
 
 export default function AttemptHistory({ items, loading, error }) {
@@ -25,7 +25,7 @@ export default function AttemptHistory({ items, loading, error }) {
           {items.map((attempt) => {
             const seconds = durationBetween(attempt.startTime, attempt.endTime);
             return (
-              <tr key={attempt.id}>
+              <tr key={attempt.id} className="hover:bg-primary-50/50">
                 <td className={td}>{formatDateTime(attempt.startTime)}</td>
                 <td className={td}>{seconds === null ? "–" : formatDuration(seconds)}</td>
                 <td className={td}>{formatScore(attempt.score)}</td>
@@ -33,7 +33,7 @@ export default function AttemptHistory({ items, loading, error }) {
                   <ResultBadge passed={attempt.passed} status={attempt.status} />
                 </td>
                 <td className={td}>
-                  <Link to={generatePath(ROUTES.ATTEMPT_DETAIL, { id: attempt.id })} className="text-xs font-semibold text-primary hover:underline">
+                  <Link to={generatePath(ROUTES.ATTEMPT_DETAIL, { id: attempt.id })} className="inline-flex min-h-11 items-center text-xs font-semibold text-primary hover:underline">
                     Xem chi tiết
                   </Link>
                 </td>

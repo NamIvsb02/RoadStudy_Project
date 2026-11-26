@@ -53,7 +53,7 @@ export default function ProofSection({ invoice, version, onUploaded }) {
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFile}
         aria-label="Chọn ảnh minh chứng"
-        className="block w-full text-sm text-ink file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-primary"
+        className="block w-full rounded-xl border border-dashed border-line-strong bg-page p-3 text-sm text-ink file:mr-3 file:h-11 file:cursor-pointer file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:text-sm file:font-semibold file:text-primary"
       />
       <p className="mt-1 text-xs text-muted">JPG, PNG hoặc WEBP, tối đa 5MB.</p>
       <div className="mt-3">
