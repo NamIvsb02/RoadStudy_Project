@@ -10,7 +10,7 @@ export default function StarRating({ value = 0, size = 16, onChange }) {
         const icon = (
           <Star
             size={size}
-            className={filled ? 'text-accent' : 'text-slate-300'}
+            className={filled ? 'text-accent' : 'text-line-strong'}
             fill={filled ? 'currentColor' : 'none'}
           />
         );

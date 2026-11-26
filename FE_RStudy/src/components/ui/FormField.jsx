@@ -1,3 +1,5 @@
+import { CircleAlert } from "lucide-react";
+
 export default function FormField({ label, htmlFor, error, hint, required = false, children }) {
   return (
     <div className="space-y-1.5">
@@ -11,7 +13,8 @@ export default function FormField({ label, htmlFor, error, hint, required = fals
       </label>
       {children}
       {error ? (
-        <p id={`${htmlFor}-error`} role="alert" className="text-xs text-danger">
+        <p id={`${htmlFor}-error`} role="alert" className="flex items-start gap-1 text-xs text-danger-strong">
+          <CircleAlert size={14} className="mt-px shrink-0" aria-hidden="true" />
           {error}
         </p>
       ) : (

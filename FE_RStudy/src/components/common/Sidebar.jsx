@@ -8,7 +8,7 @@ import Avatar from "../ui/Avatar";
 import { NAV_ITEMS } from "./navItems";
 import { SOCIAL_ICONS } from "./socialIcons";
 
-const linkClass = ({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${isActive ? "bg-surface text-primary" : "text-ink hover:bg-surface"}`;
+const linkClass = ({ isActive }) => `flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${isActive ? "bg-primary-50 text-primary" : "text-ink hover:bg-surface"}`;
 
 export default function Sidebar() {
   const { account } = useAuth();
@@ -19,11 +19,11 @@ export default function Sidebar() {
   const menuLinks = NAV_ITEMS.filter((item) => item.to !== ROUTES.HOME);
 
   return (
-    <aside className="hidden w-60 shrink-0 lg:block">
+    <aside className="hidden w-60 shrink-0 xl:block">
       <div className="sticky top-20 max-h-[calc(100vh-6rem)] space-y-4 overflow-y-auto">
         {account ? (
           <>
-            <div className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-card">
+            <div className="flex items-center gap-3 rounded-xl border border-line bg-white p-3">
               <Avatar name={account.fullName} src={account.avatarUrl} />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold text-ink">{account.fullName}</p>
@@ -60,7 +60,7 @@ export default function Sidebar() {
               const Icon = SOCIAL_ICONS[label];
               return (
                 <li key={label}>
-                  <a href={href} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-surface">
+                  <a href={href} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink transition-colors duration-150 hover:bg-surface">
                     <Icon size={20} />
                     {label}
                   </a>

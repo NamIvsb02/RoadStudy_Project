@@ -7,7 +7,7 @@ export default function CourseSelect({ courses, value, onChange }) {
         type="button"
         aria-pressed={all}
         onClick={() => onChange("")}
-        className={`h-10 rounded-lg px-4 text-sm font-semibold transition-colors ${all ? "bg-primary text-white" : "bg-white text-ink hover:bg-soft"}`}
+        className={`h-10 rounded-lg px-4 text-sm font-semibold transition-colors ${all ? "bg-primary text-white" : "bg-white text-ink hover:bg-surface"}`}
       >
         Tất cả
       </button>

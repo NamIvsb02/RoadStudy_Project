@@ -24,7 +24,7 @@ export default function SearchBox({ className = "", autoFocus = false, onSubmitt
         placeholder="Tìm kiếm khóa học"
         aria-label="Tìm kiếm khóa học"
         autoFocus={autoFocus}
-        className="h-10 w-full rounded-full bg-surface pr-10 pl-4 text-sm text-ink outline-none transition-colors placeholder:text-muted focus:ring-2 focus:ring-primary-light"
+        className="h-10 w-full rounded-full bg-surface pr-10 pl-4 text-sm text-ink outline-none transition-[box-shadow,background-color] duration-150 placeholder:text-muted hover:bg-primary-50 focus:ring-2 focus:ring-primary-light"
       />
       <button type="submit" aria-label="Tìm kiếm" className="absolute top-1/2 right-1 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-primary">
         <Search size={16} />
