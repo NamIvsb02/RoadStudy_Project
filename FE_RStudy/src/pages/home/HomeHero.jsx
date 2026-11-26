@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { generatePath, Link } from "react-router-dom";
-import heroImage from "../../assets/images/map-book-1736140098369.jpg";
+import heroImage from "../../assets/images/logo_text-blue.png";
 import RoadPath from "../../components/common/RoadPath";
 import SearchBox from "../../components/common/SearchBox";
 import Skeleton from "../../components/ui/Skeleton";
@@ -92,8 +92,12 @@ export default function HomeHero({ latest }) {
           </motion.div>
         </motion.div>
         <div className="relative lg:col-span-5">
-          <motion.div variants={imageReveal} initial="hidden" animate="visible" className="overflow-hidden rounded-2xl border border-line shadow-raised">
-            <img src={heroImage} alt="Sách và bản đồ minh họa hành trình học tập" className="aspect-[4/3] w-full object-cover" />
+          <motion.div variants={imageReveal} initial="hidden" animate="visible" className="relative overflow-hidden rounded-2xl border border-line bg-white shadow-raised">
+            <div aria-hidden="true" className="absolute inset-0 bg-glow" />
+            <div aria-hidden="true" className="absolute inset-0 bg-dot-grid opacity-60" />
+            <div className="relative flex aspect-[4/3] items-center justify-center p-10 sm:p-14 lg:items-start lg:justify-end lg:p-8">
+              <img src={heroImage} alt="Logo RoadStudy" decoding="async" className="max-h-full w-auto max-w-full object-contain lg:max-h-[46%]" />
+            </div>
           </motion.div>
           <motion.div
             variants={staggerOf(STAGGER.base, 0.35)}
