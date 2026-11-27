@@ -982,7 +982,7 @@ Quy tắc:
 
 Đối tượng đơn đăng ký (`Registration`): `id, registeredAt, status, amountPaid, studentId, courseId`. Ở danh sách và chi tiết có thêm `course: { id, courseName, coverImageUrl, price }` và `invoice` (xem đối tượng `Invoice` ở mục dưới).
 
-Đối tượng thông tin thanh toán (`paymentInfo`, chỉ có khi hóa đơn `CHO_THANH_TOAN`, ngược lại là `null`):
+Đối tượng thông tin thanh toán (`paymentInfo`, chỉ có khi hóa đơn `CHO_THANH_TOAN` hoặc `THAT_BAI` để học viên chuyển khoản lại sau khi bị từ chối, ngược lại là `null`):
 
 | Trường          | Kiểu           | Ghi chú                                                                                      |
 | --------------- | -------------- | -------------------------------------------------------------------------------------------- |
@@ -1073,7 +1073,7 @@ Phân quyền: các API của admin cần quyền `XU_LY_HOAN_TIEN` (Leader mặ
 ### GET /invoice/:id
 
 - Quyền: `STUDENT` (hóa đơn của mình), admin có quyền `QUAN_LY_THANH_TOAN` hoặc `XU_LY_HOAN_TIEN`
-- 200: message `Lấy hóa đơn thành công`, `data` là `Invoice` kèm `paymentInfo` (xem mục Enrollment; `null` nếu hóa đơn không còn `CHO_THANH_TOAN`)
+- 200: message `Lấy hóa đơn thành công`, `data` là `Invoice` kèm `paymentInfo` (xem mục Enrollment; `null` nếu hóa đơn không ở `CHO_THANH_TOAN` hoặc `THAT_BAI`)
 - Lỗi: 404 `Hóa đơn không tồn tại` (cũng trả khi học viên xem hóa đơn người khác)
 
 ### POST /invoice/:id/proof

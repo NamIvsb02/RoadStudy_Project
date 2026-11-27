@@ -30,7 +30,7 @@ Khác biệt còn lại nằm ở quy trình khép kín cho thị trường Vi�
 - Frontend React + Vite, Backend Express, PostgreSQL qua Prisma, xác thực JWT (access token 15 phút, refresh token 7 ngày xoay vòng), xác minh email và quên mật khẩu bằng mã OTP gửi qua email.
 - Dịch vụ AI gọi qua một lớp cấu hình hỗ trợ Gemini hoặc các dịch vụ tương thích OpenAI, có thời gian chờ và có phương án dự phòng khi lỗi.
 - Thanh toán chuyển khoản thủ công: hệ thống tạo thông tin chuyển khoản và mã QR, học viên gửi ảnh minh chứng, admin xác nhận. Không có cổng thanh toán tự động.
-- Tệp người dùng tải lên (ảnh đại diện, ảnh bìa, tài liệu PDF hoặc DOCX, ảnh minh chứng) hiện lưu trên máy chủ trong thư mục `uploads/`; việc chuyển sang lưu trữ đám mây (Cloudinary) đang được cân nhắc cho giai đoạn sau.
+- Tệp người dùng tải lên (ảnh đại diện, ảnh bìa, tài liệu PDF hoặc DOCX, ảnh minh chứng) lưu trên máy chủ trong thư mục `uploads/` (`STORAGE_DRIVER=local`, mặc định) hoặc trên Cloudinary (`STORAGE_DRIVER=cloudinary`). Ảnh minh chứng luôn riêng tư, chỉ xem qua API có kiểm tra quyền.
 - RoadStudy không lưu video bài giảng. "Vào học" mở link lớp học trực tuyến và thư mục tài liệu (Google Drive) do giáo viên dán vào.
 
 ## Capabilities and Constraints
@@ -48,7 +48,7 @@ Khác biệt còn lại nằm ở quy trình khép kín cho thị trường Vi�
   - Thông báo trên chuông cho các sự kiện duyệt, thanh toán, hoàn tiền, đề thi, lịch học, trả lời bình luận (danh sách loại ở `enum.md`).
   - Quản lý danh mục (ẩn danh mục thì ẩn khóa học thuộc danh mục đó).
   - Khối "Dành cho bạn" trên trang chủ: gợi ý theo danh mục khóa đã đăng ký, thiếu thì bù khóa nhiều người đăng ký. Khối này không gọi AI.
-- **Cần làm tiếp:** người phụ trách rà lại tài liệu API vừa được soạn từ code cho Course, Category, Resource, Comment, Review, Report, Chatbot (mục 13, 15 đến 20 của `api-spec.md`); test lại cả luồng trên ứng dụng đang chạy. Đang tìm hiểu hoặc cấu hình: Docker (đã có `docker-compose.yml`), GitHub Actions, Swagger/OpenAPI, triển khai cloud, Cloudinary; chưa có bản production.
+- **Cần làm tiếp:** người phụ trách rà lại tài liệu API vừa được soạn từ code cho Course, Category, Resource, Comment, Review, Report, Chatbot (mục 13, 15 đến 20 của `api-spec.md`); test lại cả luồng trên ứng dụng đang chạy. Đã có: Docker (`docker-compose.yml`), GitHub Actions (`.github/workflows/ci.yml`), Swagger UI sinh tự động (`/api-docs`), lưu trữ Cloudinary. Đang tìm hiểu: triển khai cloud; chưa có bản production.
 - **Ràng buộc sản phẩm:**
   - AI chỉ gợi ý trong các khóa học đang mở, không thay học viên quyết định; giới hạn 500 ký tự mỗi tin và 6 tin mỗi phút.
   - Học viên chỉ xem lớp học, làm bài thi và bình luận khi đã có đơn đăng ký hợp lệ; đã thanh toán rồi thì chỉ rút lại qua luồng hoàn tiền.
@@ -66,7 +66,7 @@ Khác biệt còn lại nằm ở quy trình khép kín cho thị trường Vi�
 - **Tên thương hiệu:** RoadStudy.
 - **Định vị:** Nền tảng đăng ký khóa học trực tuyến đa cấp học, tích hợp AI gợi ý khóa học.
 - **Giọng điệu (Voice):** Thân thiện, rõ ràng, ngắn gọn và đáng tin; tiếng Việt có dấu, nói thẳng điều học viên cần làm tiếp theo, thông báo lỗi lấy từ hệ thống chứ không đoán, tôn trọng quyền tự quyết của người dùng.
-- **Nhận diện thị giác:** Xanh đại dương làm màu chủ đạo, cam làm điểm nhấn nhỏ, bề mặt sáng và gọn, font Be Vietnam Pro (chi tiết ở `DESIGN_SYSTEM.md`).
+- **Nhận diện thị giác:** Xanh đại dương làm màu chủ đạo, xanh dương sáng (`accent`) và xanh ngọc (`secondary`) làm điểm nhấn nhỏ, không dùng màu cam, bề mặt sáng và gọn, font Montserrat (chi tiết ở `DESIGN_SYSTEM.md`).
 
 ## Evidence on Hand
 
@@ -92,4 +92,4 @@ Khác biệt còn lại nằm ở quy trình khép kín cho thị trường Vi�
 - Tôn trọng chế độ giảm chuyển động của hệ điều hành; chuyển động chỉ dùng các preset nhẹ trong `constants/motion.js` (scroll-reveal một lần cho section chính, lắc chuông khi có thông báo mới) và không bao giờ che nội dung thiết yếu.
 - Chữ tiếng Việt có dấu, cỡ chữ cơ bản 14px; giao diện thích ứng điện thoại với điều hướng riêng.
 - Hiện chỉ có giao diện sáng (chưa khai báo chế độ tối).
-- Việc cần cải thiện: chữ nhỏ màu cam, xanh lá và vàng cam đặt trên nền trắng hoặc nền nhạt cùng tông có thể chưa đạt độ tương phản 4.5:1; cần đo lại bằng công cụ và cân nhắc dùng tông đậm hơn cho chữ.
+- Độ tương phản đã đo (mục 12 của `DESIGN_SYSTEM.md`): chữ trạng thái và chữ điểm nhấn dùng tông `*-strong` để đạt 4.5:1; `success`, `accent`, `secondary`, `sky` không đạt trên nền trắng nên chỉ dùng cho chấm, icon, viền, nền. `success-strong` và `warning-strong` trên nền 10% cùng tông chỉ vừa sát ngưỡng.
