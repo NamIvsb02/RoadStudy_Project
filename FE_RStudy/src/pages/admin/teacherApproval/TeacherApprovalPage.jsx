@@ -2,13 +2,15 @@ import { useCallback, useState } from "react";
 import { teacherApi } from "../../../api/teacherApi";
 import ConfirmDialog from "../../../components/common/ConfirmDialog";
 import DashboardPanel from "../../../components/common/DashboardPanel";
-import Pagination from "../../../components/ui/Pagination";
+import Pagination from "../../../components/common/Pagination";
 import { STATUS_MAPS } from "../../../constants/statuses";
 import { useFetch } from "../../../hooks/useFetch";
+import ActionError from "../../manage/ActionError";
+import StatusTabs from "../../manage/StatusTabs";
 import TeacherApprovalCard from "./TeacherApprovalCard";
 
 const LIMIT = 10;
-const TABS = ["CHO_DUYET", "DA_DUYET", "TU_CHOI"];
+const TAB_OPTIONS = ["CHO_DUYET", "DA_DUYET", "TU_CHOI"].map((value) => [value, STATUS_MAPS.ApprovalStatus[value].label]);
 
 export default function TeacherApprovalPage() {
   const [tab, setTab] = useState("CHO_DUYET");
@@ -44,25 +46,8 @@ export default function TeacherApprovalPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" className="flex gap-2">
-        {TABS.map((value) => (
-          <button
-            key={value}
-            type="button"
-            role="tab"
-            aria-selected={tab === value}
-            onClick={() => handleTab(value)}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === value ? "bg-primary text-white" : "bg-white text-ink hover:bg-soft"}`}
-          >
-            {STATUS_MAPS.ApprovalStatus[value].label}
-          </button>
-        ))}
-      </div>
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-          {actionError}
-        </p>
-      )}
+      <StatusTabs tabs={TAB_OPTIONS} value={tab} onChange={handleTab} />
+      <ActionError message={actionError} />
       <DashboardPanel title="Hồ sơ giáo viên" loading={loading} error={error} empty={items.length === 0} emptyText="Không có hồ sơ nào trong mục này.">
         <div className="flex flex-col gap-3">
           {items.map((teacher) => (
@@ -75,7 +60,7 @@ export default function TeacherApprovalPage() {
           ))}
         </div>
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
       <ConfirmDialog
         open={Boolean(action)}
         title={approving ? "Duyệt giáo viên?" : "Từ chối giáo viên?"}

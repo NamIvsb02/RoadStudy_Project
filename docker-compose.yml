@@ -10,7 +10,7 @@ services:
     volumes:
       # Giữ file upload (avatar, bìa, tài liệu, minh chứng) trên máy, không mất khi xóa container
       - ./BE_RStudy/uploads:/app/uploads
-    restart: unless-stopped
+    restart: "no"
 
   # Redis (cache và bộ đếm rate limit dùng chung). Không bật mặc định: chạy `docker compose --profile redis up -d`,
   # đặt REDIS_PASSWORD (shell hoặc file .env ở thư mục gốc) và đặt REDIS_URL=redis://:<mật khẩu>@redis:6379 trong BE_RStudy/.env.
@@ -30,7 +30,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
-    restart: unless-stopped
+    restart: "no"
 
   frontend:
     build:
@@ -43,4 +43,4 @@ services:
       - "5173:80"
     depends_on:
       - backend
-    restart: unless-stopped
+    restart: "no"

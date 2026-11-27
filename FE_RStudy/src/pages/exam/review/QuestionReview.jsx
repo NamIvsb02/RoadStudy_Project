@@ -4,14 +4,14 @@ export default function QuestionReview({ index, question }) {
 
   let badge = null;
   if (revealed) {
-    const tone = question.isCorrect ? "bg-success/10 text-success" : "bg-danger/10 text-danger";
+    const tone = question.isCorrect ? "bg-success/10 text-success-strong" : "bg-danger/10 text-danger-strong";
     badge = (
       <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${tone}`}>
         {question.isCorrect ? "Đúng" : answered ? "Sai" : "Bỏ trống"} · {Number(question.earnedScore)}/{Number(question.score)} điểm
       </span>
     );
   } else if (!answered) {
-    badge = <span className="rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning">Không chọn đáp án</span>;
+    badge = <span className="rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning-strong">Không chọn đáp án</span>;
   }
 
   return (
@@ -29,7 +29,7 @@ export default function QuestionReview({ index, question }) {
           else if (revealed && selected) tone = "border-danger bg-danger/10";
           else if (selected) tone = "border-primary bg-primary/10 font-semibold";
           return (
-            <li key={option.id} className={`flex items-start gap-3 rounded-lg border-2 px-4 py-3 text-sm ${tone}`}>
+            <li key={option.id} className={`flex items-start gap-3 rounded-lg border-2 min-h-12 px-4 py-3 text-sm ${tone}`}>
               <span className="font-semibold text-primary">{String.fromCharCode(65 + optionIndex)}.</span>
               <span className="whitespace-pre-line">{option.content}</span>
               <span className="ml-auto shrink-0 text-xs text-muted">

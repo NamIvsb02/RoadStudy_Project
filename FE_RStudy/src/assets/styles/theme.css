@@ -2,20 +2,89 @@
   --color-primary: #155e94;
   --color-primary-dark: #0f4a75;
   --color-primary-light: #3c79a6;
+  --color-primary-50: #eef5fb;
+  --color-primary-100: #d7e8f5;
+  --color-primary-200: #b0d0ea;
+  --color-primary-950: #0a2e4a;
+  --color-sky: #4aa8e0;
   --color-surface: #f0f3f7;
   --color-page: #f7f8f9;
-  --color-accent: #ff8a00;
+  --color-accent: #3d8bd9;
+  --color-accent-soft: #e8f1fb;
+  --color-accent-strong: #1e5fa0;
+  --color-secondary: #2bb3c0;
+  --color-secondary-strong: #0e6e78;
   --color-success: #16a34a;
+  --color-success-strong: #15803d;
   --color-warning: #d97706;
+  --color-warning-strong: #b45309;
   --color-danger: #dc2626;
+  --color-danger-strong: #b91c1c;
   --color-info: #2563eb;
+  --color-info-strong: #1d4ed8;
   --color-ink: #1f2937;
-  --color-muted: #6b7280;
+  --color-ink-strong: #0f1f33;
+  --color-muted: #646b78;
   --color-line: #e5e7eb;
+  --color-line-strong: #d3dae3;
+
   --font-sans:
-    "Be Vietnam Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+    "Montserrat", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+
+  --text-display: clamp(2rem, 1.25rem + 3.2vw, 3.5rem);
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: -0.02em;
+  --text-headline: clamp(1.5rem, 1.2rem + 1.2vw, 2.25rem);
+  --text-headline--line-height: 1.2;
+  --text-headline--letter-spacing: -0.01em;
+
   --shadow-card: 0 1px 3px rgb(16 24 40 / 0.08);
-  --shadow-card-hover: 0 6px 16px rgb(16 24 40 / 0.12);
+  --shadow-card-hover: 0 10px 24px -8px rgb(16 24 40 / 0.16);
+  --shadow-raised: 0 24px 48px -20px rgb(15 74 117 / 0.35);
+
+  --ease-out-soft: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+:root {
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--color-primary-dark),
+    var(--color-primary) 55%,
+    var(--color-sky)
+  );
+  --gradient-glow: radial-gradient(
+    60% 60% at 70% 30%,
+    color-mix(in oklab, var(--color-primary-100) 80%, transparent),
+    transparent 70%
+  );
+  --gradient-fade-page: linear-gradient(
+    to bottom,
+    white,
+    var(--color-page)
+  );
+  --pattern-dot-grid: radial-gradient(
+    circle,
+    var(--color-primary-200) 1px,
+    transparent 1.5px
+  );
+}
+
+@utility bg-brand-gradient {
+  background-image: var(--gradient-brand);
+}
+
+@utility bg-glow {
+  background-image: var(--gradient-glow);
+}
+
+@utility bg-fade-page {
+  background-image: var(--gradient-fade-page);
+}
+
+@utility bg-dot-grid {
+  background-image: var(--pattern-dot-grid);
+  background-size: 22px 22px;
 }
 
 @layer base {
@@ -23,5 +92,25 @@
     background-color: var(--color-page);
     color: var(--color-ink);
     font-family: var(--font-sans);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-primary-light);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
   }
 }

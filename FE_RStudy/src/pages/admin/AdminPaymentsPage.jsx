@@ -2,10 +2,12 @@ import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { invoiceApi } from "../../api/invoiceApi";
 import DashboardPanel from "../../components/common/DashboardPanel";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { useFetch } from "../../hooks/useFetch";
 import PaymentDetailDialog from "./payment/PaymentDetailDialog";
 import PaymentTable from "./payment/PaymentTable";
+import StatusTabs from "../manage/StatusTabs";
+import SearchField from "../manage/SearchField";
 
 const LIMIT = 10;
 const TABS = [
@@ -25,12 +27,20 @@ const toParams = (tab) => {
 export default function AdminPaymentsPage() {
   const [params] = useSearchParams();
   const [tab, setTab] = useState(TABS.some(([value]) => value === params.get("tab")) ? params.get("tab") : "");
-  const [keyword, setKeyword] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState(null);
 
-  const request = useCallback(() => invoiceApi.getList({ ...toParams(tab), ...(search && { q: search }), page, limit: LIMIT }), [tab, search, page]);
+  const request = useCallback(
+    () =>
+      invoiceApi.getList({
+        ...toParams(tab),
+        ...(search && { q: search }),
+        page,
+        limit: LIMIT,
+      }),
+    [tab, search, page],
+  );
   const { data, loading, error, reload } = useFetch(request);
   const items = data?.items ?? [];
 
@@ -39,9 +49,8 @@ export default function AdminPaymentsPage() {
     setPage(1);
   };
 
-  const handleSearch = (event) => {
-    event.preventDefault();
-    setSearch(keyword.trim());
+  const handleSearch = (value) => {
+    setSearch(value);
     setPage(1);
   };
 
@@ -52,34 +61,14 @@ export default function AdminPaymentsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" className="flex flex-wrap gap-2">
-        {TABS.map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            role="tab"
-            aria-selected={tab === value}
-            onClick={() => handleTab(value)}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === value ? "bg-primary text-white" : "bg-white text-ink hover:bg-soft"}`}
-          >
-            {label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center gap-3">
+        <StatusTabs tabs={TABS} value={tab} onChange={handleTab} />
+        <SearchField placeholder="Tìm theo tên hoặc email học viên, nhấn Enter" label="Tìm hóa đơn" onSearch={handleSearch} />
       </div>
-      <form role="search" onSubmit={handleSearch}>
-        <input
-          type="search"
-          value={keyword}
-          onChange={(event) => setKeyword(event.target.value)}
-          placeholder="Tìm theo tên hoặc email học viên, nhấn Enter"
-          aria-label="Tìm hóa đơn"
-          className="h-10 w-full max-w-md rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/30"
-        />
-      </form>
-      <DashboardPanel title="Hóa đơn" loading={loading} error={error} empty={items.length === 0} emptyText="Không có hóa đơn nào trong mục này.">
+      <DashboardPanel title="Hóa đơn" skeleton="table" flush loading={loading} error={error} empty={items.length === 0} emptyText="Không có hóa đơn nào trong mục này.">
         <PaymentTable items={items} onView={setSelected} />
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
       <PaymentDetailDialog invoice={selected} onClose={() => setSelected(null)} onDone={handleDone} />
     </div>
   );

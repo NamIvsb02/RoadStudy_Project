@@ -16,7 +16,7 @@ export default function MyReviewBox({ review, onSave }) {
       <div className="mb-4 space-y-2 rounded-lg border border-primary/30 p-4">
         <p className="text-sm font-medium text-primary">Đánh giá của bạn</p>
         <StarRating value={review.rating} />
-        {review.content && <p className="text-slate-700">{review.content}</p>}
+        {review.content && <p className="text-ink">{review.content}</p>}
         <Button variant="ghost" onClick={() => setEditing(true)}>
           Sửa đánh giá
         </Button>
@@ -25,8 +25,8 @@ export default function MyReviewBox({ review, onSave }) {
   }
 
   return (
-    <div className="mb-4 rounded-lg border border-slate-200 p-4">
-      <p className="mb-3 text-sm font-medium text-slate-700">
+    <div className="mb-4 rounded-lg border border-line p-4">
+      <p className="mb-3 text-sm font-medium text-ink">
         {review ? 'Sửa đánh giá của bạn' : 'Viết đánh giá của bạn'}
       </p>
       <ReviewForm

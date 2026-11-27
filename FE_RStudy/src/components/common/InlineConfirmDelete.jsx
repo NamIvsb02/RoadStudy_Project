@@ -25,18 +25,18 @@ export default function InlineConfirmDelete({ onConfirm }) {
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="text-sm text-red-600 transition-colors duration-150 hover:underline"
+          className="text-sm text-danger transition-colors duration-150 hover:underline"
         >
           Xóa
         </button>
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {error && <span className="text-sm text-danger">{error}</span>}
       </span>
     );
   }
 
   return (
     <span className="inline-flex items-center gap-2 text-sm">
-      <span className="text-slate-600">Xác nhận xóa?</span>
+      <span className="text-muted">Xác nhận xóa?</span>
       <Button variant="danger" className="px-2 py-1" loading={loading} onClick={handleConfirm}>
         Xóa
       </Button>

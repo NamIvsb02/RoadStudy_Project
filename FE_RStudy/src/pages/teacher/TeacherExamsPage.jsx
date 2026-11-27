@@ -3,7 +3,8 @@ import { Link, useSearchParams } from "react-router-dom";
 import { courseApi } from "../../api/courseApi";
 import CourseSelect from "../../components/common/CourseSelect";
 import FormAlert from "../../components/ui/FormAlert";
-import LoadingState from "../../components/ui/LoadingState";
+import EmptyState from "../../components/common/EmptyState";
+import TableSkeleton from "../../components/common/TableSkeleton";
 import { ROUTES } from "../../constants/routes";
 import { useFetch } from "../../hooks/useFetch";
 import CourseExamTable from "./exam/CourseExamTable";
@@ -18,10 +19,14 @@ export default function TeacherExamsPage() {
   const selected = courses.find((course) => course.id === courseId);
   const scope = useMemo(() => (selected ? [selected] : courses), [selected, courses]);
 
-  if (loading) return <LoadingState />;
+  if (loading) return <TableSkeleton />;
   if (error) return <FormAlert message={error} />;
   if (courses.length === 0) {
-    return <p className="rounded-xl border border-line bg-white p-8 text-center text-sm text-muted">Bạn chưa có khóa học nào nên chưa tạo được đề thi.</p>;
+    return (
+      <div className="rounded-xl border border-line bg-white">
+        <EmptyState title="Bạn chưa có khóa học nào nên chưa tạo được đề thi." />
+      </div>
+    );
   }
 
   return (
@@ -31,7 +36,7 @@ export default function TeacherExamsPage() {
         {selected ? (
           <Link
             to={`${ROUTES.TEACHER.EXAM_NEW}?courseId=${selected.id}`}
-            className="inline-flex h-11 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+            className="inline-flex h-11 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light"
           >
             Tạo đề thi
           </Link>

@@ -13,7 +13,7 @@ const getPages = (page, totalPages) => {
 };
 
 const baseClass =
-  "inline-flex size-9 items-center justify-center rounded-lg text-sm transition-colors";
+  "inline-flex size-11 items-center justify-center rounded-lg text-sm transition-colors duration-150";
 const arrowClass = `${baseClass} text-ink hover:bg-primary/10 disabled:opacity-40 disabled:hover:bg-transparent`;
 
 export default function Pagination({ pagination, onChange }) {
@@ -23,7 +23,7 @@ export default function Pagination({ pagination, onChange }) {
   return (
     <nav
       aria-label="Phân trang"
-      className="flex flex-wrap items-center justify-between gap-3"
+      className="mt-6 flex flex-wrap items-center justify-between gap-3"
     >
       <p className="text-sm text-muted">Tổng {total} kết quả</p>
       <ul className="flex items-center gap-1">

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { learningApi } from "../../api/learningApi";
 import BackButton from "../../components/common/BackButton";
 import FormAlert from "../../components/ui/FormAlert";
-import LoadingState from "../../components/ui/LoadingState";
+import ListSkeleton from "../../components/common/ListSkeleton";
 import Switch from "../../components/ui/Switch";
 import { ROUTES } from "../../constants/routes";
 import { useFetch } from "../../hooks/useFetch";
@@ -31,7 +31,7 @@ export default function CourseLearningPage() {
   };
 
   let content;
-  if (loading) content = <LoadingState />;
+  if (loading) content = <ListSkeleton />;
   else if (error) content = <FormAlert message={error} />;
   else {
     content = (

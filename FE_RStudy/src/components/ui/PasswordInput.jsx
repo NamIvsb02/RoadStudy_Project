@@ -13,7 +13,7 @@ const PasswordInput = forwardRef(function PasswordInput({ hasError = false, clas
         type="button"
         onClick={() => setVisible((value) => !value)}
         aria-label={visible ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-        className="absolute top-1/2 right-2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors hover:text-primary"
+        className="absolute top-1/2 right-2 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted transition-colors duration-150 hover:text-primary"
       >
         <Icon size={16} />
       </button>

@@ -1,51 +1,48 @@
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { formatDate, formatVND } from "../../../utils/format";
-
-const th = "bg-primary/10 px-3 py-2 text-left text-xs font-semibold text-primary";
-const td = "border-b border-line px-3 py-2.5 text-sm text-ink";
-const actionClass = "text-xs font-semibold text-primary hover:underline disabled:opacity-50";
+import { ACTION_DANGER, ACTION_LINK, ACTIONS, TABLE, TBODY, TD, TD_ACTION, TH, TR } from "../../manage/tableStyles";
 
 const discountText = (coupon) => (coupon.discountAmount ? formatVND(coupon.discountAmount) : `${Number(coupon.discountPercentage)}%`);
 
 export default function CouponTable({ items, busy, onEdit, onToggle, onDelete }) {
   return (
-    <table className="w-full min-w-[820px]">
+    <table className={`${TABLE} min-w-[820px]`}>
       <thead>
         <tr>
-          <th className={th}>Mã</th>
-          <th className={th}>Giảm</th>
-          <th className={th}>Hiệu lực</th>
-          <th className={th}>Đã dùng</th>
-          <th className={th}>Trạng thái</th>
-          <th className={th} />
+          <th className={TH}>Mã</th>
+          <th className={TH}>Giảm</th>
+          <th className={TH}>Hiệu lực</th>
+          <th className={TH}>Đã dùng</th>
+          <th className={TH}>Trạng thái</th>
+          <th className={TH} />
         </tr>
       </thead>
-      <tbody>
+      <tbody className={TBODY}>
         {items.map((coupon) => (
-          <tr key={coupon.id}>
-            <td className={`${td} font-mono font-semibold`}>{coupon.code}</td>
-            <td className={td}>{discountText(coupon)}</td>
-            <td className={td}>
+          <tr key={coupon.id} className={TR}>
+            <td className={`${TD} font-mono font-semibold`}>{coupon.code}</td>
+            <td className={TD}>{discountText(coupon)}</td>
+            <td className={TD}>
               {formatDate(coupon.startDate)} - {formatDate(coupon.endDate)}
             </td>
-            <td className={td}>
+            <td className={TD}>
               {coupon.usedCount}/{coupon.usageLimit}
             </td>
-            <td className={td}>
+            <td className={TD}>
               <StatusBadge type="DiscountStatus" value={coupon.status} />
             </td>
-            <td className={td}>
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <button type="button" disabled={busy} onClick={() => onEdit(coupon)} className={actionClass}>
+            <td className={TD_ACTION}>
+              <div className={ACTIONS}>
+                <button type="button" disabled={busy} onClick={() => onEdit(coupon)} className={ACTION_LINK}>
                   Sửa
                 </button>
                 {coupon.status !== "HET_HAN" && (
-                  <button type="button" disabled={busy} onClick={() => onToggle(coupon)} className={actionClass}>
+                  <button type="button" disabled={busy} onClick={() => onToggle(coupon)} className={ACTION_LINK}>
                     {coupon.status === "HOAT_DONG" ? "Tạm ngưng" : "Kích hoạt"}
                   </button>
                 )}
                 {coupon.usedCount === 0 && (
-                  <button type="button" disabled={busy} onClick={() => onDelete(coupon)} className="text-xs font-semibold text-danger hover:underline disabled:opacity-50">
+                  <button type="button" disabled={busy} onClick={() => onDelete(coupon)} className={ACTION_DANGER}>
                     Xóa
                   </button>
                 )}

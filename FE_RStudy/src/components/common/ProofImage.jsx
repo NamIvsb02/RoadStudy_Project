@@ -1,5 +1,5 @@
 import { useProofImage } from "../../hooks/useProofImage";
-import LoadingState from "../ui/LoadingState";
+import LoadingState from "./LoadingState";
 
 export default function ProofImage({ invoiceId, reloadKey = 0 }) {
   const { url, error, loading } = useProofImage(invoiceId, reloadKey);

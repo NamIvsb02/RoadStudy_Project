@@ -47,7 +47,7 @@ export default function ContentForm({
         rows={3}
         placeholder={placeholder}
         {...register('content')}
-        className="w-full resize-none rounded-lg border border-slate-200 bg-soft px-3 py-2 text-sm outline-none transition-colors duration-150 focus:border-primary"
+        className="w-full resize-none rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none transition-colors duration-150 focus:border-primary"
       />
       <FieldError message={errors.content?.message ?? serverError} />
       <div className="flex justify-end gap-2">

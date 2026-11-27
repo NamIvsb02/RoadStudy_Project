@@ -4,7 +4,7 @@ import { courseApi } from "../../api/courseApi";
 import { submissionApi } from "../../api/submissionApi";
 import CourseSelect from "../../components/common/CourseSelect";
 import DashboardPanel from "../../components/common/DashboardPanel";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { STATUS_MAPS } from "../../constants/statuses";
 import { useFetch } from "../../hooks/useFetch";
 import SubmissionTable from "./submission/SubmissionTable";
@@ -20,7 +20,16 @@ export default function TeacherSubmissionsPage() {
   const list = useMemo(() => courses.data?.items ?? [], [courses.data]);
   const courseId = list.some((course) => course.id === params.get("courseId")) ? params.get("courseId") : "";
 
-  const request = useCallback(() => submissionApi.listManage({ ...(courseId && { courseId }), ...(status && { status }), page, limit: LIMIT }), [courseId, status, page]);
+  const request = useCallback(
+    () =>
+      submissionApi.listManage({
+        ...(courseId && { courseId }),
+        ...(status && { status }),
+        page,
+        limit: LIMIT,
+      }),
+    [courseId, status, page],
+  );
   const { data, loading, error } = useFetch(request);
   const items = data?.items ?? [];
 
@@ -38,7 +47,12 @@ export default function TeacherSubmissionsPage() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <CourseSelect courses={list} value={courseId} onChange={handleCourse} />
-        <select aria-label="Lọc theo trạng thái" value={status} onChange={handleStatus} className="h-10 rounded-lg border border-line bg-white px-3 text-sm text-ink">
+        <select
+          aria-label="Lọc theo trạng thái"
+          value={status}
+          onChange={handleStatus}
+          className="h-11 rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+        >
           <option value="">Tất cả trạng thái</option>
           {Object.entries(STATUS_MAPS.AttemptStatus).map(([value, { label }]) => (
             <option key={value} value={value}>
@@ -47,10 +61,10 @@ export default function TeacherSubmissionsPage() {
           ))}
         </select>
       </div>
-      <DashboardPanel title="Bài làm của học viên" loading={loading} error={error} empty={items.length === 0} emptyText="Chưa có bài làm nào.">
+      <DashboardPanel title="Bài làm của học viên" skeleton="table" flush loading={loading} error={error} empty={items.length === 0} emptyText="Chưa có bài làm nào.">
         <SubmissionTable items={items} showCourse={!courseId} />
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
     </div>
   );
 }

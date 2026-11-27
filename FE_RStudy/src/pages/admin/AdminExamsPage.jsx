@@ -3,7 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import { courseApi } from "../../api/courseApi";
 import CourseSelect from "../../components/common/CourseSelect";
 import FormAlert from "../../components/ui/FormAlert";
-import LoadingState from "../../components/ui/LoadingState";
+import EmptyState from "../../components/common/EmptyState";
+import TableSkeleton from "../../components/common/TableSkeleton";
 import { useFetch } from "../../hooks/useFetch";
 import CourseExamTable from "../teacher/exam/CourseExamTable";
 
@@ -17,9 +18,15 @@ export default function AdminExamsPage() {
   const selected = courses.find((course) => course.id === courseId);
   const scope = useMemo(() => (selected ? [selected] : courses), [selected, courses]);
 
-  if (loading) return <LoadingState />;
+  if (loading) return <TableSkeleton />;
   if (error) return <FormAlert message={error} />;
-  if (courses.length === 0) return <p className="rounded-xl border border-line bg-white p-8 text-center text-sm text-muted">Chưa có khóa học nào.</p>;
+  if (courses.length === 0) {
+    return (
+      <div className="rounded-xl border border-line bg-white">
+        <EmptyState title="Chưa có khóa học nào." />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4">

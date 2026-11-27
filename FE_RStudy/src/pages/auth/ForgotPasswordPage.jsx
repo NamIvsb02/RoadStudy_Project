@@ -19,7 +19,10 @@ export default function ForgotPasswordPage() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm({ resolver: zodResolver(forgotPasswordSchema), defaultValues: { email: "" } });
+  } = useForm({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: "" },
+  });
 
   const onSubmit = async (values) => {
     setServerError("");
@@ -44,7 +47,10 @@ export default function ForgotPasswordPage() {
         </div>
       </form>
       <p className="mt-6 text-center text-sm text-ink">
-        <Link to={ROUTES.LOGIN} className="font-medium text-primary transition-colors hover:text-primary-dark">
+        <Link
+          to={ROUTES.LOGIN}
+          className="rounded-sm font-medium text-primary transition-colors hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light"
+        >
           Quay lại đăng nhập
         </Link>
       </p>

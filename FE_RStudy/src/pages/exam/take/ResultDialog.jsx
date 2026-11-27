@@ -51,7 +51,7 @@ export default function ResultDialog({ result, onBack, onRetry, onReview }) {
             </Row>
           )}
         </div>
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           <Button variant="secondary" onClick={onReview}>
             Xem chi tiết
           </Button>

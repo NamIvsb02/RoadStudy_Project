@@ -3,18 +3,20 @@ import { couponApi } from "../../api/couponApi";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import DashboardPanel from "../../components/common/DashboardPanel";
 import Button from "../../components/ui/Button";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { STATUS_MAPS } from "../../constants/statuses";
 import { useFetch } from "../../hooks/useFetch";
 import CouponDialog from "./coupon/CouponDialog";
 import CouponTable from "./coupon/CouponTable";
+import ActionError from "../manage/ActionError";
+import StatusTabs from "../manage/StatusTabs";
+import SearchField from "../manage/SearchField";
 
 const LIMIT = 10;
 const TABS = [["", "Tất cả"], ...Object.entries(STATUS_MAPS.DiscountStatus).map(([value, { label }]) => [value, label])];
 
 export default function AdminCouponsPage() {
   const [status, setStatus] = useState("");
-  const [keyword, setKeyword] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [dialog, setDialog] = useState(null);
@@ -22,7 +24,16 @@ export default function AdminCouponsPage() {
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState("");
 
-  const request = useCallback(() => couponApi.getList({ ...(status && { status }), ...(search && { q: search }), page, limit: LIMIT }), [status, search, page]);
+  const request = useCallback(
+    () =>
+      couponApi.getList({
+        ...(status && { status }),
+        ...(search && { q: search }),
+        page,
+        limit: LIMIT,
+      }),
+    [status, search, page],
+  );
   const { data, loading, error, reload } = useFetch(request);
   const items = data?.items ?? [];
   const isDelete = confirm?.type === "delete";
@@ -33,9 +44,8 @@ export default function AdminCouponsPage() {
     setPage(1);
   };
 
-  const handleSearch = (event) => {
-    event.preventDefault();
-    setSearch(keyword.trim());
+  const handleSearch = (value) => {
+    setSearch(value);
     setPage(1);
   };
 
@@ -68,39 +78,21 @@ export default function AdminCouponsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="tablist" className="flex flex-wrap gap-2">
-          {TABS.map(([value, label]) => (
-            <button
-              key={value}
-              type="button"
-              role="tab"
-              aria-selected={status === value}
-              onClick={() => handleTab(value)}
-              className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${status === value ? "bg-primary text-white" : "bg-white text-ink hover:bg-soft"}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-        <Button onClick={() => setDialog({ coupon: null })}>Tạo mã giảm giá</Button>
+      <div className="flex flex-wrap items-center gap-3">
+        <StatusTabs tabs={TABS} value={status} onChange={handleTab} />
+        <SearchField placeholder="Tìm theo mã, nhấn Enter" label="Tìm mã giảm giá" onSearch={handleSearch} />
       </div>
-      <form role="search" onSubmit={handleSearch}>
-        <input
-          type="search"
-          value={keyword}
-          onChange={(event) => setKeyword(event.target.value)}
-          placeholder="Tìm theo mã, nhấn Enter"
-          aria-label="Tìm mã giảm giá"
-          className="h-10 w-full max-w-md rounded-lg border border-line bg-white px-3 text-sm text-ink outline-none focus:ring-2 focus:ring-primary/30"
-        />
-      </form>
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-          {actionError}
-        </p>
-      )}
-      <DashboardPanel title="Mã giảm giá" loading={loading} error={error} empty={items.length === 0} emptyText="Chưa có mã giảm giá nào.">
+      <ActionError message={actionError} />
+      <DashboardPanel
+        title="Mã giảm giá"
+        actions={<Button onClick={() => setDialog({ coupon: null })}>Tạo mã giảm giá</Button>}
+        skeleton="table"
+        flush
+        loading={loading}
+        error={error}
+        empty={items.length === 0}
+        emptyText="Chưa có mã giảm giá nào."
+      >
         <CouponTable
           items={items}
           busy={busy}
@@ -109,7 +101,7 @@ export default function AdminCouponsPage() {
           onDelete={(coupon) => setConfirm({ type: "delete", coupon })}
         />
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
       <CouponDialog dialog={dialog} onSubmit={handleSave} onClose={() => setDialog(null)} />
       <ConfirmDialog
         open={Boolean(confirm)}

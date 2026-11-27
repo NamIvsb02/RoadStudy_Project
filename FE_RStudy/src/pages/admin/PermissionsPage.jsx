@@ -6,6 +6,7 @@ import Button from "../../components/ui/Button";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { useAuth } from "../../hooks/useAuth";
 import { useFetch } from "../../hooks/useFetch";
+import ActionError from "../manage/ActionError";
 import AdminList from "./permission/AdminList";
 import CreateAdminDialog from "./permission/CreateAdminDialog";
 import PermissionEditor from "./permission/PermissionEditor";
@@ -51,11 +52,15 @@ export default function PermissionsPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-end">
-        <Button onClick={() => setCreating(true)}>Thêm quản trị viên</Button>
-      </div>
       <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
-        <DashboardPanel title="Quản trị viên" loading={admins.loading} error={admins.error} empty={items.length === 0} emptyText="Chưa có quản trị viên nào.">
+        <DashboardPanel
+          title="Quản trị viên"
+          actions={<Button onClick={() => setCreating(true)}>Thêm quản trị viên</Button>}
+          loading={admins.loading}
+          error={admins.error}
+          empty={items.length === 0}
+          emptyText="Chưa có quản trị viên nào."
+        >
           <AdminList items={items} selectedId={selected?.id} onSelect={setSelectedId} />
         </DashboardPanel>
         <DashboardPanel title="Phân quyền" loading={admins.loading || functions.loading} error={functions.error} empty={!selected} emptyText="Chọn một quản trị viên.">
@@ -71,17 +76,13 @@ export default function PermissionsPage() {
                   <button
                     type="button"
                     onClick={() => setConfirming(true)}
-                    className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-soft ${locking ? "border-danger/40 text-danger" : "border-line text-ink"}`}
+                    className={`min-h-11 rounded-lg border px-4 text-xs font-semibold transition-colors hover:bg-surface focus-visible:outline-2 focus-visible:outline-primary-light ${locking ? "border-danger/40 text-danger" : "border-line text-ink"}`}
                   >
                     {locking ? "Khóa admin" : "Mở khóa admin"}
                   </button>
                 )}
               </div>
-              {actionError && (
-                <p role="alert" className="mb-3 rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-                  {actionError}
-                </p>
-              )}
+              <ActionError message={actionError} />
               <PermissionEditor
                 key={`${selected.id}-${selected.permissions
                   .map((item) => item.id)

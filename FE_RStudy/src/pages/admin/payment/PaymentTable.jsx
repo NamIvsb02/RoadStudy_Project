@@ -1,39 +1,37 @@
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { formatDateTime, formatVND } from "../../../utils/format";
-
-const th = "bg-primary/10 px-3 py-2 text-left text-xs font-semibold text-primary";
-const td = "border-b border-line px-3 py-2.5 text-sm text-ink";
+import { ACTION_LINK, TABLE, TBODY, TD, TD_ACTION, TH, TR } from "../../manage/tableStyles";
 
 export default function PaymentTable({ items, onView }) {
   return (
-    <table className="w-full min-w-[820px]">
+    <table className={`${TABLE} min-w-[820px]`}>
       <thead>
         <tr>
-          <th className={th}>Học viên</th>
-          <th className={th}>Khóa học</th>
-          <th className={th}>Số tiền</th>
-          <th className={th}>Minh chứng</th>
-          <th className={th}>Trạng thái</th>
-          <th className={th}>Thanh toán lúc</th>
-          <th className={th} />
+          <th className={TH}>Học viên</th>
+          <th className={TH}>Khóa học</th>
+          <th className={TH}>Số tiền</th>
+          <th className={TH}>Minh chứng</th>
+          <th className={TH}>Trạng thái</th>
+          <th className={TH}>Thanh toán lúc</th>
+          <th className={TH} />
         </tr>
       </thead>
-      <tbody>
+      <tbody className={TBODY}>
         {items.map((invoice) => (
-          <tr key={invoice.id}>
-            <td className={td}>
+          <tr key={invoice.id} className={TR}>
+            <td className={TD}>
               <p className="font-medium">{invoice.student.account.fullName}</p>
               <p className="text-xs text-muted">{invoice.student.account.email}</p>
             </td>
-            <td className={td}>{invoice.registration.course.courseName}</td>
-            <td className={td}>{formatVND(invoice.totalAmount)}</td>
-            <td className={td}>{invoice.hasPaymentProof ? "Đã gửi" : "Chưa có"}</td>
-            <td className={td}>
+            <td className={TD}>{invoice.registration.course.courseName}</td>
+            <td className={TD}>{formatVND(invoice.totalAmount)}</td>
+            <td className={TD}>{invoice.hasPaymentProof ? "Đã gửi" : "Chưa có"}</td>
+            <td className={TD}>
               <StatusBadge type="InvoiceStatus" value={invoice.status} />
             </td>
-            <td className={td}>{invoice.paidAt ? formatDateTime(invoice.paidAt) : "–"}</td>
-            <td className={td}>
-              <button type="button" onClick={() => onView(invoice)} className="text-xs font-semibold text-primary hover:underline">
+            <td className={TD}>{invoice.paidAt ? formatDateTime(invoice.paidAt) : "–"}</td>
+            <td className={TD_ACTION}>
+              <button type="button" onClick={() => onView(invoice)} className={ACTION_LINK}>
                 Xem
               </button>
             </td>

@@ -80,9 +80,9 @@ export default function EnrollForm({ course }) {
             onChange={handleCode}
             placeholder="Mã giảm giá"
             aria-label="Mã giảm giá"
-            className="h-10 min-w-0 flex-1 rounded-lg border border-line bg-white px-3 text-sm uppercase text-ink outline-none focus:ring-2 focus:ring-primary/30"
+            className="h-11 min-w-0 flex-1 rounded-lg border border-line bg-white px-3 text-sm uppercase text-ink outline-none focus:ring-2 focus:ring-primary/30"
           />
-          <Button variant="outline" className="h-10 px-4" disabled={!code.trim()} loading={applying} onClick={handleApply}>
+          <Button variant="outline" className="px-4" disabled={!code.trim()} loading={applying} onClick={handleApply}>
             Áp dụng
           </Button>
         </div>

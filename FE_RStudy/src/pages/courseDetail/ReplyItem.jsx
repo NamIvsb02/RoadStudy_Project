@@ -26,21 +26,21 @@ export default function ReplyItem({ reply, onChanged }) {
     <li className="flex items-start gap-3">
       <Avatar src={replier.avatarUrl} name={replier.fullName} size="sm" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-slate-800">
+        <p className="text-sm font-medium text-ink-strong">
           {replier.fullName}
           {replier.role === ROLES.TEACHER && <span className="ml-2 rounded bg-accent/10 px-1.5 text-xs text-accent">Giáo viên</span>}
-          <span className="ml-2 text-xs font-normal text-slate-500">{formatDateTime(reply.repliedAt)}</span>
+          <span className="ml-2 text-xs font-normal text-muted">{formatDateTime(reply.repliedAt)}</span>
         </p>
         {editing ? (
           <div className="mt-2">
             <ContentForm defaultValue={reply.content} submitLabel="Lưu thay đổi" onSubmit={save} onCancel={() => setEditing(false)} />
           </div>
         ) : (
-          <p className="whitespace-pre-line text-sm text-slate-700">{reply.content}</p>
+          <p className="whitespace-pre-line text-sm text-ink">{reply.content}</p>
         )}
         {reply.isMine && !editing && (
           <div className="mt-1 flex items-center gap-3">
-            <button type="button" onClick={() => setEditing(true)} className="text-sm text-primary hover:underline">
+            <button type="button" onClick={() => setEditing(true)} className="inline-flex min-h-11 items-center text-sm text-primary hover:underline">
               Sửa
             </button>
             <InlineConfirmDelete onConfirm={remove} />

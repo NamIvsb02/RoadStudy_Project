@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { examApi } from "../../../api/examApi";
 import Button from "../../../components/ui/Button";
 import FormAlert from "../../../components/ui/FormAlert";
-import LoadingState from "../../../components/ui/LoadingState";
+import ListSkeleton from "../../../components/common/ListSkeleton";
 import { fadeIn, scaleIn } from "../../../constants/motion";
 import { useFetch } from "../../../hooks/useFetch";
 import { formatScore } from "../../exam/examFormat";
@@ -12,7 +12,7 @@ function PreviewBody({ examId }) {
   const request = useCallback(() => examApi.getById(examId), [examId]);
   const { data, loading, error } = useFetch(request);
 
-  if (loading) return <LoadingState />;
+  if (loading) return <ListSkeleton />;
   if (error) return <FormAlert message={error} />;
 
   return (
@@ -32,7 +32,7 @@ function PreviewBody({ examId }) {
                 <li key={option.id} className={`flex gap-2 rounded-lg border px-3 py-2 text-sm ${option.isCorrect ? "border-success bg-success/10" : "border-line"}`}>
                   <span className="font-semibold text-primary">{String.fromCharCode(65 + optionIndex)}.</span>
                   <span className="whitespace-pre-line">{option.content}</span>
-                  {option.isCorrect && <span className="ml-auto shrink-0 text-xs text-success">Đáp án đúng</span>}
+                  {option.isCorrect && <span className="ml-auto shrink-0 text-xs text-success-strong">Đáp án đúng</span>}
                 </li>
               ))}
             </ul>

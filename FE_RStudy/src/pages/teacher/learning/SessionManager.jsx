@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { learningApi } from "../../../api/learningApi";
 import ConfirmDialog from "../../../components/common/ConfirmDialog";
+import EmptyState from "../../../components/common/EmptyState";
 import Button from "../../../components/ui/Button";
 import { formatSessionTime } from "../../learn/sessionFormat";
 import SessionDialog from "./SessionDialog";
@@ -31,7 +32,7 @@ export default function SessionManager({ courseId, sessions, onChanged }) {
 
   return (
     <section className="rounded-xl border border-line bg-white p-5">
-      <div className="mb-2 flex items-center justify-between gap-3">
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-ink">Lịch học online</h2>
         <Button onClick={() => setDialog({ session: null })}>Thêm buổi học</Button>
       </div>
@@ -40,7 +41,7 @@ export default function SessionManager({ courseId, sessions, onChanged }) {
           {error}
         </p>
       )}
-      {sessions.length === 0 && <p className="py-6 text-center text-sm text-muted">Chưa có buổi học nào.</p>}
+      {sessions.length === 0 && <EmptyState title="Chưa có buổi học nào." />}
       <ul>
         {sessions.map((session) => (
           <li key={session.id} className="flex items-center justify-between gap-3 border-b border-line py-3 last:border-b-0">
@@ -48,11 +49,19 @@ export default function SessionManager({ courseId, sessions, onChanged }) {
               <p className="text-sm font-semibold text-ink">{session.title}</p>
               <p className="text-xs text-muted">{formatSessionTime(session.startTime, session.endTime)}</p>
             </div>
-            <div className="flex shrink-0 gap-3 text-xs font-semibold">
-              <button type="button" onClick={() => setDialog({ session })} className="text-primary hover:underline">
+            <div className="flex shrink-0 gap-1 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setDialog({ session })}
+                className="inline-flex min-h-11 items-center rounded-lg px-2 text-primary hover:bg-primary-50 focus-visible:outline-2 focus-visible:outline-primary-light"
+              >
                 Sửa
               </button>
-              <button type="button" onClick={() => setTarget(session)} className="text-danger hover:underline">
+              <button
+                type="button"
+                onClick={() => setTarget(session)}
+                className="inline-flex min-h-11 items-center rounded-lg px-2 text-danger hover:bg-danger/10 focus-visible:outline-2 focus-visible:outline-danger"
+              >
                 Xóa
               </button>
             </div>

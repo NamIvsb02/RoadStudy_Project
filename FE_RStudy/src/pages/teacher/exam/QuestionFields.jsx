@@ -40,7 +40,7 @@ export default function QuestionFields({ index, register, control, setValue, err
               />
             </div>
             {fields.length > 2 && (
-              <Button variant="ghost" className="h-10 px-3" onClick={() => handleRemoveOption(optionIndex)}>
+              <Button variant="ghost" className="h-11 px-3" onClick={() => handleRemoveOption(optionIndex)}>
                 Xóa
               </Button>
             )}

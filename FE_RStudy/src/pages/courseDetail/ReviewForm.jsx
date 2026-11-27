@@ -49,7 +49,7 @@ export default function ReviewForm({ initial, submitLabel, onSubmit, onCancel })
           rows={3}
           placeholder="Chia sẻ cảm nhận của bạn về khóa học (không bắt buộc)"
           {...register('content')}
-          className="w-full resize-none rounded-lg border border-slate-200 bg-soft px-3 py-2 text-sm outline-none transition-colors duration-150 focus:border-primary"
+          className="w-full resize-none rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none transition-colors duration-150 focus:border-primary"
         />
         <FieldError message={errors.content?.message ?? serverError} />
       </div>

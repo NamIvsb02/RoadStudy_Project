@@ -103,7 +103,7 @@ Subagent trong `.claude/agents/` (model Sonnet), chỉ gọi khi người dùng 
 | `security-reviewer` | Audit tài khoản, quyền, thanh toán, upload, secrets, cấu hình | Không                  |
 | `test-engineer`     | Kiểm chứng hành vi bằng test chạy thật                        | Chỉ `BE_RStudy/tests/` |
 
-Khi gọi subagent: nạp cho nó các file rule đúng vùng (bảng ở đầu trang) và quy tắc graphify. Agent chính tự xem diff và tự chạy lệnh kiểm tra.
+Khi gọi subagent: nạp cho nó các file rule đúng vùng (bảng ở đầu trang), quy tắc graphify, và mục [Agent Skills](#agent-skills) nếu subagent dùng skill. Agent chính tự xem diff và tự chạy lệnh kiểm tra.
 
 ### Tài liệu tham khảo
 
@@ -117,6 +117,22 @@ Chỉ đọc phần cần cho tác vụ:
 | Mẫu spec trang FE                        | Mục "Spec trang" trong `.claude/rules/frontend.md`                                    |
 | Mục tiêu sản phẩm, người dùng            | `PRODUCT.md`                                                                          |
 | Cài đặt, biến môi trường, Docker         | `SETUP.md`                                                                            |
+
+## Agent Skills
+
+Skill bên thứ ba cài ở `.claude/skills/` (phạm vi project, chỉ Claude Code, bản copy), nguồn và commit ghi trong `skills-lock.json`. Cài lại hoặc cập nhật: `npx skills update -p` (xin phép trước, coi như cài package).
+
+| Skill                         | Dùng khi                                                               | Cách gọi                                                   |
+| ----------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `vercel-react-best-practices` | Viết, review, tối ưu hiệu năng React (re-render, bundle, rendering)    | `/vercel-react-best-practices`, hoặc tự nạp khi viết React |
+| `web-design-guidelines`       | Review UI, accessibility, UX theo checklist (chỉ đọc, báo `file:line`) | `/web-design-guidelines <file-hoặc-glob>`                  |
+
+Thứ tự ưu tiên khi mâu thuẫn: yêu cầu người dùng > `CLAUDE.md` và `.claude/rules/` > `DESIGN_SYSTEM.md` > skill. Skill chỉ là tham khảo:
+
+- Không thêm thư viện, đổi công nghệ, nghiệp vụ, token, font hay phong cách theo skill. Stack giữ nguyên React 19 + Vite + JSX, `framer-motion`, `lucide-react`.
+- `vercel-react-best-practices`: bỏ qua rule Next.js, React Server Components, Server Actions (`server-*`, `next/dynamic`, `after()`, hydration/SSR) và rule dùng SWR. Dự án là SPA Vite, server state dùng TanStack Query.
+- `web-design-guidelines`: rule lấy từ file đính kèm `references/command.md`, không tải từ mạng. Điểm nào lệch `DESIGN_SYSTEM.md` hoặc `design.md` thì theo tài liệu dự án.
+- Không sửa file trong `.claude/skills/`; muốn đổi thì cập nhật từ nguồn.
 
 ## graphify
 

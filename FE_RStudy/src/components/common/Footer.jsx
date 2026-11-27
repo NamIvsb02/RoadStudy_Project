@@ -4,9 +4,10 @@ import { ROUTES } from "../../constants/routes";
 import { SITE_INFO } from "../../constants/siteInfo";
 import { useAuth } from "../../hooks/useAuth";
 import { NAV_ITEMS } from "./navItems";
+import RoadPath from "./RoadPath";
 import { SOCIAL_ICONS } from "./socialIcons";
 
-const linkClass = "text-sm text-white/80 transition-colors hover:text-white";
+const linkClass = "text-sm text-white/80 transition-colors duration-150 hover:text-white";
 const headingClass = "mb-3 text-sm font-semibold tracking-wide uppercase";
 
 export default function Footer() {
@@ -19,8 +20,9 @@ export default function Footer() {
       ];
 
   return (
-    <footer className="bg-primary-dark text-white">
-      <div className="mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
+    <footer className="relative overflow-hidden bg-primary-950 text-white">
+      <RoadPath variant="wide" className="absolute inset-0 size-full text-white/15" />
+      <div className="relative mx-auto grid max-w-[1440px] gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-4 lg:px-6">
         <div>
           <h2 className="mb-3 text-lg font-bold">{SITE_INFO.name}</h2>
           <p className="mb-4 text-sm text-white/80">{SITE_INFO.description}</p>
@@ -86,7 +88,7 @@ export default function Footer() {
           </ul>
         </div>
       </div>
-      <p className="border-t border-white/10 py-4 text-center text-xs text-white/70">
+      <p className="relative border-t border-white/10 py-4 text-center text-xs text-white/70">
         © {new Date().getFullYear()} {SITE_INFO.name}
       </p>
     </footer>
