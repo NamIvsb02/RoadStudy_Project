@@ -1,11 +1,13 @@
 const prisma = require("../config/database");
 
+const db = (tx) => tx || prisma;
+
 const attemptInclude = {
   exam: { select: { id: true, examName: true, durationMinutes: true, passingScore: true, courseId: true, showAnswers: true } },
   details: { select: { questionId: true, answerOptionId: true } },
 };
 
-// ---------- Đề (cho học viên: KHÔNG lấy isCorrect) ----------
+// Đề cho học viên: KHÔNG lấy isCorrect
 const findExamForStart = (id) =>
   prisma.exam.findUnique({
     where: { id },
@@ -20,6 +22,7 @@ const findExamForStart = (id) =>
           options: { orderBy: { id: "asc" }, select: { id: true, content: true } },
         },
       },
+      course: { select: { learning: { select: { showExams: true } } } },
     },
   });
 
@@ -31,8 +34,7 @@ const findQuestionsWithOptions = (examId) =>
     include: { options: { orderBy: { id: "asc" } } },
   });
 
-// ---------- Bài làm ----------
-const findAttemptById = (id) => prisma.examAttempt.findUnique({ where: { id }, include: attemptInclude });
+const findAttemptById = (id, tx) => db(tx).examAttempt.findUnique({ where: { id }, include: attemptInclude });
 
 const findInProgress = (studentId, examId) =>
   prisma.examAttempt.findFirst({
@@ -46,20 +48,33 @@ const countAttempts = (studentId, examId) => prisma.examAttempt.count({ where: {
 
 const createAttempt = (studentId, examId) => prisma.examAttempt.create({ data: { studentId, examId }, include: attemptInclude });
 
-const upsertAnswers = (attemptId, answers) =>
-  prisma.$transaction(
+// Có tx thì ghi trong transaction của người gọi (đã khóa bài làm); không thì tự mở transaction
+const upsertAnswers = (attemptId, answers, tx) => {
+  const ops = (client) =>
     answers.map((a) =>
-      prisma.examAttemptDetail.upsert({
+      client.examAttemptDetail.upsert({
         where: { attemptId_questionId: { attemptId, questionId: a.questionId } },
         create: { attemptId, questionId: a.questionId, answerOptionId: a.answerOptionId },
         update: { answerOptionId: a.answerOptionId },
       }),
-    ),
+    );
+  return tx ? Promise.all(ops(tx)) : prisma.$transaction(ops(prisma));
+};
+
+// Khóa dòng bài làm đang DANG_LAM rồi mới chạy work(tx): lưu đáp án và chấm điểm không chạy xen nhau.
+// Bài đã được đóng bởi request khác thì không chạy work và trả null.
+const withActiveAttempt = (attemptId, work) =>
+  prisma.$transaction(
+    async (tx) => {
+      const rows = await tx.$queryRaw`SELECT id FROM "ExamAttempt" WHERE id = ${attemptId} AND status = 'DANG_LAM' FOR UPDATE`;
+      return rows.length > 0 ? work(tx) : null;
+    },
+    { maxWait: 10000, timeout: 10000 },
   );
 
 // Chỉ đóng được bài đang làm: tránh chấm hai lần khi nộp trùng
-const closeAttempt = async (id, score, endTime) => {
-  const r = await prisma.examAttempt.updateMany({
+const closeAttempt = async (id, score, endTime, tx) => {
+  const r = await db(tx).examAttempt.updateMany({
     where: { id, status: "DANG_LAM" },
     data: { score, endTime, status: "DA_CHAM" },
   });
@@ -107,6 +122,22 @@ const withStartLock = (studentId, examId, work) =>
     { timeout: 10000 },
   );
 
+const findManyForManage = (where, { skip, take }) =>
+  Promise.all([
+    prisma.examAttempt.findMany({
+      where,
+      skip,
+      take,
+      orderBy: { startTime: "desc" },
+      include: {
+        ...attemptInclude,
+        student: { select: { id: true, account: { select: { fullName: true, email: true } } } },
+        exam: { select: { id: true, examName: true, durationMinutes: true, passingScore: true, courseId: true, showAnswers: true, course: { select: { id: true, courseName: true } } } },
+      },
+    }),
+    prisma.examAttempt.count({ where }),
+  ]);
+
 module.exports = {
   findExamForStart,
   findQuestionsWithOptions,
@@ -117,7 +148,9 @@ module.exports = {
   withStartLock,
   upsertAnswers,
   closeAttempt,
+  withActiveAttempt,
   sumQuestionScore,
   findManyByStudent,
   findManyByExam,
+  findManyForManage,
 };

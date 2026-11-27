@@ -11,7 +11,7 @@ export default function SidePanel({ className = "", remaining, questions, answer
   return (
     <aside className={`sticky top-2 rounded-xl border border-line bg-white p-5 lg:top-4 ${className}`}>
       <p className="text-sm text-muted">Thời gian còn lại</p>
-      <p role="timer" className={`my-1 text-4xl font-bold ${remaining <= 60 ? "text-danger" : "text-primary"}`}>
+      <p role="timer" className={`my-1 text-4xl font-bold tabular-nums ${remaining <= 60 ? "text-danger" : "text-primary"}`}>
         {pad(Math.floor(remaining / 60))}:{pad(remaining % 60)}
       </p>
       <div className="flex justify-between text-sm">
@@ -30,7 +30,7 @@ export default function SidePanel({ className = "", remaining, questions, answer
             type="button"
             onClick={() => onJump(question.id)}
             aria-label={`Đến câu ${index + 1}`}
-            className={`size-9 rounded-full border-2 text-sm transition-colors ${answers[question.id] ? "border-primary bg-primary text-white" : "border-primary/40 bg-white text-primary hover:bg-primary/10"}`}
+            className={`size-11 rounded-full border-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-primary-light ${answers[question.id] ? "border-primary bg-primary text-white" : "border-primary/40 bg-white text-primary hover:bg-primary/10"}`}
           >
             {index + 1}
           </button>
@@ -40,9 +40,9 @@ export default function SidePanel({ className = "", remaining, questions, answer
         Nộp bài
       </Button>
       {left > 0 && (
-        <p className="mt-3 text-sm text-warning">
+        <p className="mt-3 text-sm text-warning-strong">
           Còn {left} câu chưa chọn đáp án. Chọn hết mới nộp được.{" "}
-          <button type="button" onClick={() => onJump(questions[firstMissing].id)} className="font-semibold text-primary hover:underline">
+          <button type="button" onClick={() => onJump(questions[firstMissing].id)} className="inline-flex min-h-11 items-center font-semibold text-primary hover:underline">
             Đến câu {firstMissing + 1}
           </button>
         </p>

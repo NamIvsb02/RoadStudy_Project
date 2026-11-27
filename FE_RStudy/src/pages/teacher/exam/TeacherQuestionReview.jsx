@@ -5,7 +5,7 @@ export default function TeacherQuestionReview({ index, question }) {
     <article className="rounded-xl border border-line bg-white p-5">
       <div className="flex flex-wrap items-center gap-2">
         <p className="font-semibold text-primary">Câu {index + 1}</p>
-        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${earned ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}>
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${earned ? "bg-success/10 text-success-strong" : "bg-danger/10 text-danger-strong"}`}>
           {earned ? "Đúng" : question.selectedAnswerOptionId ? "Sai" : "Bỏ trống"} · {Number(question.earnedScore)}/{Number(question.score)} điểm
         </span>
       </div>

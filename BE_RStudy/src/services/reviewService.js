@@ -99,7 +99,6 @@ const updateReview = async (user, id, { rating, content }) => {
   return { ...updated, isMine: true };
 };
 
-// ---------- CÂU TRẢ LỜI ĐÁNH GIÁ (giáo viên phụ trách) ----------
 const respond = async (user, reviewId, content) => {
   const review = await getVisibleReviewOrThrow(reviewId);
   if (review.course.teacher.accountId !== user.id) {

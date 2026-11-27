@@ -2,8 +2,8 @@ import { useCallback } from "react";
 import { Link, generatePath, useParams } from "react-router-dom";
 import { submissionApi } from "../../api/submissionApi";
 import ResultBadge from "../../components/common/ResultBadge";
-import FormAlert from "../../components/ui/FormAlert";
-import LoadingState from "../../components/ui/LoadingState";
+import ErrorState from "../../components/common/ErrorState";
+import PageSkeleton from "../../components/common/PageSkeleton";
 import { ROUTES } from "../../constants/routes";
 import { useFetch } from "../../hooks/useFetch";
 import { formatDateTime } from "../../utils/format";
@@ -13,21 +13,21 @@ import QuestionReview from "./review/QuestionReview";
 export default function ExamReviewPage() {
   const { id } = useParams();
   const request = useCallback(() => submissionApi.getById(id), [id]);
-  const { data, loading, error } = useFetch(request);
+  const { data, loading, error, reload } = useFetch(request);
 
-  if (loading) return <LoadingState />;
-  if (error) return <FormAlert message={error} />;
+  if (loading) return <PageSkeleton />;
+  if (error) return <ErrorState message={error} onRetry={reload} />;
 
   const backTo = generatePath(ROUTES.EXAM_DETAIL, { id: data.examId });
   const seconds = durationBetween(data.startTime, data.endTime);
 
   return (
     <div className="flex flex-col gap-4">
-      <Link to={backTo} className="text-sm font-semibold text-primary hover:underline">
+      <Link to={backTo} className="inline-flex min-h-11 items-center text-sm font-semibold text-primary hover:underline">
         ← Quay lại đề thi
       </Link>
       <section className="rounded-xl border border-line bg-white p-6">
-        <h1 className="text-xl font-bold text-primary">{data.examName}</h1>
+        <h1 className="text-2xl font-bold text-ink">{data.examName}</h1>
         <p className="mt-1 text-sm text-muted">
           Làm lúc {formatDateTime(data.startTime)}
           {seconds !== null && ` · ${formatDuration(seconds)}`}
@@ -35,7 +35,7 @@ export default function ExamReviewPage() {
         {data.status === "DANG_LAM" ? (
           <p className="mt-3 text-sm text-ink">
             Bài làm này chưa nộp.{" "}
-            <Link to={generatePath(ROUTES.EXAM_TAKE, { id: data.examId })} className="font-semibold text-primary hover:underline">
+            <Link to={generatePath(ROUTES.EXAM_TAKE, { id: data.examId })} className="inline-flex min-h-11 items-center font-semibold text-primary hover:underline">
               Làm tiếp
             </Link>
           </p>

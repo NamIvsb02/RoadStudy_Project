@@ -12,8 +12,9 @@ export default function PaymentActions({ registration, stage, onChanged }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
+  const free = Number(registration.invoice?.totalAmount ?? 0) === 0;
   const canCancel = stage === "AWAITING" || stage === "REJECTED";
-  const canRefund = stage === "REVIEWING" || (stage === "PAID" && canRefundPaid(registration.invoice));
+  const canRefund = !free && (stage === "REVIEWING" || (stage === "PAID" && canRefundPaid(registration.invoice)));
 
   if (!canCancel && !canRefund) return null;
 
@@ -40,7 +41,7 @@ export default function PaymentActions({ registration, stage, onChanged }) {
   return (
     <section className="rounded-xl border border-line bg-white p-5">
       <FormAlert message={error} />
-      {sent && <p className="mb-3 rounded-lg bg-success/10 px-3 py-2 text-sm text-success">Đã gửi yêu cầu hoàn tiền. Quản trị viên sẽ xem xét và thông báo cho bạn.</p>}
+      {sent && <p className="mb-3 rounded-lg bg-success/10 px-3 py-2 text-sm text-success-strong">Đã gửi yêu cầu hoàn tiền. Quản trị viên sẽ xem xét và thông báo cho bạn.</p>}
       <div className="flex flex-wrap items-center gap-3">
         {canCancel && (
           <Button variant="secondary" loading={busy} onClick={() => setDialog("cancel")}>

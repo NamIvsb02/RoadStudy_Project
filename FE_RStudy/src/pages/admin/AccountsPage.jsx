@@ -2,11 +2,12 @@ import { useCallback, useState } from "react";
 import { accountApi } from "../../api/accountApi";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import DashboardPanel from "../../components/common/DashboardPanel";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { ROLES } from "../../constants/roles";
 import { useAuth } from "../../hooks/useAuth";
 import { useFetch } from "../../hooks/useFetch";
 import { isLeader } from "../../utils/permission";
+import ActionError from "../manage/ActionError";
 import AccountsFilterBar from "./account/AccountsFilterBar";
 import AccountsTable from "./account/AccountsTable";
 
@@ -51,15 +52,11 @@ export default function AccountsPage() {
   return (
     <div className="flex flex-col gap-4">
       <AccountsFilterBar filters={filters} onChange={handleFilter} />
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-          {actionError}
-        </p>
-      )}
-      <DashboardPanel title="Danh sách tài khoản" loading={loading} error={error} empty={items.length === 0} emptyText="Không có tài khoản nào phù hợp.">
+      <ActionError message={actionError} />
+      <DashboardPanel title="Danh sách tài khoản" skeleton="table" flush loading={loading} error={error} empty={items.length === 0} emptyText="Không có tài khoản nào phù hợp.">
         <AccountsTable items={items} canToggle={canToggle} onToggle={setTarget} />
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
       <ConfirmDialog
         open={Boolean(target)}
         title={locking ? "Khóa tài khoản?" : "Mở khóa tài khoản?"}

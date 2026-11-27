@@ -18,13 +18,12 @@ const parseListQuery = (query) => {
   const cleaned = Object.fromEntries(Object.entries(query).filter(([, v]) => v !== ""));
   const result = publicListQuerySchema.safeParse(cleaned);
   if (!result.success) {
-    const message = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
+    const message = result.error.issues.map((i) => (i.path.length > 0 ? `${i.path.join(".")}: ${i.message}` : i.message)).join("; ");
     throw new AppError(message, 400);
   }
   return result.data;
 };
 
-//GIÁO VIÊN
 exports.create = async (req, res) => {
   const data = await courseService.createByTeacher(req.user.id, pickCourseFields(req.body));
   res.status(201).json(formatResponse(true, data, "Tạo khóa học thành công"));
@@ -54,7 +53,6 @@ exports.submit = async (req, res) => {
   res.json(formatResponse(true, data, "Đã gửi khóa học chờ duyệt"));
 };
 
-//QUẢN TRỊ VIÊN
 exports.getAdminList = async (req, res) => {
   const data = await courseService.getAdminList({
     ...getPagination(req.query),
@@ -77,16 +75,15 @@ exports.approve = async (req, res) => {
 };
 
 exports.reject = async (req, res) => {
-  const data = await courseService.reject(req.params.id);
+  const data = await courseService.reject(req.params.id, req.body.reason);
   res.json(formatResponse(true, data, "Đã từ chối khóa học, giáo viên có thể chỉnh sửa và gửi duyệt lại"));
 };
 
 exports.changeStatus = async (req, res) => {
-  const data = await courseService.changeStatusByAdmin(req.params.id, req.body.status);
+  const data = await courseService.changeStatusByAdmin(req.params.id, req.body.status, req.body.reason);
   res.json(formatResponse(true, data, "Cập nhật trạng thái khóa học thành công"));
 };
 
-//CÔNG KHAI (khách xem, không cần đăng nhập)
 exports.getPublicList = async (req, res) => {
   const filters = parseListQuery(req.query);
   const data = await courseService.getPublicList({ ...getPagination(req.query), ...filters });
@@ -100,5 +97,6 @@ exports.getPublicById = async (req, res) => {
 
 exports.uploadCover = async (req, res) => {
   if (!req.file) return res.status(400).json(formatResponse(false, null, 'Vui lòng chọn ảnh bìa (trường "cover")'));
-  res.status(201).json(formatResponse(true, { coverImageUrl: `/uploads/covers/${req.file.filename}` }, "Tải ảnh bìa thành công"));
+  const coverImageUrl = await courseService.uploadCover(req.file);
+  res.status(201).json(formatResponse(true, { coverImageUrl }, "Tải ảnh bìa thành công"));
 };

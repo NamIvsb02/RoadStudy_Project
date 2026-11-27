@@ -31,7 +31,7 @@ export default function ReportCard({ report, busy, onStart, onResolve, onReject 
         Người báo cáo: {report.reporter.email} · Người bị báo cáo: {report.reportedAccount?.email ?? "không rõ"}
       </p>
       {target && (
-        <div className="rounded-lg bg-soft p-3">
+        <div className="rounded-lg bg-surface p-3">
           <div className="mb-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-primary">
             {target.label}
             <StatusBadge type={target.statusType} value={target.data.status} />

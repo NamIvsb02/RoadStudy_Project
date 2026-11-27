@@ -10,9 +10,10 @@ import TextField from "../../components/ui/TextField";
 import { ROUTES } from "../../constants/routes";
 import { useToast } from "../../hooks/useToast";
 import { verifyEmailSchema } from "./authSchemas";
+import { otpInputClass } from "./otpInputClass";
 
 const OTP_PURPOSE = "XAC_MINH_EMAIL";
-const linkClass = "font-medium text-primary transition-colors hover:text-primary-dark";
+const linkClass = "rounded-sm font-medium text-primary transition-colors hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light";
 
 export default function VerifyEmailPage() {
   const location = useLocation();
@@ -47,7 +48,10 @@ export default function VerifyEmailPage() {
     if (!(await trigger("email"))) return;
     setResending(true);
     try {
-      const res = await authApi.resendOtp({ email: getValues("email"), purpose: OTP_PURPOSE });
+      const res = await authApi.resendOtp({
+        email: getValues("email"),
+        purpose: OTP_PURPOSE,
+      });
       toast.success(res.message);
     } catch (error) {
       setServerError(error.message);
@@ -67,6 +71,7 @@ export default function VerifyEmailPage() {
           inputMode="numeric"
           maxLength={6}
           autoComplete="one-time-code"
+          className={otpInputClass(Boolean(errors.code))}
           hint="Mã gồm 6 chữ số, hết hạn sau 10 phút."
           required
           error={errors.code?.message}

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { courseApi } from "../../api/courseApi";
 import BackButton from "../../components/common/BackButton";
 import FormAlert from "../../components/ui/FormAlert";
-import LoadingState from "../../components/ui/LoadingState";
+import ListSkeleton from "../../components/common/ListSkeleton";
 import { ROUTES } from "../../constants/routes";
 import { useFetch } from "../../hooks/useFetch";
 import CourseForm from "./course/CourseForm";
@@ -21,7 +21,7 @@ export default function CourseEditPage() {
   };
 
   let content;
-  if (loading) content = <LoadingState />;
+  if (loading) content = <ListSkeleton />;
   else if (error) content = <FormAlert message={error} />;
   else if (!EDITABLE_STATUSES.includes(data.status)) content = <FormAlert message="Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa." />;
   else content = <CourseForm key={data.id} initialValues={toFormValues(data)} submitLabel="Lưu thay đổi" onSubmit={handleSubmit} onCancel={() => navigate(ROUTES.TEACHER.COURSES)} />;

@@ -39,7 +39,7 @@ export default function ChangePasswordForm() {
   };
 
   return (
-    <section className="rounded-2xl bg-white p-6 shadow-card">
+    <section className="rounded-xl border border-line bg-white p-5 shadow-card sm:p-6">
       <h2 className="text-lg font-semibold text-ink">Đổi mật khẩu</h2>
       <p className="mb-4 text-sm text-muted">Sau khi đổi, bạn sẽ được đăng xuất và cần đăng nhập lại.</p>
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">

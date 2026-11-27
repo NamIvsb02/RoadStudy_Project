@@ -3,6 +3,7 @@ const router = express.Router();
 
 const controller = require("../controllers/accountController");
 const validate = require("../middlewares/validateMiddleware");
+const { contentWriteLimiter } = require("../middlewares/rateLimitMiddleware");
 const { authenticate, authorize } = require("../middlewares/authMiddleware");
 const { requirePermission } = require("../middlewares/permissionMiddleware");
 const { uploadAvatar } = require("../middlewares/uploadMiddleware");
@@ -12,7 +13,7 @@ const { updateProfileSchema, updateStatusSchema } = require("../validators/accou
 const manageAccounts = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.QUAN_LY_TAI_KHOAN)];
 
 router.patch("/profile", authenticate, validate(updateProfileSchema), controller.updateProfile);
-router.post("/avatar", authenticate, uploadAvatar, controller.updateAvatar);
+router.post("/avatar", authenticate, contentWriteLimiter, uploadAvatar, controller.updateAvatar);
 
 router.get("/", ...manageAccounts, controller.list);
 router.patch("/:id/status", ...manageAccounts, validate(updateStatusSchema), controller.changeStatus);

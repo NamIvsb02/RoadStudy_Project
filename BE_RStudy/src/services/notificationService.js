@@ -10,7 +10,7 @@ const safely = async (work) => {
   }
 };
 
-const toRow = (accountId, payload) => ({ accountId, type: payload.type, title: payload.title, body: payload.body ?? null, link: payload.link ?? null });
+const toRow = (accountId, payload) => ({ accountId, type: payload.type, title: payload.title, body: payload.body ? String(payload.body).slice(0, 500) : null, link: payload.link ?? null });
 
 const notify = (accountId, payload) =>
   safely(async () => {

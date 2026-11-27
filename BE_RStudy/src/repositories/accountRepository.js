@@ -43,8 +43,15 @@ const updateProfile = (id, accountData, studentData, teacherData) =>
 
 const updateAvatar = (id, avatarUrl) => prisma.account.update({ where: { id }, data: { avatarUrl }, select: SAFE_SELECT });
 
+// Compare-and-set: chỉ đổi ảnh khi DB vẫn giữ đúng ảnh cũ mà request đã đọc (null nếu chưa có ảnh).
+// Trả false khi request khác vừa đổi ảnh trước.
+const updateAvatarIfCurrent = async (id, expectedUrl, avatarUrl) => {
+  const r = await prisma.account.updateMany({ where: { id, avatarUrl: expectedUrl }, data: { avatarUrl } });
+  return r.count === 1;
+};
+
 const updateStatus = (id, status) => prisma.account.update({ where: { id }, data: { status }, select: SAFE_SELECT });
 
 const revokeAllRefreshTokens = (accountId) => prisma.refreshToken.updateMany({ where: { accountId, revokedAt: null }, data: { revokedAt: new Date() } });
 
-module.exports = { findByIdSafe, list, updateProfile, updateAvatar, updateStatus, revokeAllRefreshTokens };
+module.exports = { findByIdSafe, list, updateProfile, updateAvatar, updateAvatarIfCurrent, updateStatus, revokeAllRefreshTokens };

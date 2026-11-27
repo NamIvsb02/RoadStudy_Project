@@ -41,9 +41,8 @@ const requireLeader = async (req, res, next) => {
   next();
 };
 
-const requirePermission =
-  (...functionNames) =>
-  async (req, res, next) => {
+const requirePermission = (...functionNames) => {
+  const middleware = async (req, res, next) => {
     await loadAdmin(req);
     if (req.admin.isLeader) return next();
     const allowed = functionNames.some((n) => req.admin.permissions.includes(n));
@@ -52,5 +51,8 @@ const requirePermission =
     }
     next();
   };
+  middleware.apiDoc = { permissions: functionNames }; // cho Swagger
+  return middleware;
+};
 
 module.exports = { requireAdmin, requireLeader, requirePermission };

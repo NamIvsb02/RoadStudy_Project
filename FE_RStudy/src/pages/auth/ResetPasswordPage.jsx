@@ -12,9 +12,10 @@ import TextField from "../../components/ui/TextField";
 import { ROUTES } from "../../constants/routes";
 import { useToast } from "../../hooks/useToast";
 import { resetPasswordSchema } from "./authSchemas";
+import { otpInputClass } from "./otpInputClass";
 
 const OTP_PURPOSE = "QUEN_MAT_KHAU";
-const linkClass = "font-medium text-primary transition-colors hover:text-primary-dark";
+const linkClass = "rounded-sm font-medium text-primary transition-colors hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light";
 
 export default function ResetPasswordPage() {
   const location = useLocation();
@@ -30,7 +31,12 @@ export default function ResetPasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { email: location.state?.email ?? "", code: "", newPassword: "", confirmPassword: "" },
+    defaultValues: {
+      email: location.state?.email ?? "",
+      code: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
   });
 
   const onSubmit = async ({ email, code, newPassword }) => {
@@ -49,7 +55,10 @@ export default function ResetPasswordPage() {
     if (!(await trigger("email"))) return;
     setResending(true);
     try {
-      const res = await authApi.resendOtp({ email: getValues("email"), purpose: OTP_PURPOSE });
+      const res = await authApi.resendOtp({
+        email: getValues("email"),
+        purpose: OTP_PURPOSE,
+      });
       toast.success(res.message);
     } catch (error) {
       setServerError(error.message);
@@ -62,7 +71,18 @@ export default function ResetPasswordPage() {
     <AuthShell welcome="Đặt lại mật khẩu" subtitle="Nhập mã xác thực trong email và mật khẩu mới của bạn." title="Đặt lại mật khẩu">
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <TextField id="email" type="email" label="Email" placeholder="Email" autoComplete="email" required error={errors.email?.message} {...register("email")} />
-        <TextField id="code" label="Mã xác thực" placeholder="6 chữ số" inputMode="numeric" maxLength={6} autoComplete="one-time-code" required error={errors.code?.message} {...register("code")} />
+        <TextField
+          id="code"
+          label="Mã xác thực"
+          placeholder="6 chữ số"
+          inputMode="numeric"
+          maxLength={6}
+          autoComplete="one-time-code"
+          className={otpInputClass(Boolean(errors.code))}
+          required
+          error={errors.code?.message}
+          {...register("code")}
+        />
         <FormField label="Mật khẩu mới" htmlFor="newPassword" error={errors.newPassword?.message} required>
           <PasswordInput id="newPassword" placeholder="Mật khẩu mới" autoComplete="new-password" hasError={Boolean(errors.newPassword)} {...register("newPassword")} />
         </FormField>

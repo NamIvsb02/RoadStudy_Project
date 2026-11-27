@@ -7,8 +7,8 @@ const path = require("path");
 
 const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
+const requestId = require("./middlewares/requestId");
 
-// ===== Routes - 17 module =====
 const authRoutes = require("./routes/authRoutes");
 const accountRoutes = require("./routes/accountRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
@@ -27,15 +27,41 @@ const chatbotRoutes = require("./routes/chatbotRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const learningRoutes = require("./routes/learningRoutes");
+
+const prisma = require("./config/database"); // ngoại lệ có chủ đích: chỉ để đóng kết nối khi tắt server
+const redis = require("./config/redis"); // tắt khi REDIS_URL trống
 
 const app = express();
+app.set("trust proxy", Number(process.env.TRUST_PROXY) || 0); // đặt TRUST_PROXY=1 khi chạy sau nginx/reverse proxy để rate limit lấy đúng IP
 
+app.use(requestId); // đầu tiên, để mọi log và lỗi đều có mã truy vết
 app.use(helmet());
-app.use(cors());
-app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+const corsOrigins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",").map((origin) => origin.trim());
+app.use(cors({ origin: corsOrigins }));
+morgan.token("id", (req) => req.id);
+app.use(
+  morgan(
+    process.env.NODE_ENV === "production"
+      ? ':id :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"'
+      : ":id :method :url :status :response-time ms",
+  ),
+);
 app.use(express.json());
 
-app.get("/health", (req, res) => res.json({ status: "ok" }));
+app.get("/health", (req, res) => res.json({ status: "ok" })); // process còn sống
+
+// Sẵn sàng phục vụ: kiểm tra được kết nối tới database. Redis chỉ là phần tăng tốc nên Redis lỗi vẫn trả 200
+// (redis: "disabled" | "ok" | "down"), chỉ DB lỗi mới trả 503.
+app.get("/health/ready", async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: "ok", redis: await redis.checkHealth() });
+  } catch (err) {
+    console.error(`[${req.id}] Health ready lỗi:`, err.message);
+    res.status(503).json({ status: "unavailable" });
+  }
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/account", accountRoutes);
@@ -54,18 +80,47 @@ app.use("/api/submission", submissionRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/recommendation", recommendationRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/learning", learningRoutes);
 app.use("/api/report", reportRoutes);
 
-app.use(
-  "/uploads/avatars",
-  (req, res, next) => {
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-  },
-  express.static(path.join(__dirname, "../uploads/avatars")),
-);
+["avatars", "covers", "resources"].forEach((folder) => {
+  app.use(
+    `/uploads/${folder}`,
+    express.static(path.join(__dirname, "..", "uploads", folder), {
+      setHeaders: (res) => {
+        res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+      },
+    }),
+  );
+});
+
+// Mặc định bật khi dev, tắt khi NODE_ENV=production (không công khai toàn bộ API admin). Ghi đè bằng SWAGGER_ENABLED=true|false.
+const swaggerEnabled = process.env.SWAGGER_ENABLED ? process.env.SWAGGER_ENABLED === "true" : process.env.NODE_ENV !== "production";
+if (swaggerEnabled) {
+  const swaggerUi = require("swagger-ui-express");
+  const openapi = require("./docs/openapi").buildOpenApi();
+  app.get("/api-docs.json", (req, res) => res.json(openapi));
+  // Giữ CSP của helmet, chỉ bỏ upgrade-insecure-requests để "Try it out" chạy được qua http:// khi dev
+  const docsCsp = helmet.contentSecurityPolicy({ directives: { upgradeInsecureRequests: null } });
+  app.use("/api-docs", docsCsp, swaggerUi.serve, swaggerUi.setup(openapi, { customSiteTitle: "RoadStudy API", swaggerOptions: { persistAuthorization: true } }));
+}
+
 app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// Tắt an toàn: ngừng nhận request mới, chờ request đang chạy xong rồi đóng kết nối Redis và DB
+const shutdown = (signal) => {
+  console.log(`Nhận ${signal}, đang tắt server...`);
+  setTimeout(() => process.exit(1), 10000).unref(); // quá 10 giây thì ép thoát
+  server.close(async () => {
+    await redis.close();
+    await prisma.$disconnect().catch(() => {});
+    console.log("Đã đóng kết nối, tắt server.");
+    process.exit(0);
+  });
+};
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

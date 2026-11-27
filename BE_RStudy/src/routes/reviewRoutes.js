@@ -2,6 +2,7 @@ const router = require('express').Router();
 const reviewController = require('../controllers/reviewController');
 const { authenticate, authorize } = require('../middlewares/authMiddleware');
 const validate = require('../middlewares/validateMiddleware');
+const { contentWriteLimiter } = require('../middlewares/rateLimitMiddleware');
 const {
   courseIdParamSchema,
   idParamSchema,
@@ -19,12 +20,12 @@ router.get('/course/:courseId/mine', ...studentOnly, validate(courseIdParamSchem
 router.post(
   '/course/:courseId',
   ...studentOnly,
+  contentWriteLimiter,
   validate(courseIdParamSchema, 'params'),
   validate(createReviewSchema),
   reviewController.create
 );
 
-//câu trả lời của giáo viên
 router.put(
   '/responses/:responseId',
   ...teacherOnly,
@@ -39,10 +40,10 @@ router.delete(
   reviewController.removeResponse
 );
 
-//theo đánh giá
 router.post(
   '/:id/responses',
   ...teacherOnly,
+  contentWriteLimiter,
   validate(idParamSchema, 'params'),
   validate(responseBodySchema),
   reviewController.respond

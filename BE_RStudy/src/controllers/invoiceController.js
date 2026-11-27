@@ -8,7 +8,6 @@ const page = (req, items, total, message, res) => {
     res.json(formatResponse(true, { items, pagination: buildPaginationMeta(total, p, limit) }, message));
 };
 
-// ----- Học viên -----
 exports.listMine = asyncHandler(async (req, res) => {
     const { items, total } = await service.listMine(req.user.id, req.query, getPagination(req.query));
     page(req, items, total, "Lấy danh sách hóa đơn thành công", res);
@@ -24,9 +23,10 @@ exports.uploadProof = asyncHandler(async (req, res) => {
 });
 
 exports.getProof = asyncHandler(async (req, res) => {
-    const file = await service.getProofFile(req.user, req.params.id);
+    const proof = await service.getProof(req.user, req.params.id);
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    res.sendFile(file);
+    if (proof.file) return res.sendFile(proof.file);
+    res.type(proof.contentType).send(proof.buffer);
 });
 
 exports.requestRefund = asyncHandler(async (req, res) => {
@@ -39,7 +39,6 @@ exports.listMyRefundRequests = asyncHandler(async (req, res) => {
     page(req, items, total, "Lấy danh sách yêu cầu hoàn tiền thành công", res);
 });
 
-// ----- Admin: duyệt thanh toán -----
 exports.listAll = asyncHandler(async (req, res) => {
     const { items, total } = await service.listAll(req.query, getPagination(req.query));
     page(req, items, total, "Lấy danh sách hóa đơn thành công", res);
@@ -53,7 +52,6 @@ exports.reject = asyncHandler(async (req, res) => {
     res.json(formatResponse(true, await service.reject(req.params.id, req.body.reason), "Đã từ chối thanh toán"));
 });
 
-// ----- Admin: yêu cầu hoàn tiền -----
 exports.listRefundRequests = asyncHandler(async (req, res) => {
     const { items, total } = await service.listRefundRequests(req.query, getPagination(req.query));
     page(req, items, total, "Lấy danh sách yêu cầu hoàn tiền thành công", res);

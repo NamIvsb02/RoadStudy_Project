@@ -56,7 +56,7 @@ async function main() {
     let couponId = null;
 
     try {
-        // ---------- Dữ liệu nền ----------
+        // Dữ liệu nền
         const leader = await prisma.account.findUnique({ where: { email: 'leader@roadstudy.vn' } });
         const adminNoPerm = await prisma.account.findUnique({ where: { email: 'admin@roadstudy.vn' } });
         if (!leader || !adminNoPerm) throw new Error('Không thấy tài khoản seed leader@/admin@roadstudy.vn, hãy chạy: npx prisma migrate reset');
@@ -114,7 +114,7 @@ async function main() {
         const ADMIN_NOPERM = { role: 'ADMINISTRATOR', userId: adminNoPerm.id };
         const TEACHER = { role: 'TEACHER', userId: teacherAcc.id };
 
-        // ---------- Đăng ký ----------
+        // Đăng ký
         console.log('[Đăng ký khóa học]');
         let r = await call('POST', '/enrollment', { body: { courseId: c1.id } });
         check('Không có token -> 401', r.status === 401, `status ${r.status}`);
@@ -153,7 +153,7 @@ async function main() {
         r = await call('POST', '/enrollment', { actor: S2, body: { courseId: cFree.id } });
         check('Khóa miễn phí -> 201, tự động DA_THANH_TOAN', r.status === 201 && r.json?.data?.registration?.status === 'DA_THANH_TOAN' && r.json?.data?.invoice?.status === 'DA_THANH_TOAN', JSON.stringify(r.json?.data?.registration));
 
-        // ---------- Hủy trước khi gửi minh chứng ----------
+        // Hủy trước khi gửi minh chứng
         console.log('\n[Hủy đăng ký trước khi gửi minh chứng]');
         r = await call('POST', `/enrollment/${regA.id}/cancel`, { actor: S2 });
         check('Học viên khác hủy đơn của người khác -> 404', r.status === 404, `status ${r.status}`);
@@ -173,7 +173,7 @@ async function main() {
         check('Đơn cũ vẫn được giữ lại (2 đơn cùng khóa)', (await prisma.courseRegistration.count({ where: { studentId: h1.student.id, courseId: c1.id } })) === 2);
         check('usedCount lại là 1', (await usedCount()) === 1);
 
-        // ---------- Gửi minh chứng ----------
+        // Gửi minh chứng
         console.log('\n[Gửi minh chứng thanh toán]');
         r = await call('POST', `/invoice/${invB.id}/proof`, { actor: S1, form: new FormData() });
         check('Không chọn tệp -> 400', r.status === 400, `status ${r.status}`);
@@ -201,7 +201,7 @@ async function main() {
         r = await call('POST', `/enrollment/${regB.id}/cancel`, { actor: S1 });
         check('Hủy trực tiếp sau khi đã gửi minh chứng -> 409', r.status === 409, `status ${r.status}`);
 
-        // ---------- Xem hóa đơn ----------
+        // Xem hóa đơn
         console.log('\n[Xem hóa đơn / đăng ký]');
         r = await call('GET', '/invoice/me', { actor: S1 });
         check('Hóa đơn của tôi -> 200, có phân trang', r.status === 200 && typeof r.json?.data?.pagination?.total === 'number' && r.json.data.items.length >= 2, `status ${r.status}`);
@@ -220,7 +220,7 @@ async function main() {
         r = await call('GET', '/invoice?pending=true', { actor: LEADER });
         check('Leader xem hóa đơn chờ duyệt -> 200, có hóa đơn vừa gửi', r.status === 200 && r.json?.data?.items?.some((i) => i.id === invB.id), `status ${r.status}`);
 
-        // ---------- Duyệt thanh toán ----------
+        // Duyệt thanh toán
         console.log('\n[Admin duyệt thanh toán]');
         r = await call('PATCH', `/invoice/${invB.id}/approve`, { actor: S1 });
         check('Học viên duyệt -> 403', r.status === 403, `status ${r.status}`);
@@ -235,7 +235,7 @@ async function main() {
         r = await call('POST', '/enrollment', { actor: S1, body: { courseId: c1.id } });
         check('Đăng ký khóa đã thanh toán -> 409', r.status === 409, `status ${r.status}`);
 
-        // ---------- Từ chối thanh toán ----------
+        // Từ chối thanh toán
         console.log('\n[Admin từ chối thanh toán]');
         r = await call('POST', '/enrollment', { actor: S2, body: { courseId: c3.id } });
         const regC = r.json?.data?.registration;
@@ -255,7 +255,7 @@ async function main() {
         check('Đăng ký lại sau khi bị từ chối -> 201, tạo đơn mới', r.status === 201 && r.json?.data?.registration?.id !== regC.id, `status ${r.status} ${r.json?.message}`);
         check('Đơn bị từ chối trước đó chuyển DA_HUY', (await reg(regC.id)).status === 'DA_HUY');
 
-        // ---------- Hoàn tiền sau khi đã thanh toán ----------
+        // Hoàn tiền sau khi đã thanh toán
         console.log('\n[Yêu cầu hoàn tiền sau khi thanh toán]');
         r = await call('POST', `/invoice/${invB.id}/refund-request`, { actor: S1, body: {} });
         check('Yêu cầu không có lý do -> 400', r.status === 400, `status ${r.status}`);
@@ -292,7 +292,7 @@ async function main() {
         r = await call('POST', '/enrollment', { actor: S1, body: { courseId: c1.id } });
         check('Sau khi hoàn tiền xong được đăng ký lại -> 201', r.status === 201, `status ${r.status} ${r.json?.message}`);
 
-        // ---------- Quá 24 giờ ----------
+        // Quá 24 giờ
         console.log('\n[Quá hạn 24 giờ]');
         r = await call('POST', '/enrollment', { actor: S3, body: { courseId: c2.id } });
         const invD = r.json?.data?.invoice;
@@ -302,7 +302,7 @@ async function main() {
         r = await call('POST', `/invoice/${invD.id}/refund-request`, { actor: S3, body: { description: 'Muộn' } });
         check('Yêu cầu sau 24 giờ kể từ paidAt -> 400', r.status === 400 && /24 giờ/.test(r.json?.message || ''), `status ${r.status} ${r.json?.message}`);
 
-        // ---------- Hủy sau khi gửi minh chứng ----------
+        // Hủy sau khi gửi minh chứng
         console.log('\n[Hủy sau khi gửi minh chứng, kèm hoàn tiền]');
         r = await call('POST', '/enrollment', { actor: S3, body: { courseId: c1.id, discountCode: coupon.code } });
         const regE = r.json?.data?.registration;
@@ -323,7 +323,7 @@ async function main() {
         check('Từ chối yêu cầu kèm hủy đơn -> TU_CHOI', r.status === 200 && r.json?.data?.status === 'TU_CHOI' && r.json?.data?.adminNote === 'Không có giao dịch', `status ${r.status} ${r.json?.message}`);
         check('Đơn và hóa đơn chuyển DA_HUY, trả lượt mã', (await reg(regE.id)).status === 'DA_HUY' && (await inv(invE.id)).status === 'DA_HUY' && (await usedCount()) === usedBefore - 1);
 
-        // ---------- Quy tắc khác ----------
+        // Quy tắc khác
         console.log('\n[Khác]');
         r = await call('GET', '/enrollment/me?status=DA_HUY', { actor: S1 });
         check('Lọc đơn theo status=DA_HUY -> chỉ có đơn đã hủy', r.status === 200 && r.json?.data?.items?.length >= 1 && r.json.data.items.every((i) => i.status === 'DA_HUY'), `status ${r.status}`);

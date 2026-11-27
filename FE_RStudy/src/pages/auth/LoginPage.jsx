@@ -12,7 +12,7 @@ import { ROLE_HOME, ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
 import { loginSchema } from "./authSchemas";
 
-const linkClass = "font-medium text-primary transition-colors hover:text-primary-dark";
+const linkClass = "rounded-sm font-medium text-primary transition-colors hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -34,7 +34,9 @@ export default function LoginPage() {
     setUnverifiedEmail("");
     try {
       const account = await login(values);
-      navigate(location.state?.from ?? ROLE_HOME[account.role] ?? ROUTES.HOME, { replace: true });
+      navigate(location.state?.from ?? ROLE_HOME[account.role] ?? ROUTES.HOME, {
+        replace: true,
+      });
     } catch (error) {
       setServerError(error.message);
       if (error.response?.status === 403 && error.message.includes("xác minh")) {

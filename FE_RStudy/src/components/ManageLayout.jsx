@@ -1,27 +1,34 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Home, LogOut, Menu, X } from "lucide-react";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { fadeIn, slideInLeft } from "../constants/motion";
+import { fadeIn, slideInLeft, tabIndicator } from "../constants/motion";
 import { ROLES } from "../constants/roles";
 import { ROUTES } from "../constants/routes";
 import { ROLE_LABELS } from "../constants/statuses";
 import { useAuth } from "../hooks/useAuth";
 import { isLeader } from "../utils/permission";
+import PageSkeleton from "./common/PageSkeleton";
+import ScrollToTop from "./common/ScrollToTop";
 import UserMenu from "./common/UserMenu";
 import { getManageNav } from "./manage/manageNav";
 import Avatar from "./ui/Avatar";
 import NotificationBell from "./common/NotificationBell";
+import logo from "../assets/images/logo_text-white.png";
 
 const APPROVAL_NOTICE = {
   CHO_DUYET: "Hồ sơ của bạn đang chờ quản trị viên duyệt. Trong lúc chờ, bạn chưa tạo được khóa học.",
   TU_CHOI: "Hồ sơ của bạn đã bị từ chối. Hãy cập nhật hồ sơ hoặc liên hệ quản trị viên.",
 };
 
-function SidebarContent({ items, onNavigate, onLogout }) {
+function SidebarContent({ items, layoutId, onNavigate, onLogout }) {
   return (
     <>
-      <div className="px-6 py-5 text-xl font-bold text-white">RoadStudy</div>
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 lg:px-6 my-2">
+        <Link to={ROUTES.HOME} className="shrink-0" aria-label="RoadStudy">
+          <img src={logo} alt="RoadStudy" className="h-16 w-auto" />
+        </Link>
+      </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3">
         {items.map(({ label, to, icon: Icon, end }) => (
           <NavLink
@@ -30,11 +37,18 @@ function SidebarContent({ items, onNavigate, onLogout }) {
             end={end}
             onClick={onNavigate}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors ${isActive ? "bg-white font-semibold text-primary" : "text-white/85 hover:bg-white/10"}`
+              `relative flex items-center rounded-lg px-3 py-2.5 text-sm transition-colors duration-150 ${isActive ? "font-semibold text-primary" : "text-white/85 hover:bg-white/10"}`
             }
           >
-            <Icon size={18} />
-            {label}
+            {({ isActive }) => (
+              <>
+                {isActive && <motion.span layoutId={layoutId} transition={tabIndicator} className="absolute inset-0 rounded-lg bg-white" />}
+                <span className="relative flex items-center gap-3">
+                  <Icon size={18} />
+                  {label}
+                </span>
+              </>
+            )}
           </NavLink>
         ))}
       </nav>
@@ -80,7 +94,7 @@ export default function ManageLayout() {
   return (
     <div className="flex min-h-screen bg-surface">
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col bg-primary lg:flex">
-        <SidebarContent items={items} onLogout={handleLogout} />
+        <SidebarContent items={items} layoutId="manage-nav" onLogout={handleLogout} />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -101,9 +115,14 @@ export default function ManageLayout() {
           </div>
         </header>
 
+        <ScrollToTop />
         <main className="flex-1 p-4 lg:p-6">
-          {notice && <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{notice}</div>}
-          <Outlet />
+          {notice && <div className="mb-4 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning-strong">{notice}</div>}
+          <Suspense fallback={<PageSkeleton />}>
+            <motion.div key={pathname} variants={fadeIn} initial="hidden" animate="visible">
+              <Outlet />
+            </motion.div>
+          </Suspense>
         </main>
       </div>
 
@@ -114,7 +133,7 @@ export default function ManageLayout() {
             <button type="button" aria-label="Đóng menu" onClick={() => setOpen(false)} className="absolute top-4 right-3 rounded-lg p-1 text-white/85 hover:bg-white/10">
               <X size={20} />
             </button>
-            <SidebarContent items={items} onNavigate={() => setOpen(false)} onLogout={handleLogout} />
+            <SidebarContent items={items} layoutId="manage-nav-drawer" onNavigate={() => setOpen(false)} onLogout={handleLogout} />
           </motion.aside>
         )}
       </AnimatePresence>

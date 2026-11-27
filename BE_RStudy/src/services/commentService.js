@@ -1,4 +1,4 @@
-const { ContentStatus, CourseStatus, Role } = require("@prisma/client");
+const { ContentStatus, CourseStatus, CategoryStatus, Role } = require("@prisma/client");
 const AppError = require("../utils/AppError");
 const commentRepository = require("../repositories/commentRepository");
 const notificationService = require("./notificationService");
@@ -13,12 +13,12 @@ const buildPagination = ({ page, limit }, total) => ({
 // Thêm cờ isMine để frontend biết hiện nút Sửa/Xóa
 const withOwnership = (comment, userId) => ({
   ...comment,
-  isMine: comment.commenter.id === userId,
-  replies: comment.replies.map((r) => ({ ...r, isMine: r.replier.id === userId })),
+  isMine: Boolean(userId) && comment.commenter.id === userId,
+  replies: comment.replies.map((r) => ({ ...r, isMine: Boolean(userId) && r.replier.id === userId })),
 });
 
 const assertCourseOpen = (course) => {
-  if (!course || course.status !== CourseStatus.DANG_MO) {
+  if (!course || course.status !== CourseStatus.DANG_MO || course.category.status !== CategoryStatus.HOAT_DONG) {
     throw new AppError("Khóa học không tồn tại", 404);
   }
 };
@@ -57,7 +57,6 @@ const getVisibleReplyOrThrow = async (id) => {
   return reply;
 };
 
-// BÌNH LUẬN
 const listByCourse = async (user, courseId, pg) => {
   const course = await commentRepository.findCourseForComment(courseId);
   assertCourseOpen(course);
@@ -67,7 +66,7 @@ const listByCourse = async (user, courseId, pg) => {
     take: pg.take,
   });
   return {
-    items: items.map((c) => withOwnership(c, user.id)),
+    items: items.map((c) => withOwnership(c, user?.id)),
     pagination: buildPagination(pg, total),
   };
 };
@@ -102,7 +101,6 @@ const removeComment = async (user, id) => {
   if (!changed) throw new AppError("Bình luận không tồn tại", 404);
 };
 
-//PHẢN HỒI
 const createReply = async (user, commentId, content) => {
   const comment = await getVisibleCommentOrThrow(commentId);
   assertCourseOpen(comment.course);

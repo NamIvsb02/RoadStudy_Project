@@ -9,7 +9,7 @@ export default function AdminList({ items, selectedId, onSelect }) {
             type="button"
             onClick={() => onSelect(admin.id)}
             aria-current={admin.id === selectedId}
-            className={`w-full rounded-lg px-3 py-2.5 text-left transition-colors ${admin.id === selectedId ? "bg-primary/10" : "hover:bg-soft"}`}
+            className={`min-h-11 w-full rounded-lg px-3 py-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-primary-light ${admin.id === selectedId ? "bg-primary-100" : "hover:bg-primary-50"}`}
           >
             <p className="truncate text-sm font-semibold text-ink">{admin.fullName}</p>
             <p className="truncate text-xs text-muted">{admin.email}</p>

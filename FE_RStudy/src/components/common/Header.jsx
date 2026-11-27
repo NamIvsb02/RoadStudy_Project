@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/logo_text-blue.png";
+import { dropdown } from "../../constants/motion";
 import { ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
 import MainNav from "./MainNav";
@@ -9,17 +11,21 @@ import SearchBox from "./SearchBox";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
 
-const iconButton = "inline-flex size-10 items-center justify-center rounded-full bg-surface text-primary transition-colors hover:bg-line";
+const iconButton = "inline-flex size-11 items-center justify-center rounded-full bg-surface text-primary transition-colors duration-150 hover:bg-line";
 
 export default function Header() {
   const { account } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollY } = useScroll();
+
+  useMotionValueEvent(scrollY, "change", (value) => setScrolled(value > 8));
 
   return (
-    <header className="sticky top-0 z-40 bg-white shadow-card">
+    <header className={`sticky top-0 z-40 border-b transition-[background-color,box-shadow,border-color] duration-150 ease-out-soft ${scrolled ? "border-transparent bg-white/90 shadow-card backdrop-blur" : "border-line bg-white"}`}>
       <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-4 px-4 lg:px-6">
         <Link to={ROUTES.HOME} className="shrink-0" aria-label="RoadStudy">
-          <img src={logo} alt="RoadStudy" className="h-9 w-auto" />
+          <img src={logo} alt="RoadStudy" className="h-11 w-auto" />
         </Link>
         <SearchBox className="hidden w-56 lg:block" />
         <MainNav />
@@ -34,7 +40,7 @@ export default function Header() {
             </>
           ) : (
             <div className="hidden items-center gap-3 lg:flex">
-              <Link to={ROUTES.REGISTER} className="text-sm font-medium text-primary transition-colors hover:text-primary-dark">
+              <Link to={ROUTES.REGISTER} className="text-sm font-medium text-primary transition-colors duration-150 hover:text-primary-dark">
                 Đăng ký
               </Link>
               <Link to={ROUTES.LOGIN} className="inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark">
@@ -44,11 +50,13 @@ export default function Header() {
           )}
         </div>
       </div>
-      {searchOpen && (
-        <div className="border-t border-line p-3 lg:hidden">
-          <SearchBox autoFocus onSubmitted={() => setSearchOpen(false)} />
-        </div>
-      )}
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div variants={dropdown} initial="hidden" animate="visible" exit="exit" className="border-t border-line p-3 lg:hidden">
+            <SearchBox autoFocus onSubmitted={() => setSearchOpen(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

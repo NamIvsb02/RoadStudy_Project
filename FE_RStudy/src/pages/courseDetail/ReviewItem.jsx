@@ -28,19 +28,19 @@ export default function ReviewItem({ review, isMine, canRespond, onChanged }) {
   };
 
   return (
-    <li className="space-y-3 border-b border-slate-100 py-4 last:border-b-0">
+    <li className="space-y-3 border-b border-line py-4 last:border-b-0">
       <div className="flex items-start gap-3">
         <Avatar src={review.student.account.avatarUrl} name={review.student.account.fullName} />
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-slate-800">
+          <p className="font-medium text-ink-strong">
             {review.student.account.fullName}
             {isMine && <span className="ml-2 text-xs text-primary">(Của bạn)</span>}
           </p>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2 text-xs text-muted">
             <StarRating value={review.rating} />
             <span>{formatDateTime(review.reviewedAt)}</span>
           </div>
-          {review.content && <p className="mt-2 whitespace-pre-line text-slate-700">{review.content}</p>}
+          {review.content && <p className="mt-2 whitespace-pre-line text-ink">{review.content}</p>}
           {!isMine && (
             <div className="mt-1">
               <ReportButton target={{ reviewId: review.id }} />
@@ -50,18 +50,18 @@ export default function ReviewItem({ review, isMine, canRespond, onChanged }) {
       </div>
 
       {response && mode !== "edit" && (
-        <div className="ml-12 rounded-lg bg-soft p-3">
+        <div className="ml-12 rounded-lg bg-surface p-3">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-sm font-medium text-slate-800">
+            <p className="text-sm font-medium text-ink-strong">
               {response.account.fullName}
               <span className="ml-2 rounded bg-accent/10 px-1.5 text-xs text-accent">Giáo viên</span>
             </p>
-            <span className="text-xs text-slate-500">{formatDateTime(response.respondedAt)}</span>
+            <span className="text-xs text-muted">{formatDateTime(response.respondedAt)}</span>
           </div>
-          <p className="mt-1 whitespace-pre-line text-sm text-slate-700">{response.content}</p>
+          <p className="mt-1 whitespace-pre-line text-sm text-ink">{response.content}</p>
           {ownsResponse && (
             <div className="mt-2 flex items-center gap-3">
-              <button type="button" onClick={() => setMode("edit")} className="text-sm text-primary hover:underline">
+              <button type="button" onClick={() => setMode("edit")} className="inline-flex min-h-11 items-center text-sm text-primary hover:underline">
                 Sửa
               </button>
               <InlineConfirmDelete onConfirm={removeResponse} />

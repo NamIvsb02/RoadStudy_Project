@@ -24,7 +24,7 @@ const getMenuItems = (role) => {
   return items;
 };
 
-const itemClass = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink transition-colors hover:bg-surface";
+const itemClass = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-ink transition-colors duration-150 hover:bg-surface";
 
 export default function UserMenu() {
   const { account, logout } = useAuth();
@@ -62,10 +62,10 @@ export default function UserMenu() {
         onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-1 rounded-full p-1 transition-colors hover:bg-surface"
+        className="flex items-center gap-1 rounded-full p-1 transition-colors duration-150 hover:bg-surface"
       >
         <Avatar name={account.fullName} src={account.avatarUrl} size="sm" />
-        <ChevronDown size={16} className={`text-muted transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown size={16} className={`text-muted transition-transform duration-150 ${open ? "rotate-180" : ""}`} />
       </button>
       <AnimatePresence>
         {open && (

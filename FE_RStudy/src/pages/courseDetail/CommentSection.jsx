@@ -2,10 +2,10 @@ import { useCallback, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { commentApi } from '../../api/commentApi';
 import ContentForm from '../../components/common/ContentForm';
-import EmptyState from '../../components/ui/EmptyState';
-import ErrorState from '../../components/ui/ErrorState';
-import LoadingState from '../../components/ui/LoadingState';
-import Pagination from '../../components/ui/Pagination';
+import EmptyState from '../../components/common/EmptyState';
+import ErrorState from '../../components/common/ErrorState';
+import LoadingState from '../../components/common/LoadingState';
+import Pagination from '../../components/common/Pagination';
 import { ROLES } from '../../constants/roles';
 import { ROUTES } from '../../constants/routes';
 import { useAuth } from '../../hooks/useAuth';
@@ -14,19 +14,20 @@ import CommentItem from './CommentItem';
 
 const PAGE_SIZE = 10;
 
+// Đổi người dùng (đăng nhập/đăng xuất) thì tải lại danh sách để cờ isMine đúng
 export default function CommentSection({ courseId }) {
+  const { account } = useAuth();
+  return <CommentList key={account?.id ?? 'guest'} courseId={courseId} />;
+}
+
+function CommentList({ courseId }) {
   const { account, loading: authLoading } = useAuth();
   const [page, setPage] = useState(1);
   const canWrite = account?.role === ROLES.STUDENT || account?.role === ROLES.TEACHER;
   const loggedIn = Boolean(account);
 
-  const request = useCallback(
-    () =>
-      loggedIn
-        ? commentApi.listByCourse(courseId, { page, limit: PAGE_SIZE })
-        : Promise.resolve({ data: null }),
-    [courseId, page, loggedIn],
-  );
+  // Khách cũng xem được bình luận (isMine luôn false khi chưa đăng nhập)
+  const request = useCallback(() => commentApi.listByCourse(courseId, { page, limit: PAGE_SIZE }), [courseId, page]);
   const { data, loading, error, reload } = useFetch(request);
 
   const createComment = async (content) => {
@@ -36,17 +37,8 @@ export default function CommentSection({ courseId }) {
   };
 
   let content;
-  if (authLoading || (loggedIn && loading && !data)) content = <LoadingState />;
-  else if (!loggedIn) {
-    content = (
-      <p className="text-slate-600">
-        <Link to={ROUTES.LOGIN} className="font-medium text-primary hover:underline">
-          Đăng nhập
-        </Link>{' '}
-        để xem và tham gia bình luận.
-      </p>
-    );
-  } else if (error) content = <ErrorState message={error} onRetry={reload} />;
+  if (authLoading || (loading && !data)) content = <LoadingState />;
+  else if (error) content = <ErrorState message={error} onRetry={reload} />;
   else {
     content = (
       <>
@@ -60,8 +52,16 @@ export default function CommentSection({ courseId }) {
             />
           </div>
         )}
+        {!loggedIn && (
+          <p className="mb-4 text-muted">
+            <Link to={ROUTES.LOGIN} className="font-medium text-primary hover:underline">
+              Đăng nhập
+            </Link>{' '}
+            để tham gia bình luận.
+          </p>
+        )}
         {data.items.length === 0 ? (
-          <EmptyState message="Chưa có bình luận nào" />
+          <EmptyState title="Chưa có bình luận nào" />
         ) : (
           <ul>
             {data.items.map((comment) => (
@@ -69,14 +69,14 @@ export default function CommentSection({ courseId }) {
             ))}
           </ul>
         )}
-        <Pagination page={page} totalPages={data.pagination.totalPages} onChange={setPage} />
+        <Pagination pagination={data.pagination} onChange={setPage} />
       </>
     );
   }
 
   return (
-    <section className="mt-6 rounded-xl bg-white p-5 shadow-sm">
-      <h2 className="mb-4 text-lg font-bold text-slate-800">Bình luận</h2>
+    <section className="rounded-xl border border-line bg-white p-5 shadow-card">
+      <h2 className="mb-4 text-lg font-bold text-ink-strong">Bình luận</h2>
       {content}
     </section>
   );

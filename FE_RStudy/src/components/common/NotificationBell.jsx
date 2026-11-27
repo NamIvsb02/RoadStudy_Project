@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { dropdown } from "../../constants/motion";
 import { useAuth } from "../../hooks/useAuth";
 import { useMarkRead, useNotificationList, useUnreadCount } from "../../hooks/useNotifications";
-import LoadingState from "../ui/LoadingState";
+import LoadingState from "./LoadingState";
 import NotificationItem from "./NotificationItem";
 
 const SHAKE = [0, -16, 14, -10, 6, 0];
@@ -61,7 +61,7 @@ export default function NotificationBell({ buttonClassName = "text-ink hover:bg-
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={unread ? `Thông báo, ${unread} chưa đọc` : "Thông báo"}
-        className={`relative inline-flex size-10 items-center justify-center rounded-full transition-colors ${buttonClassName}`}
+        className={`relative inline-flex size-11 items-center justify-center rounded-full transition-colors duration-150 ${buttonClassName}`}
       >
         <motion.span key={shakeKey} className="inline-flex origin-top" animate={shakeKey > 0 && !reduceMotion ? { rotate: SHAKE } : undefined} transition={{ duration: 0.5, ease: "easeOut" }}>
           <Bell size={20} />
@@ -85,7 +85,7 @@ export default function NotificationBell({ buttonClassName = "text-ink hover:bg-
           >
             <div className="flex items-center justify-between border-b border-line px-4 py-3">
               <p className="text-sm font-semibold text-ink">Thông báo</p>
-              <button type="button" disabled={unread === 0 || markingAll} onClick={() => markAll()} className="text-xs font-semibold text-primary hover:underline disabled:opacity-50">
+              <button type="button" disabled={unread === 0 || markingAll} onClick={() => markAll()} className="text-xs font-semibold text-primary transition-colors duration-150 hover:underline disabled:opacity-50">
                 Đánh dấu tất cả đã đọc
               </button>
             </div>

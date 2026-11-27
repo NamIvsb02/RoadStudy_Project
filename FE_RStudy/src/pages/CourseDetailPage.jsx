@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { courseApi } from '../api/courseApi';
-import PageColumns from '../components/common/PageColumns';
-import ErrorState from '../components/ui/ErrorState';
-import LoadingState from '../components/ui/LoadingState';
+import ErrorState from '../components/common/ErrorState';
+import PageSkeleton from '../components/common/PageSkeleton';
+import Reveal from '../components/common/Reveal';
+import ScrollProgress from '../components/common/ScrollProgress';
 import { useFetch } from '../hooks/useFetch';
 import CommentSection from './courseDetail/CommentSection';
 import CourseEnrollBox from './courseDetail/CourseEnrollBox';
@@ -15,24 +16,30 @@ export default function CourseDetailPage() {
   const request = useCallback(() => courseApi.getPublicById(id), [id]);
   const { data: course, loading, error, reload } = useFetch(request);
 
-  if (loading) return <LoadingState />;
-  if (error) {
-    return (
-      <PageColumns>
-        <ErrorState message={error} onRetry={reload} />
-      </PageColumns>
-    );
-  }
+  if (loading) return <PageSkeleton />;
+  if (error) return <ErrorState message={error} onRetry={reload} />;
 
   return (
-    <PageColumns right={<CourseEnrollBox course={course} />}>
+    <div className="space-y-6">
+      <ScrollProgress />
       <CourseHero course={course} />
-      <section className="mt-6 rounded-xl bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-slate-800">Giới thiệu khóa học</h2>
-        <p className="whitespace-pre-line text-slate-700">{course.description}</p>
-      </section>
-      <ReviewSection courseId={course.id} teacherId={course.teacher.id} />
-      <CommentSection courseId={course.id} />
-    </PageColumns>
+      <div className="flex w-full flex-col gap-6 lg:flex-row">
+        <aside className="w-full shrink-0 lg:sticky lg:top-20 lg:order-last lg:w-80 lg:self-start">
+          <CourseEnrollBox course={course} />
+        </aside>
+        <div className="min-w-0 flex-1 space-y-6">
+          <Reveal as="section" className="rounded-xl border border-line bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-lg font-bold text-ink-strong">Giới thiệu khóa học</h2>
+            <p className="whitespace-pre-line text-ink">{course.description}</p>
+          </Reveal>
+          <Reveal viewport={{ once: true, amount: "some" }}>
+            <ReviewSection courseId={course.id} teacherId={course.teacher.id} />
+          </Reveal>
+          <Reveal viewport={{ once: true, amount: "some" }}>
+            <CommentSection courseId={course.id} />
+          </Reveal>
+        </div>
+      </div>
+    </div>
   );
 }

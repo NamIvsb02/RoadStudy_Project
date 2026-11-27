@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ================= ENUMS =================
@@ -245,6 +246,8 @@ model Course {
   comments        Comment[]
   exams           Exam[]
   recommendations CourseRecommendation[]
+  learning CourseLearning?
+  sessions CourseSession[]
 
   @@index([categoryId])
   @@index([teacherId])
@@ -261,6 +264,8 @@ model Resource {
 
   uploadedBy Teacher  @relation(fields: [uploadedByTeacherId], references: [id])
   category   Category @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
 }
 
 // ================= ĐĂNG KÝ & THANH TOÁN =================
@@ -313,6 +318,8 @@ model Invoice {
   discountCode DiscountCode?      @relation(fields: [discountCodeId], references: [id])
 
   @@index([registrationId])
+  @@index([studentId])
+  @@index([discountCodeId])
 }
 
 // ================= ĐÁNH GIÁ & BÌNH LUẬN =================
@@ -361,6 +368,8 @@ model Reply {
   comment Comment           @relation(fields: [commentId], references: [id])
   replier Account           @relation(fields: [replierAccountId], references: [id])
   reports ViolationReport[]
+
+  @@index([commentId])
 }
 
 model ReviewResponse {
@@ -458,6 +467,8 @@ model AiConversation {
 
   student  Student     @relation(fields: [studentId], references: [id])
   messages AiMessage[]
+
+  @@index([studentId])
 }
 
 model AiMessage {
@@ -502,6 +513,9 @@ model ViolationReport {
   review          Review?  @relation(fields: [reviewId], references: [id])
   comment         Comment? @relation(fields: [commentId], references: [id])
   reply           Reply?   @relation(fields: [replyId], references: [id])
+
+  @@index([status])
+  @@index([reporterAccountId])
 }
 
 enum SupportRequestType {
@@ -578,4 +592,27 @@ model Notification {
   account Account @relation(fields: [accountId], references: [id])
 
   @@index([accountId, isRead, createdAt])
+}
+
+model CourseLearning {
+  courseId  String  @id @db.VarChar(36)
+  driveUrl  String? @db.VarChar(2048)
+  classUrl  String? @db.VarChar(2048)
+  showExams Boolean @default(true)
+
+  course Course @relation(fields: [courseId], references: [id])
+}
+
+model CourseSession {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  courseId  String   @db.VarChar(36)
+  title     String   @db.VarChar(200)
+  startTime DateTime
+  endTime   DateTime
+  note      String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@index([courseId, startTime])
 }

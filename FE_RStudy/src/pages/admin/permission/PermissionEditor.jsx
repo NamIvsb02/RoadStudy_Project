@@ -34,11 +34,17 @@ export default function PermissionEditor({ admin, functions, onSaved }) {
 
   return (
     <div>
-      <fieldset className="flex flex-col gap-1">
-        <legend className="mb-2 text-sm font-semibold text-ink">Quyền được cấp</legend>
+      <fieldset className="grid gap-1 sm:grid-cols-2">
+        <legend className="mb-2 text-sm font-semibold text-ink sm:col-span-2">Quyền được cấp</legend>
         {functions.map((item) => (
-          <label key={item.id} className="flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2 hover:bg-soft">
-            <input type="checkbox" checked={admin.isLeader || draft.has(item.id)} disabled={admin.isLeader || saving} onChange={() => handleToggle(item.id)} className="mt-0.5 size-4 accent-primary" />
+          <label key={item.id} className="flex min-h-11 cursor-pointer items-start gap-3 rounded-lg border border-line px-3 py-2 transition-colors hover:bg-primary-50">
+            <input
+              type="checkbox"
+              checked={admin.isLeader || draft.has(item.id)}
+              disabled={admin.isLeader || saving}
+              onChange={() => handleToggle(item.id)}
+              className="mt-0.5 size-4 accent-primary"
+            />
             <span>
               <span className="block text-sm text-ink">{item.description}</span>
               <span className="block text-xs text-muted">{item.functionName}</span>

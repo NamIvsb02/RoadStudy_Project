@@ -8,16 +8,14 @@ const notificationService = require("./notificationService");
 const { Decimal } = Prisma;
 const GRACE_MS = 10 * 1000; // cho phép trễ nhẹ do mạng khi lưu/nộp bài
 
-// ---------- Thời gian ----------
 const deadlineOf = (attempt) => new Date(attempt.startTime.getTime() + attempt.exam.durationMinutes * 60 * 1000);
 const isExpired = (attempt, now = new Date()) => now.getTime() > deadlineOf(attempt).getTime() + GRACE_MS;
 const remainingSeconds = (attempt, now = new Date()) => Math.max(0, Math.floor((deadlineOf(attempt).getTime() - now.getTime()) / 1000));
 
 const fixed = (value) => (value == null ? null : new Decimal(value).toFixed(2));
 
-// ---------- Chấm điểm ----------
 // Chấm theo đáp án đã lưu trên server, đóng bài. Trả false nếu bài đã được đóng bởi request khác.
-async function gradeAndClose(attempt, endTime) {
+async function gradeAndClose(attempt, endTime, tx) {
   const questions = await repo.findQuestionsWithOptions(attempt.examId);
   const chosen = new Map(attempt.details.map((d) => [d.questionId, d.answerOptionId]));
 
@@ -26,7 +24,7 @@ async function gradeAndClose(attempt, endTime) {
     const picked = chosen.get(q.id);
     if (picked && q.options.some((o) => o.id === picked && o.isCorrect)) score = score.add(q.score);
   }
-  return repo.closeAttempt(attempt.id, score, endTime);
+  return repo.closeAttempt(attempt.id, score, endTime, tx);
 }
 
 // Hết giờ mà chưa nộp: tự nộp với các đáp án đã chọn
@@ -38,7 +36,6 @@ async function autoSubmitIfExpired(attempt) {
   return attempt;
 }
 
-// ---------- Định dạng dữ liệu trả về ----------
 function toAttemptDto(attempt, totalScore) {
   const finished = attempt.status !== "DANG_LAM";
   const dto = {
@@ -86,7 +83,6 @@ async function buildQuestionDetails(attempt, { staff }) {
   });
 }
 
-// ---------- Truy cập bài làm ----------
 async function requireStudentId(accountId) {
   const studentId = await examRepo.findStudentIdByAccountId(accountId);
   if (!studentId) throw new AppError("Chỉ học viên mới được làm bài thi", 403);
@@ -110,7 +106,7 @@ async function assertActive(attempt) {
 }
 
 // Câu hỏi phải thuộc đề của bài làm, đáp án phải thuộc đúng câu hỏi đó
-async function persistAnswers(attempt, answers) {
+async function persistAnswers(attempt, answers, tx) {
   const questions = await repo.findQuestionsWithOptions(attempt.examId);
   const optionsOf = new Map(questions.map((q) => [q.id, new Set(q.options.map((o) => o.id))]));
 
@@ -122,15 +118,15 @@ async function persistAnswers(attempt, answers) {
     }
     latest.set(a.questionId, a); // cùng một câu gửi nhiều lần: lấy lần cuối
   }
-  await repo.upsertAnswers(attempt.id, [...latest.values()]);
+  await repo.upsertAnswers(attempt.id, [...latest.values()], tx);
 }
 
-// ---------- Học viên làm bài ----------
 async function start(accountId, examId) {
   const studentId = await requireStudentId(accountId);
 
   const exam = await repo.findExamForStart(examId);
   if (!exam || exam.status !== "DANG_MO") throw new AppError("Đề thi không tồn tại hoặc chưa mở", 404);
+  if (exam.course.learning?.showExams === false) throw new AppError("Đề thi không tồn tại hoặc chưa mở", 404);
   if (!(await examRepo.hasConfirmedRegistration(studentId, exam.courseId))) {
     throw new AppError("Bạn cần được xác nhận đăng ký khóa học để làm bài thi", 403);
   }
@@ -163,7 +159,9 @@ async function start(accountId, examId) {
 async function saveAnswers(accountId, attemptId, answers) {
   const attempt = await loadOwnAttempt(accountId, attemptId);
   await assertActive(attempt);
-  await persistAnswers(attempt, answers);
+  // Khóa bài làm khi ghi: không ghi đè đáp án sau khi bài đã được nộp và chấm bởi request khác
+  const saved = await repo.withActiveAttempt(attempt.id, (tx) => persistAnswers(attempt, answers, tx).then(() => true));
+  if (!saved) throw new AppError("Bài làm đã được nộp trước đó", 409);
   return { saved: new Set(answers.map((a) => a.questionId)).size, remainingSeconds: remainingSeconds(attempt) };
 }
 
@@ -173,14 +171,14 @@ async function submit(accountId, attemptId, answers) {
 
   const now = new Date();
   const expired = isExpired(attempt, now);
-  let current = attempt;
 
-  // Quá hạn thì bỏ qua đáp án gửi kèm, chỉ chấm theo đáp án đã lưu trước đó
-  if (!expired && answers && answers.length > 0) {
-    await persistAnswers(attempt, answers);
-    current = await repo.findAttemptById(attemptId);
-  }
-  const closed = await gradeAndClose(current, expired ? deadlineOf(attempt) : now);
+  // Lưu đáp án gửi kèm và chấm điểm trong cùng một khóa bài làm: điểm luôn khớp đáp án đã lưu.
+  // Quá hạn thì bỏ qua đáp án gửi kèm, chỉ chấm theo đáp án đã lưu trước đó.
+  const closed = await repo.withActiveAttempt(attemptId, async (tx) => {
+    if (!expired && answers && answers.length > 0) await persistAnswers(attempt, answers, tx);
+    const current = await repo.findAttemptById(attemptId, tx);
+    return gradeAndClose(current, expired ? deadlineOf(attempt) : now, tx);
+  });
   if (!closed) throw new AppError("Bài làm đã được nộp trước đó", 409);
 
   const done = await repo.findAttemptById(attemptId);
@@ -202,7 +200,6 @@ async function myAttempts(accountId, query, { skip, take }) {
   return { items: attempts.map((a) => toAttemptDto(a)), total };
 }
 
-// ---------- Xem kết quả ----------
 async function getById(user, attemptId) {
   if (user.role === "STUDENT") {
     let attempt = await loadOwnAttempt(user.id, attemptId);
@@ -237,4 +234,22 @@ async function listByExam(user, examId, query, { skip, take }) {
   return { items, total };
 }
 
-module.exports = { start, saveAnswers, submit, myAttempts, getById, listByExam };
+async function listManage(user, query, { skip, take }) {
+  const where = {};
+  if (query.courseId) {
+    await assertCanManageCourse(user, String(query.courseId));
+    where.exam = { courseId: String(query.courseId) };
+  } else if (user.role === "TEACHER") {
+    const teacher = await examRepo.findTeacherByAccountId(user.id);
+    if (!teacher || teacher.approvalStatus !== "DA_DUYET") throw new AppError("Bạn không phụ trách khóa học nào", 403);
+    where.exam = { course: { teacherId: teacher.id } };
+  }
+  if (query.examId) where.examId = String(query.examId);
+  if (["DANG_LAM", "DA_NOP", "DA_CHAM", "HUY"].includes(query.status)) where.status = query.status;
+
+  const [rows, total] = await repo.findManyForManage(where, { skip, take });
+  const items = rows.map((a) => ({ ...toAttemptDto(a), student: a.student, course: a.exam.course }));
+  return { items, total };
+}
+
+module.exports = { start, saveAnswers, submit, myAttempts, getById, listByExam, listManage };

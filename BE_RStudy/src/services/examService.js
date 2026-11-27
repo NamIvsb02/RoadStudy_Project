@@ -2,6 +2,7 @@ const { Prisma } = require("@prisma/client");
 const AppError = require("../utils/AppError");
 const repo = require("../repositories/examRepository");
 const notificationService = require("./notificationService");
+const { PERMISSIONS } = require("../constants/permissions");
 
 const { Decimal } = Prisma;
 const EXAM_STATUSES = ["BAN_NHAP", "DA_PHE_DUYET", "DANG_MO", "TAM_NGUNG"];
@@ -55,7 +56,6 @@ async function loadExam(id) {
 
 const withTotal = (exam) => ({ ...exam, totalScore: totalOf(exam.questions).toFixed(2) });
 
-// ---------- Exam ----------
 async function create(user, data) {
   await assertCanManageCourse(user, data.courseId);
 
@@ -76,6 +76,10 @@ async function create(user, data) {
     ...(data.showAnswers !== undefined && { showAnswers: data.showAnswers }),
     questions,
   });
+
+  if (user.role === "TEACHER") {
+    await notificationService.notifyAdmins(PERMISSIONS.QUAN_LY_BAI_THI, { type: "EXAM_PENDING", title: "Có đề thi mới chờ phê duyệt", body: data.examName, link: "/admin/exams" });
+  }
   return withTotal(exam);
 }
 
@@ -89,6 +93,7 @@ async function listByCourse(user, courseId, query, { skip, take }) {
   if (user.role === "STUDENT") {
     studentId = await assertStudentCanAccess(user, courseId);
     where.status = "DANG_MO";
+    if (course.learning?.showExams === false) return { items: [], total: 0 };
   } else {
     await assertCanManageCourse(user, courseId);
     if (EXAM_STATUSES.includes(query.status)) where.status = query.status;
@@ -114,6 +119,8 @@ async function getById(user, id) {
 
   if (user.role === "STUDENT") {
     if (exam.status !== "DANG_MO") throw new AppError("Đề thi không tồn tại hoặc chưa mở", 404);
+    const course = await repo.findCourseById(exam.courseId);
+    if (course?.learning?.showExams === false) throw new AppError("Đề thi không tồn tại hoặc chưa mở", 404);
     const studentId = await assertStudentCanAccess(user, exam.courseId);
     const used = await repo.countAttemptsByExams(studentId, [exam.id]);
     // Học viên chỉ xem thông tin đề; câu hỏi chỉ được gửi khi bắt đầu làm bài
@@ -187,7 +194,7 @@ async function remove(user, id) {
   await repo.deleteExam(id);
 }
 
-// ---------- Question (đáp án được quản lý cùng câu hỏi) ----------
+// Đáp án được quản lý cùng câu hỏi
 async function addQuestion(user, examId, data) {
   const exam = await loadExam(examId);
   await assertCanManageCourse(user, exam.courseId);

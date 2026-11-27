@@ -1,14 +1,16 @@
 import { useCallback, useState } from "react";
 import { reportApi } from "../../api/reportApi";
 import DashboardPanel from "../../components/common/DashboardPanel";
-import Pagination from "../../components/ui/Pagination";
+import Pagination from "../../components/common/Pagination";
 import { STATUS_MAPS } from "../../constants/statuses";
 import { useFetch } from "../../hooks/useFetch";
+import ActionError from "../manage/ActionError";
+import StatusTabs from "../manage/StatusTabs";
 import ReportActionDialog from "./report/ReportActionDialog";
 import ReportCard from "./report/ReportCard";
 
 const LIMIT = 10;
-const TABS = ["CHO_XU_LY", "DANG_XU_LY", "DA_XU_LY", "TU_CHOI"];
+const TAB_OPTIONS = ["CHO_XU_LY", "DANG_XU_LY", "DA_XU_LY", "TU_CHOI"].map((value) => [value, STATUS_MAPS.ReportStatus[value].label]);
 
 export default function ReportsPage() {
   const [tab, setTab] = useState("CHO_XU_LY");
@@ -46,36 +48,38 @@ export default function ReportsPage() {
 
   const handleSubmit = async (text) => {
     const { type, report } = action;
-    if (type === "resolve") await reportApi.process(report.id, { status: "DA_XU_LY", resolutionResult: text });
+    if (type === "resolve")
+      await reportApi.process(report.id, {
+        status: "DA_XU_LY",
+        resolutionResult: text,
+      });
     else await reportApi.reject(report.id, text);
     setAction(null);
     refresh();
   };
 
-  const openResolve = (report) => setAction({ type: "resolve", report, title: "Xác nhận nội dung vi phạm", label: "Kết quả xử lý", confirmLabel: "Xác nhận vi phạm" });
-  const openReject = (report) => setAction({ type: "reject", report, title: "Từ chối báo cáo", label: "Lý do từ chối", confirmLabel: "Từ chối", danger: true });
+  const openResolve = (report) =>
+    setAction({
+      type: "resolve",
+      report,
+      title: "Xác nhận nội dung vi phạm",
+      label: "Kết quả xử lý",
+      confirmLabel: "Xác nhận vi phạm",
+    });
+  const openReject = (report) =>
+    setAction({
+      type: "reject",
+      report,
+      title: "Từ chối báo cáo",
+      label: "Lý do từ chối",
+      confirmLabel: "Từ chối",
+      danger: true,
+    });
 
   return (
     <div className="flex flex-col gap-4">
-      <div role="tablist" className="flex flex-wrap gap-2">
-        {TABS.map((value) => (
-          <button
-            key={value}
-            type="button"
-            role="tab"
-            aria-selected={tab === value}
-            onClick={() => handleTab(value)}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${tab === value ? "bg-primary text-white" : "bg-white text-ink hover:bg-soft"}`}
-          >
-            {STATUS_MAPS.ReportStatus[value].label}
-          </button>
-        ))}
-      </div>
-      {actionError && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-4 py-2.5 text-sm text-danger">
-          {actionError}
-        </p>
-      )}
+      <StatusTabs tabs={TAB_OPTIONS} value={tab} onChange={handleTab} />
+      <ActionError message={actionError} />
       <DashboardPanel title="Báo cáo vi phạm" loading={loading} error={error} empty={items.length === 0} emptyText="Không có báo cáo nào trong mục này.">
         <div className="flex flex-col gap-3">
           {items.map((report) => (
@@ -83,7 +87,7 @@ export default function ReportsPage() {
           ))}
         </div>
       </DashboardPanel>
-      <Pagination page={page} totalPages={data?.pagination.totalPages} onChange={setPage} />
+      <Pagination pagination={data?.pagination} onChange={setPage} />
       <ReportActionDialog action={action} onSubmit={handleSubmit} onCancel={() => setAction(null)} />
     </div>
   );

@@ -1,3 +1,4 @@
+import EmptyState from "../../components/common/EmptyState";
 import { PERMISSIONS } from "../../constants/permissions";
 import { useAuth } from "../../hooks/useAuth";
 import { hasPermission } from "../../utils/permission";
@@ -16,7 +17,9 @@ export default function AdminDashboardPage() {
       <section>
         <h2 className="mb-3 text-base font-semibold text-ink">Việc cần xử lý</h2>
         {pending.length === 0 ? (
-          <p className="rounded-xl border border-line bg-white p-5 text-sm text-muted">Bạn chưa được cấp quyền xử lý chức năng nào.</p>
+          <div className="rounded-xl border border-line bg-white">
+            <EmptyState title="Bạn chưa được cấp quyền xử lý chức năng nào." />
+          </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {pending.map(({ key, ...card }) => (

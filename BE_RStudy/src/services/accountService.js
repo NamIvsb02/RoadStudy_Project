@@ -1,10 +1,8 @@
-const fs = require("fs/promises");
-const path = require("path");
 const accountRepository = require("../repositories/accountRepository");
 const AppError = require("../utils/AppError");
+const storage = require("../utils/storage");
 const { getPagination, buildPaginationMeta } = require("../utils/pagination");
 
-const AVATAR_DIR = path.join(__dirname, "../../uploads/avatars");
 const COMMON_FIELDS = ["fullName", "phoneNumber"];
 const STUDENT_FIELDS = ["dateOfBirth", "gender", "address"];
 const TEACHER_FIELDS = ["specialization", "biography", "teachingExperience"];
@@ -12,15 +10,6 @@ const ROLES = ["STUDENT", "TEACHER", "ADMINISTRATOR"];
 const STATUSES = ["HOAT_DONG", "BI_KHOA", "CHO_XAC_MINH"];
 
 const pick = (obj, keys) => Object.fromEntries(keys.filter((k) => obj[k] !== undefined).map((k) => [k, obj[k]]));
-
-const removeAvatarFile = async (url) => {
-  if (!url || !url.startsWith("/uploads/avatars/")) return;
-  try {
-    await fs.unlink(path.join(AVATAR_DIR, path.basename(url)));
-  } catch (_) {
-    // file không còn thì bỏ qua
-  }
-};
 
 const updateProfile = async (user, body) => {
   const accountData = pick(body, COMMON_FIELDS);
@@ -40,17 +29,27 @@ const updateProfile = async (user, body) => {
 
 const updateAvatar = async (user, file) => {
   if (!file) throw new AppError('Chưa chọn ảnh (trường tên "avatar")', 400);
-  const newUrl = `/uploads/avatars/${file.filename}`;
 
   const current = await accountRepository.findByIdSafe(user.id);
-  if (!current) {
-    await removeAvatarFile(newUrl);
-    throw new AppError("Không tìm thấy tài khoản", 404);
-  }
+  if (!current) throw new AppError("Không tìm thấy tài khoản", 404);
 
-  const updated = await accountRepository.updateAvatar(user.id, newUrl);
-  await removeAvatarFile(current.avatarUrl);
-  return updated;
+  // Lưu ảnh mới -> cập nhật DB -> xóa ảnh cũ: sự cố giữa chừng chỉ để lại file thừa, ảnh đang dùng luôn còn.
+  // Cập nhật kiểu compare-and-set: hai request đổi ảnh cùng lúc thì chỉ một request thắng; request thua xóa ảnh
+  // của chính nó và trả 409, nên không có file mồ côi và không request nào xóa nhầm ảnh đang dùng.
+  const newUrl = await storage.save(file, "avatars");
+  let ok;
+  try {
+    ok = await accountRepository.updateAvatarIfCurrent(user.id, current.avatarUrl, newUrl);
+  } catch (err) {
+    await storage.remove(newUrl);
+    throw err;
+  }
+  if (!ok) {
+    await storage.remove(newUrl);
+    throw new AppError("Ảnh đại diện vừa được thay đổi ở nơi khác, vui lòng tải lại trang", 409);
+  }
+  await storage.remove(current.avatarUrl);
+  return accountRepository.findByIdSafe(user.id);
 };
 
 const listAccounts = async (query) => {
