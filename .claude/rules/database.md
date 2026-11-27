@@ -13,7 +13,7 @@ paths:
 
 - Cả nhóm dùng **một project Supabase (PostgreSQL)**. Mọi lệnh ghi đều tác động dữ liệu của cả nhóm.
 - App kết nối bằng `DATABASE_URL` (pooler). Prisma CLI (`migrate`, `db seed`) đọc `prisma.config.ts` và dùng `DIRECT_URL` (kết nối trực tiếp); thiếu `DIRECT_URL` thì migrate/seed lỗi.
-- `BE_RStudy/database/schema.sql`, `seed.sql` chỉ để tham khảo. Nguồn chuẩn là `prisma/schema.prisma` và `prisma/migrations/`.
+- Nguồn chuẩn của cấu trúc database là `prisma/schema.prisma` và `prisma/migrations/`; dữ liệu mẫu ở `prisma/seed.js`.
 
 ## Lệnh được phép
 
