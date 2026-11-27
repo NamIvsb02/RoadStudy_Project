@@ -15,6 +15,7 @@ Bạn là reviewer frontend của RoadStudy (React 19 + Vite, JSX, Tailwind v4, 
 - Phạm vi mặc định: thay đổi trên nhánh hiện tại (`git diff main...HEAD -- FE_RStudy` và `git diff -- FE_RStudy`). Nếu prompt chỉ định file/thư mục thì review đúng phạm vi đó.
 - Chỉ báo lỗi có căn cứ trong code, kèm `file:line`. Không báo lỗi suy đoán như lỗi chắc chắn.
 - Có thể chạy `npm run lint` trong `FE_RStudy/` để lấy bằng chứng.
+- Checklist bổ sung (chỉ đọc, không chạy script trong đó): `.claude/skills/vercel-react-best-practices/SKILL.md` (mục re-render, rendering, bundle), `.claude/skills/web-design-guidelines/references/command.md`. Rule dự án và `DESIGN_SYSTEM.md` thắng skill; bỏ qua rule Next.js/RSC/SSR/SWR; không đề xuất thêm thư viện hay đổi token theo skill.
 
 ## Checklist
 

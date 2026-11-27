@@ -10,7 +10,9 @@ export default function ChatCourseCard({ recommendation }) {
 
   return (
     <div className="mt-2 flex gap-2.5 rounded-lg border border-line bg-white p-2.5 text-ink">
-      <CourseCover src={course.coverImageUrl} className="h-fit w-20 shrink-0 rounded-md" />
+      <div className="w-20 shrink-0">
+        <CourseCover src={course.coverImageUrl} className="rounded-md" />
+      </div>
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-ink-strong">{course.courseName}</p>
         <p className="text-xs text-muted">{meta}</p>

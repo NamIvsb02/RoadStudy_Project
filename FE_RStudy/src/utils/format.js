@@ -11,7 +11,7 @@ const dateFormatter = new Intl.DateTimeFormat("vi-VN", {
   timeZone: VN_TIME_ZONE,
   day: "2-digit",
   month: "2-digit",
-  year: "numeric",
+  year: "numeric",  
 });
 
 const timeFormatter = new Intl.DateTimeFormat("vi-VN", {

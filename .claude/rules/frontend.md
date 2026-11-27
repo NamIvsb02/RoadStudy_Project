@@ -5,7 +5,7 @@ paths:
 
 # Quy ước frontend
 
-React 19 + Vite (JSX, không TypeScript), Tailwind CSS v4 (plugin `@tailwindcss/vite`, không có `tailwind.config.js`), React Router 7, Axios, TanStack Query 5, react-hook-form + zod, dayjs (locale `vi`), `lucide-react`, `framer-motion`. **Không thêm thư viện UI, icon, animation khác.**
+React 19 + Vite (JSX, không TypeScript), Tailwind CSS v4 (plugin `@tailwindcss/vite`, không có `tailwind.config.js`), React Router 7, Axios, TanStack Query 5, react-hook-form + zod, dayjs (locale `vi`), `lucide-react`, `framer-motion`, `lightswind-ui`. **Không thêm thư viện UI, icon, animation khác.**
 
 Giao diện, màu, animation: `design.md` + `DESIGN_SYSTEM.md`. Phân quyền: `security.md`.
 

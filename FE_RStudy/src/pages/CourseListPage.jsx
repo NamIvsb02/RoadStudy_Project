@@ -9,7 +9,6 @@ import ErrorState from '../components/common/ErrorState';
 import PageColumns from '../components/common/PageColumns';
 import Pagination from '../components/common/Pagination';
 import { useFetch } from '../hooks/useFetch';
-import CategoryChips from './courseList/CategoryChips';
 import CourseFilterBar from './courseList/CourseFilterBar';
 
 const PAGE_SIZE = 9;
@@ -38,6 +37,7 @@ export default function CourseListPage() {
 
   const filterValues = {
     q: searchParams.get('q') ?? '',
+    categoryId: searchParams.get('categoryId') ?? '',
     sort: searchParams.get('sort') ?? 'newest',
     minPrice: searchParams.get('minPrice') ?? '',
     maxPrice: searchParams.get('maxPrice') ?? '',
@@ -46,12 +46,13 @@ export default function CourseListPage() {
   const handleSubmit = (values) =>
     updateParams({
       q: values.q,
+      categoryId: values.categoryId,
       sort: values.sort === 'newest' ? '' : values.sort,
       minPrice: values.minPrice,
       maxPrice: values.maxPrice,
     });
 
-  const handleReset = () => updateParams({ q: '', sort: '', minPrice: '', maxPrice: '' });
+  const handleReset = () => updateParams({ q: '', categoryId: '', sort: '', minPrice: '', maxPrice: '' });
 
   const { items = [], pagination } = courses.data ?? {};
 
@@ -81,14 +82,7 @@ export default function CourseListPage() {
         {pagination && <p className="mt-1 text-sm text-muted">{pagination.total} khóa học phù hợp</p>}
       </header>
       <div className="space-y-4">
-        {categories.data && (
-          <CategoryChips
-            categories={categories.data.items}
-            activeId={searchParams.get('categoryId') ?? ''}
-            onSelect={(id) => updateParams({ categoryId: id })}
-          />
-        )}
-        <CourseFilterBar values={filterValues} onSubmit={handleSubmit} onReset={handleReset} />
+        <CourseFilterBar values={filterValues} categories={categories.data?.items} onSubmit={handleSubmit} onReset={handleReset} />
         {content}
       </div>
     </PageColumns>

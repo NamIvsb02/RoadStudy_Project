@@ -229,12 +229,12 @@ const buildOpenApi = () => {
     info: {
       title: "RoadStudy API",
       version,
-      description: `Tài liệu sinh tự động từ route, validator và \`docs/api-spec.md\` (nguồn chuẩn). Bấm **Authorize** và dán access token (không cần chữ "Bearer") để thử API cần đăng nhập.\n\n${spec.intro}`.trim(),
+      description: 'Bấm **Authorize** và dán access token (không cần chữ "Bearer") để thử API cần đăng nhập. Chi tiết ở `docs/api-spec.md`.',
     },
     servers: [{ url: "/api" }],
     // Giữ thứ tự nhóm như trong api-spec.md
     tags: [...usedTags]
-      .map(([name, description]) => ({ name, description: description || undefined }))
+      .map(([name]) => ({ name })) // không kèm mô tả nhóm: phần giới thiệu module trong spec quá dài, chỉ làm rối danh sách
       .sort((a, b) => moduleOrder(spec, a.name) - moduleOrder(spec, b.name)),
     paths,
     components: {

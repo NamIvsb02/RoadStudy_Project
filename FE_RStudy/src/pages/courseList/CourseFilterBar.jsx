@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SlidersHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '../../components/ui/Button';
@@ -19,6 +19,7 @@ const priceField = z.string().trim().regex(/^\d*$/, 'Chỉ nhập số nguyên d
 const schema = z
   .object({
     q: z.string().trim().max(100, 'Từ khóa tối đa 100 ký tự'),
+    categoryId: z.string(),
     sort: z.string(),
     minPrice: priceField,
     maxPrice: priceField,
@@ -32,13 +33,18 @@ const inputClass =
   'h-11 w-full rounded-lg border border-line bg-surface px-3 text-sm outline-none transition-colors duration-150 focus:border-primary focus-visible:ring-2 focus-visible:ring-primary/30';
 const labelClass = 'mb-1 block text-xs font-medium text-muted';
 
-export default function CourseFilterBar({ values, onSubmit, onReset }) {
+export default function CourseFilterBar({ values, categories = [], onSubmit, onReset }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({ resolver: zodResolver(schema), values });
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (categories.length > 0) setValue('categoryId', values.categoryId);
+  }, [categories.length, values.categoryId, setValue]);
 
   return (
     <div className="z-20 rounded-xl border border-line bg-white shadow-card lg:sticky lg:top-16">
@@ -56,7 +62,7 @@ export default function CourseFilterBar({ values, onSubmit, onReset }) {
         id="course-filter-form"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className={`gap-3 p-4 sm:grid-cols-2 lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_auto] ${open ? 'grid border-t border-line lg:border-t-0' : 'hidden'}`}
+        className={`gap-3 p-4 sm:grid-cols-2 lg:grid lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto] ${open ? 'grid border-t border-line lg:border-t-0' : 'hidden'}`}
       >
         <div>
           <label className={labelClass} htmlFor="filter-q">
@@ -64,6 +70,19 @@ export default function CourseFilterBar({ values, onSubmit, onReset }) {
           </label>
           <input id="filter-q" placeholder="Tên hoặc nội dung khóa học" className={inputClass} {...register('q')} />
           <FieldError message={errors.q?.message} />
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="filter-category">
+            Danh mục
+          </label>
+          <select id="filter-category" className={inputClass} {...register('categoryId', { onChange: () => handleSubmit(onSubmit)() })}>
+            <option value="">Tất cả danh mục</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.categoryName} ({category.courseCount})
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label className={labelClass} htmlFor="filter-sort">

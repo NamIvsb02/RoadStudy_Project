@@ -9,9 +9,11 @@
   --color-sky: #4aa8e0;
   --color-surface: #f0f3f7;
   --color-page: #f7f8f9;
-  --color-accent: #ff8a00;
-  --color-accent-soft: #fff3e3;
-  --color-accent-strong: #b45309;
+  --color-accent: #3d8bd9;
+  --color-accent-soft: #e8f1fb;
+  --color-accent-strong: #1e5fa0;
+  --color-secondary: #2bb3c0;
+  --color-secondary-strong: #0e6e78;
   --color-success: #16a34a;
   --color-success-strong: #15803d;
   --color-warning: #d97706;
@@ -27,7 +29,7 @@
   --color-line-strong: #d3dae3;
 
   --font-sans:
-    "Be Vietnam Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+    "Montserrat", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
 
   --text-display: clamp(2rem, 1.25rem + 3.2vw, 3.5rem);
   --text-display--line-height: 1.08;

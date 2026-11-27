@@ -11,9 +11,11 @@ colors:
   primary-200: "#b0d0ea"
   primary-950: "#0a2e4a"
   sky: "#4aa8e0"
-  accent: "#ff8a00"
-  accent-soft: "#fff3e3"
-  accent-strong: "#b45309"
+  accent: "#3d8bd9"
+  accent-soft: "#e8f1fb"
+  accent-strong: "#1e5fa0"
+  secondary: "#2bb3c0"
+  secondary-strong: "#0e6e78"
   page: "#f7f8f9"
   surface: "#f0f3f7"
   white: "#ffffff"
@@ -31,7 +33,7 @@ colors:
   info: "#2563eb"
   info-strong: "#1d4ed8"
 typography:
-  fontFamily: '"Be Vietnam Pro", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif'
+  fontFamily: '"Montserrat", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif'
   weights:
     regular: 400
     medium: 500
@@ -204,32 +206,33 @@ RoadStudy là con đường học tập: học viên tìm khóa, thanh toán và
 - **Nhịp section:** trang công khai xen kẽ nền `white`, `page` và dải `primary-950` để tạo nhịp.
 - **Bố cục bất đối xứng:** lưới 7/5, 5/7 và bento cho trang công khai; khu quản lý dùng lưới đều.
 - **Bo góc theo cấp:** càng lớn và càng nổi thì bo càng nhiều, tối đa `rounded-2xl`.
-- **Chữ tiếng Việt dễ đọc:** Be Vietnam Pro, cỡ cơ bản 14px, dấu thanh rõ.
+- **Chữ tiếng Việt dễ đọc:** Montserrat (có bộ ký tự tiếng Việt), cỡ cơ bản 14px, dấu thanh rõ.
 - **Chỉ giao diện sáng:** chưa có chế độ tối.
 - **Glassmorphism:** không dùng, trừ duy nhất header khi cuộn (`bg-white/90 backdrop-blur`).
 
 ## 3. Màu sắc
 
-Bảng màu: xanh đại dương chủ đạo (thang `primary-50` đến `primary-950`), tông `sky` sáng chỉ dùng trong gradient, cam điểm nhấn rất nhỏ, trên nền trung tính sáng.
+Bảng màu: xanh đại dương chủ đạo (thang `primary-50` đến `primary-950`), tông `sky` sáng chỉ dùng trong gradient, xanh `accent` và xanh ngọc `secondary` làm điểm nhấn nhỏ, trên nền trung tính sáng. **Không dùng màu cam** ở bất kỳ đâu (trừ `warning` hổ phách cho trạng thái chờ).
 
-| Nhóm    | Token                                                              | Dùng cho                                                                      |
-| ------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| Primary | `primary`                                                          | Nút chính, thanh bên quản lý, tiêu đề nhấn, số liệu thống kê, trạng thái chọn |
-| Primary | `primary-dark`                                                     | Hover của nút chính                                                           |
-| Primary | `primary-light`                                                    | Vòng sáng focus, điểm nhấn thứ cấp                                            |
-| Primary | `primary-50`, `primary-100`, `primary-200`                         | Nền hover, nền mục active, đường `RoadPath`, lưới chấm                        |
-| Primary | `primary-950`                                                      | Footer, dải nội dung tối                                                      |
-| Sky     | `sky`                                                              | Chỉ trong gradient. Không dùng cho chữ                                        |
-| Accent  | `accent`, `accent-soft`                                            | Ngôi sao đánh giá, trạm đang active, nền nhãn nhỏ. Không dùng cho nút         |
-| Accent  | `accent-strong`                                                    | Chữ cam trên nền sáng (nhãn danh mục)                                         |
-| Neutral | `page`                                                             | Nền trang                                                                     |
-| Neutral | `surface`                                                          | Khung ảnh khi chưa có bìa, nền skeleton, nền nút tròn, hover nút lọc          |
-| Neutral | `white`                                                            | Nền thẻ, panel, bảng, hộp thoại                                               |
-| Neutral | `line`, `line-strong`                                              | Viền 1px, vách ngăn; `line-strong` cho hover viền ô nhập và sao rỗng          |
-| Neutral | `ink`, `ink-strong`                                                | Chữ chính; `ink-strong` cho tiêu đề lớn                                       |
-| Neutral | `muted`                                                            | Chữ phụ, mô tả, ngày giờ                                                      |
-| Status  | `success`, `warning`, `danger`, `info`                             | Chấm trạng thái, biểu tượng, nền 10%, hành động phá hủy (`danger`)            |
-| Status  | `success-strong`, `warning-strong`, `danger-strong`, `info-strong` | Chữ trạng thái trên nền sáng hoặc nền 10% (đạt 4.5:1)                         |
+| Nhóm      | Token                                                              | Dùng cho                                                                              |
+| --------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| Primary   | `primary`                                                          | Nút chính, thanh bên quản lý, tiêu đề nhấn, số liệu thống kê, trạng thái chọn         |
+| Primary   | `primary-dark`                                                     | Hover của nút chính                                                                   |
+| Primary   | `primary-light`                                                    | Vòng sáng focus, điểm nhấn thứ cấp                                                    |
+| Primary   | `primary-50`, `primary-100`, `primary-200`                         | Nền hover, nền mục active, đường `RoadPath`, lưới chấm                                |
+| Primary   | `primary-950`                                                      | Footer, dải nội dung tối                                                              |
+| Sky       | `sky`                                                              | Chỉ trong gradient. Không dùng cho chữ                                                |
+| Accent    | `accent`, `accent-soft`                                            | Ngôi sao đánh giá, trạm đang active, nền nhãn nhỏ. Không dùng cho nút                 |
+| Accent    | `accent-strong`                                                    | Chữ điểm nhấn trên nền sáng (nhãn danh mục, eyebrow nhỏ)                              |
+| Secondary | `secondary`, `secondary-strong`                                    | Xanh ngọc phụ: `secondary` cho chấm, viền, nền; nền chữ trắng dùng `secondary-strong` |
+| Neutral   | `page`                                                             | Nền trang                                                                             |
+| Neutral   | `surface`                                                          | Khung ảnh khi chưa có bìa, nền skeleton, nền nút tròn, hover nút lọc                  |
+| Neutral   | `white`                                                            | Nền thẻ, panel, bảng, hộp thoại                                                       |
+| Neutral   | `line`, `line-strong`                                              | Viền 1px, vách ngăn; `line-strong` cho hover viền ô nhập và sao rỗng                  |
+| Neutral   | `ink`, `ink-strong`                                                | Chữ chính; `ink-strong` cho tiêu đề lớn                                               |
+| Neutral   | `muted`                                                            | Chữ phụ, mô tả, ngày giờ                                                              |
+| Status    | `success`, `warning`, `danger`, `info`                             | Chấm trạng thái, biểu tượng, nền 10%, hành động phá hủy (`danger`)                    |
+| Status    | `success-strong`, `warning-strong`, `danger-strong`, `info-strong` | Chữ trạng thái trên nền sáng hoặc nền 10% (đạt 4.5:1)                                 |
 
 ### Gradient
 
@@ -247,13 +250,13 @@ Gradient chỉ dùng ở hero, CTA band, panel xác thực, footer. **Không** g
 ### Quy tắc màu
 
 - **Token-Only:** mọi màu, bóng, font đi qua token trong `theme.css`, dùng bằng class Tailwind (`bg-primary`, `text-muted`, `border-line`). Không viết mã hex, không dùng `slate`, `gray`, `amber`, `red` của Tailwind. Màu mới phải khai báo thành token trước.
-- **Primary Restraint:** `primary` dành cho hành động chính và số liệu; `accent` chỉ cho điểm nhấn nhỏ. Không đặt chữ nhỏ trắng lên nền cam, không dùng chữ `accent` trên nền trắng (dùng `accent-strong`).
+- **Primary Restraint:** `primary` dành cho hành động chính và số liệu; `accent` chỉ cho điểm nhấn nhỏ. Không dùng chữ `accent`, `secondary` trên nền trắng (dùng `accent-strong`, `secondary-strong`).
 - **Huy hiệu trạng thái:** nền 10% màu (`bg-success/10`), chữ tông `*-strong`, có chấm tròn màu đứng trước nhãn; tông xám `muted` cho trạng thái trung tính. Nhãn và tông lấy từ `STATUS_MAPS` trong `src/constants/statuses.js`, khớp `BE_RStudy/docs/enum.md`.
 - **Không dùng màu thay chữ:** trạng thái luôn có nhãn văn bản, màu chỉ bổ trợ.
 
 ## 4. Typography
 
-Font duy nhất: **Be Vietnam Pro** (fallback `ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif`), khai báo ở `--font-sans`.
+Font duy nhất: **Montserrat** (fallback `ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif`), khai báo ở `--font-sans`.
 
 | Cấp      | Cỡ / độ đậm                                                   | Dùng cho                                                                |
 | -------- | ------------------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -342,7 +345,7 @@ Dùng component có sẵn. `components/ui`: `Button`, `FormField`, `TextField`, 
 | `ghost`     | `text-ink hover:bg-primary/10`                             | Hành động phụ trong thanh công cụ               |
 | `danger`    | `bg-danger text-white hover:bg-danger/90`                  | Chỉ trong hộp thoại xác nhận xóa, khóa, từ chối |
 
-Không có variant cam: `accent` không dùng cho nút.
+Màu `accent` và màu `secondary` không dùng làm nền nút (variant `secondary` của `Button` là nút viền trắng, không liên quan màu `secondary`).
 
 ### Inputs (`FormField` + `inputClass`)
 
@@ -367,12 +370,13 @@ Không có variant cam: `accent` không dùng cho nút.
 ### Badges & Filter tabs
 
 - **StatusBadge:** `rounded-full px-2.5 py-0.5 text-xs font-medium`, chấm tròn 6px + nhãn, năm tông: xám, vàng (`warning`), xanh lá (`success`), đỏ (`danger`), xanh dương (`info`); chữ dùng tông `*-strong`.
-- **Filter tabs, chip danh mục:** nút đầu tiên luôn là **Tất cả**. Mục đang chọn có nền `bg-primary` chữ trắng, nền này **trượt** giữa các mục bằng `layoutId` + `tabIndicator`; chưa chọn `bg-surface text-ink hover:bg-primary-100`.
+- **Lọc danh mục** (trang khóa học, thư viện tài liệu): dùng `select` đặt cùng khối với ô tìm kiếm, lựa chọn đầu tiên là **Tất cả danh mục**, đổi là lọc ngay. Không bày hàng nút danh mục ra màn hình.
+- **Filter tabs:** nút đầu tiên luôn là **Tất cả**. Mục đang chọn có nền `bg-primary` chữ trắng, nền này **trượt** giữa các mục bằng `layoutId` + `tabIndicator`; chưa chọn `bg-surface text-ink hover:bg-primary-100`.
 - **Switch:** núm trượt bằng `layout` + `tabIndicator`.
 
 ### Navigation
 
-- **Header:** nền trắng; khi cuộn quá 8px chuyển `bg-white/90 backdrop-blur` + `shadow-card`. Ô tìm kiếm mobile mở bằng `dropdown`.
+- **Header:** nền trắng; khi cuộn quá 8px chuyển `bg-white/90 backdrop-blur` + `shadow-card`. Ô tìm kiếm mobile mở bằng `dropdown`. `SearchBox` gợi ý tối đa 6 khóa học khi gõ từ 2 ký tự (chờ 300ms, `GET /course?q=`), bảng gợi ý mở bằng `dropdown`, chọn bằng chuột hoặc phím mũi tên + Enter, Esc để đóng; Enter khi chưa chọn gợi ý thì sang `/courses?q=`.
 - **MainNav:** chỉ icon ở `lg`, icon kèm nhãn ở `xl`; nền mục active (`primary-50`) trượt (`layoutId="main-nav"`).
 - **BottomNav:** gạch chỉ báo active trượt (`layoutId="bottom-nav"`), icon đậm nét khi active, vùng chạm tối thiểu 44px, chừa `safe-area-inset-bottom`.
 - **Manage sidebar:** mục hiện tại có nền trắng trượt (`layoutId="manage-nav"`), chữ `primary`, `font-semibold`; mục khác chữ trắng 85%, hover nền trắng 10%. Menu admin lọc theo quyền; mục Phân quyền chỉ Leader thấy.
@@ -424,6 +428,7 @@ Stagger 60–120ms (`STAGGER.tight`, `base`, `loose`). Easing `EASE.out` (`ease-
 | `messageIn`                       | opacity + y 8 → 0, 0.2s                                      | Tin nhắn mới                                              |
 | `pathDraw`                        | `pathLength` 0 → 1, 1.2s                                     | `RoadPath`                                                |
 | `typingDot(index)`                | opacity 0.3 → 1 → 0.3, 1s, lặp khi đang chờ                  | Ba chấm "đang trả lời" của chatbot (ngoại lệ lặp)         |
+| `accordion`                       | height 0 → auto + opacity, 0.28s (đóng 0.16s), có `exit`     | Câu trả lời FAQ (`AnimatePresence initial={false}`)       |
 | `tabIndicator`                    | transition tween 0.28s                                       | `layoutId` của tab, chip, nav, `Switch`                   |
 | `REVEAL_PRESETS`                  | bảng tên → preset                                            | Dùng bởi `Reveal`, `RevealGroup`                          |
 | bell shake                        | rotate `[0, -16, 14, -10, 6, 0]`, 0.5s, một lần              | Chuông thông báo (trong `NotificationBell`)               |
@@ -446,7 +451,7 @@ Trang làm bài thi (`ExamLayout`) không có animation trang.
 
 ### Quy tắc chuyển động
 
-- Chỉ animate `opacity` và `transform` (x, y, scale, rotate) và `pathLength` của `RoadPath`; không animate `width`, `height`, `top`, `left`.
+- Chỉ animate `opacity` và `transform` (x, y, scale, rotate) và `pathLength` của `RoadPath`; không animate `width`, `height`, `top`, `left`. Ngoại lệ duy nhất: preset `accordion` animate `height` cho panel FAQ.
 - Không spring nảy, không scroll hijacking, không chặn cuộn.
 - Parallax: tối đa ±24px, chỉ từ `lg` trở lên (`useMediaQuery`) và khi không giảm chuyển động; dùng motion value, không `useState` theo pixel cuộn.
 - `ScrollProgress` và đường tiến trình dùng `useScroll` + `scaleX`/`scaleY`, không setState.
@@ -487,18 +492,20 @@ Trang làm bài thi (`ExamLayout`) không có animation trang.
 | `primary` trên `primary-50`                               | 6.24  | Đạt                                                     |
 | Chữ trắng trên `primary-950`                              | 13.98 | Đạt                                                     |
 | Chữ trắng 70% trên `primary-950`                          | 7.57  | Đạt                                                     |
-| `accent-strong` trên trắng                                | 5.02  | Đạt                                                     |
-| `accent-strong` trên `accent-soft`                        | 4.59  | Đạt                                                     |
+| `accent-strong` trên trắng                                | 6.56  | Đạt                                                     |
+| `accent-strong` trên `accent-soft`                        | 5.75  | Đạt                                                     |
+| Chữ trắng trên `secondary-strong`                         | 5.97  | Đạt                                                     |
 | `success-strong`, `warning-strong` trên trắng             | 5.02  | Đạt                                                     |
 | `success-strong`, `warning-strong` trên nền 10% cùng tông | 4.50  | Đạt (sát ngưỡng)                                        |
 | `danger-strong` trên nền 10% `danger`                     | 5.54  | Đạt                                                     |
 | `info-strong` trên nền 10% `info`                         | 5.82  | Đạt                                                     |
 | `danger` trên trắng                                       | 4.83  | Đạt                                                     |
 | `success` trên trắng                                      | 3.30  | **Không**: chỉ dùng cho chấm, icon, viền                |
-| `accent` trên trắng                                       | 2.36  | **Không**: chỉ cho sao, chấm, nền                       |
+| `accent` trên trắng                                       | 3.56  | **Không**: chỉ cho sao, chấm, nền                       |
+| `secondary` trên trắng                                    | 2.53  | **Không**: chỉ cho chấm, viền, nền                      |
 | Chữ trắng trên `sky`                                      | 2.64  | **Không**: `sky` chỉ trong gradient, không dùng cho chữ |
 
-Chữ trạng thái và chữ cam luôn dùng tông `*-strong`.
+Chữ trạng thái và chữ điểm nhấn luôn dùng tông `*-strong`.
 
 ## 13. Do's and Don'ts
 
@@ -512,7 +519,7 @@ Chữ trạng thái và chữ cam luôn dùng tông `*-strong`.
 | Preset trong `motion.js`, `Reveal`/`RevealGroup` cho scroll reveal      | Thư viện animation khác, bounce, `animate-pulse`, lặp vô hạn            |
 | Gradient qua `bg-brand-gradient`... ở hero, CTA, panel xác thực, footer | Gradient trên nút, thẻ thường hoặc viết trong JSX                       |
 | Skeleton tĩnh đúng kích thước nội dung thật                             | Spinner toàn trang khi đã biết hình dạng nội dung                       |
-| Chữ cam và chữ trạng thái dùng tông `*-strong`                          | Chữ nhỏ `accent`, `success` trên nền trắng                              |
+| Chữ điểm nhấn và chữ trạng thái dùng tông `*-strong`                    | Chữ nhỏ `accent`, `success` trên nền trắng                              |
 | Bộ lọc có nút **Tất cả** đứng đầu                                       | Bộ lọc khóa học thiếu lựa chọn Tất cả                                   |
 | Đủ loading, rỗng, lỗi; nút gọi API `disabled` + loading                 | Để người dùng bấm đúp gửi trùng                                         |
 | Ảnh bìa qua `CourseCover`, ảnh minh chứng qua `ProofImage`              | `<img src>` trực tiếp cho ảnh bìa hoặc ảnh minh chứng                   |

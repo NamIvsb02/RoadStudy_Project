@@ -134,6 +134,12 @@ export const typingDot = (index) => ({
   transition: { duration: 1, repeat: Infinity, ease: EASE.inOut, delay: index * 0.15 },
 });
 
-export const tabIndicator = { type: "tween", duration: DURATION.component, ease: out };
+export const accordion = {
+  hidden: { height: 0, opacity: 0 },
+  visible: { height: "auto", opacity: 1, transition: { duration: DURATION.component, ease: out } },
+  exit: { height: 0, opacity: 0, transition: { duration: DURATION.micro, ease: out } },
+};
+
+export const tabIndicator ={ type: "tween", duration: DURATION.component, ease: out };
 
 export const REVEAL_PRESETS = { fadeUp, revealLeft, revealRight, scaleReveal, imageReveal };

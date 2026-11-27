@@ -3,7 +3,6 @@ import { resourceApi } from "../../api/resourceApi";
 import DashboardPanel from "../../components/common/DashboardPanel";
 import Pagination from "../../components/common/Pagination";
 import { useFetch } from "../../hooks/useFetch";
-import ResourceCategoryChips from "./ResourceCategoryChips";
 import ResourceCard from "./ResourceCard";
 import { useCategories } from "./useCategories";
 
@@ -36,17 +35,29 @@ export default function ResourceBrowser({ reloadKey = 0, canDelete, onDelete }) 
 
   return (
     <div className="flex flex-col gap-4">
-      <form role="search" onSubmit={handleSearch}>
+      <form role="search" onSubmit={handleSearch} className="flex flex-col gap-2 rounded-xl border border-line bg-white p-3 sm:flex-row sm:items-center">
         <input
           type="search"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}
           placeholder="Tìm tài liệu, nhấn Enter"
           aria-label="Tìm tài liệu"
-          className={`${fieldClass} w-full`}
+          className={`${fieldClass} w-full sm:max-w-md sm:flex-1`}
         />
+        <select
+          value={filters.categoryId}
+          onChange={(event) => handleCategory(event.target.value)}
+          aria-label="Lọc theo danh mục"
+          className={`${fieldClass} w-full sm:w-56`}
+        >
+          <option value="">Tất cả danh mục</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.categoryName}
+            </option>
+          ))}
+        </select>
       </form>
-      <ResourceCategoryChips categories={categories} activeId={filters.categoryId} onSelect={handleCategory} />
       <DashboardPanel title="Danh sách tài liệu" loading={loading} error={error} empty={items.length === 0} emptyText="Chưa có tài liệu nào.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {items.map((resource) => (
