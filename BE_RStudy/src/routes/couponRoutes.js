@@ -16,7 +16,6 @@ router.use(authenticate);
 // Học viên (và admin để test) kiểm tra mã trước khi thanh toán
 router.post("/validate", authorize("STUDENT", "ADMINISTRATOR"), validate(validateCouponSchema), controller.validate);
 
-// Quản lý mã giảm giá: admin có quyền QUAN_LY_MA_GIAM_GIA (Leader mặc định có)
 router.use(requirePermission(PERMISSIONS.QUAN_LY_MA_GIAM_GIA));
 router.get("/", controller.list);
 router.get("/:id", controller.getById);

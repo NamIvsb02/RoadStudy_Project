@@ -13,7 +13,6 @@ const {
 
 const writers = [authenticate, authorize('STUDENT', 'TEACHER')];
 
-// ---------- theo khóa học ----------
 router.get('/course/:courseId', optionalAuthenticate, validate(courseIdParamSchema, 'params'), commentController.listByCourse);
 router.post(
   '/course/:courseId',

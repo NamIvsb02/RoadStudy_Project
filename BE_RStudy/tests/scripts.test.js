@@ -21,7 +21,7 @@ process.env.CLOUDINARY_CLOUD_NAME = CLOUD;
 const HOUR = 3600 * 1000;
 const PNG = Buffer.from('89504e470d0a1a0a0000000d49484452', 'hex');
 
-// ---------- DB giả: 4 model, mỗi model một mảng bản ghi ----------
+// DB giả: 4 model, mỗi model một mảng bản ghi
 const FIELD_OF = { account: 'avatarUrl', course: 'coverImageUrl', resource: 'fileUrl', invoice: 'paymentProofUrl' };
 function fakePrisma(seed = {}) {
     const db = { account: [], course: [], resource: [], invoice: [], ...seed };
@@ -49,7 +49,7 @@ function fakePrisma(seed = {}) {
 }
 const snapshot = (prisma) => JSON.stringify(prisma.db);
 
-// ---------- Storage giả cho migrate: ghi nhận upload/xóa, có thể giả lập lỗi ----------
+// Storage giả cho migrate: ghi nhận upload/xóa, có thể giả lập lỗi
 function fakeStorage(uploadRoot) {
     const state = { saved: [], removed: [], failSave: false, n: 0 };
     return {
@@ -68,7 +68,7 @@ function fakeStorage(uploadRoot) {
     };
 }
 
-// ---------- Cloudinary giả cho cleanup ----------
+// Cloudinary giả cho cleanup
 function fakeCloudinary(assets) {
     const state = { destroyed: [], failDestroy: new Set(), failList: false, afterList: null };
     return {
@@ -117,7 +117,7 @@ async function main() {
     console.log('Kiểm tra script migrate và cleanup (DB, Cloudinary giả)\n');
     const roots = [];
     try {
-        // ===================== MIGRATE =====================
+        // MIGRATE
         console.log('[1. Migrate: dry-run]');
         let root = tempUploads({ 'covers/a.png': 1, 'avatars/b.png': 1, 'proofs/c.png': 1 });
         roots.push(root);
@@ -185,7 +185,7 @@ async function main() {
         check('File script vừa upload cho bản ghi đó bị xóa', !!avatarUpload && storage.state.removed.includes(avatarUpload));
         storage.save = origSave;
 
-        // ===================== CLEANUP: CLOUDINARY =====================
+        // CLEANUP: CLOUDINARY
         console.log('[5. Cleanup Cloudinary: dry-run, không xóa file đang dùng]');
         const used = asset(`${FOLDER}/avatars/dang-dung`);
         const usedProof = asset(`${FOLDER}/proofs/dang-dung`, { type: 'authenticated' });
@@ -254,7 +254,7 @@ async function main() {
         c = await cleanup({ apply: true, prisma, storage: cloudStorage, cloudinary: cloud, log: quiet });
         check('Mặc định 24 giờ: file vừa upload chưa gắn DB (người dùng đang điền form) không bị xóa', cloud.state.destroyed.length === 0 && c.orphans === 0, JSON.stringify(c));
 
-        // ===================== CLEANUP: LOCAL =====================
+        // CLEANUP: LOCAL
         console.log('[9. Cleanup local]');
         root = tempUploads({ 'avatars/dang-dung.png': 48, 'proofs/dang-dung.png': 48, 'covers/mo-coi.png': 48, 'covers/moi.png': 1 });
         roots.push(root);

@@ -50,7 +50,7 @@ async function main() {
     const invoiceIds = [];
 
     try {
-        // ---------- Dữ liệu nền ----------
+        // Dữ liệu nền
         // Admin mặc định trong test là Leader (có mọi quyền); admin thường (không có quyền) để kiểm tra bị chặn
         const leader = await prisma.account.findUnique({ where: { email: 'leader@roadstudy.vn' } });
         const adminNoPerm = await prisma.account.findUnique({ where: { email: 'admin@roadstudy.vn' } });
@@ -90,7 +90,7 @@ async function main() {
             return inv;
         };
 
-        // ---------- Tạo mới ----------
+        // Tạo mới
         console.log('[Tạo mới]');
         const codeA = `${prefix}_A`;
         let r = await call('POST', '', { role: ADMIN, body: { code: codeA.toLowerCase(), discountPercentage: 10, ...valid } });
@@ -138,7 +138,7 @@ async function main() {
         r = await call('POST', '', { role: ADMIN, userId: adminNoPerm.id, body: { code: `${prefix}_X8`, discountPercentage: 5, ...valid } });
         check('Admin thường (không có QUAN_LY_MA_GIAM_GIA) tạo mã -> 403', r.status === 403, `status ${r.status}`);
 
-        // ---------- Xem ----------
+        // Xem
         console.log('\n[Xem danh sách / chi tiết]');
         r = await call('GET', `?q=${prefix}`, { role: ADMIN });
         check('Danh sách -> 200', r.status === 200, `status ${r.status}`);
@@ -160,7 +160,7 @@ async function main() {
         r = await call('GET', '', { role: STUDENT });
         check('Học viên xem danh sách -> 403', r.status === 403, `status ${r.status}`);
 
-        // ---------- Sửa ----------
+        // Sửa
         console.log('\n[Sửa]');
         r = await call('PUT', `/${idA}`, { role: ADMIN, body: { usageLimit: 5 } });
         check('Sửa usageLimit -> 200', r.status === 200 && r.json?.data?.usageLimit === 5, `status ${r.status}`);
@@ -189,7 +189,7 @@ async function main() {
         r = await call('PUT', `/${idA}`, { role: STUDENT, body: { usageLimit: 3 } });
         check('Học viên sửa -> 403', r.status === 403, `status ${r.status}`);
 
-        // ---------- Trạng thái ----------
+        // Trạng thái
         console.log('\n[Tạm ngưng / kích hoạt]');
         r = await call('PATCH', `/${idA}/status`, { role: ADMIN, body: { status: 'TAM_NGUNG' } });
         check('Tạm ngưng -> 200', r.status === 200 && r.json?.data?.status === 'TAM_NGUNG', `status ${r.status}`);
@@ -203,7 +203,7 @@ async function main() {
         r = await call('PATCH', `/${idA}/status`, { role: ADMIN, body: { status: 'HOAT_DONG' } });
         check('Kích hoạt lại -> 200', r.status === 200, `status ${r.status}`);
 
-        // ---------- Validate ----------
+        // Validate
         console.log('\n[Validate mã]');
         r = await call('POST', '/validate', { role: STUDENT, body: { code: codeA.toLowerCase() } });
         check('Validate không courseId -> 200', r.status === 200, `status ${r.status}`);
@@ -245,7 +245,7 @@ async function main() {
         r = await call('POST', '/validate', { body: { code: codeA } });
         check('Không gửi token -> 401', r.status === 401, `status ${r.status}`);
 
-        // ---------- Mỗi học viên dùng 1 lần ----------
+        // Mỗi học viên dùng 1 lần
         console.log('\n[Mỗi học viên chỉ dùng mỗi mã 1 lần]');
         const codeS = `${prefix}_S`;
         r = await call('POST', '', { role: ADMIN, body: { code: codeS, discountPercentage: 10, ...valid, usageLimit: 100 } });
@@ -275,7 +275,7 @@ async function main() {
         r = await call('DELETE', `/${idS}`, { role: ADMIN });
         check('Xóa mã đã có hóa đơn (usedCount = 0) -> 409', r.status === 409, `status ${r.status}`);
 
-        // ---------- Lượt dùng ----------
+        // Lượt dùng
         console.log('\n[Lượt dùng / usedCount]');
         const codeC = `${prefix}_C`;
         r = await call('POST', '', { role: ADMIN, body: { code: codeC, discountPercentage: 10, ...valid, usageLimit: 2 } });
@@ -320,7 +320,7 @@ async function main() {
         check('5 request đồng thời, usageLimit = 1 -> chỉ 1 thành công', results.filter((x) => x.status === 'fulfilled').length === 1);
         check('usedCount không vượt usageLimit', row.usedCount === 1, row.usedCount);
 
-        // ---------- Xóa ----------
+        // Xóa
         console.log('\n[Xóa]');
         r = await call('DELETE', `/${idB}`, { role: STUDENT });
         check('Học viên xóa -> 403', r.status === 403, `status ${r.status}`);

@@ -48,7 +48,7 @@ const sameOrder = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 async function main() {
   console.log(`Kiểm tra API Review/Review response tại ${BASE}\n`);
 
-  // ----- Chuẩn bị dữ liệu tạm -----
+  // Chuẩn bị dữ liệu tạm
   const cat = await prisma.category.create({ data: { categoryName: `Rv cat ${stamp}` } });
   const hiddenCat = await prisma.category.create({
     data: { categoryName: `Rv cat ẩn ${stamp}`, status: 'AN' },
@@ -292,7 +292,7 @@ async function main() {
     const row = await prisma.reviewResponse.findUnique({ where: { id: resp.id } });
     check('Chỉ ẩn, không xóa cứng (status AN trong database)', row?.status === 'AN', row?.status);
   } finally {
-    // ----- Dọn dữ liệu tạm -----
+    // Dọn dữ liệu tạm
     try {
       await prisma.reviewResponse.deleteMany({ where: { review: { courseId: { in: courseIds } } } });
       await prisma.review.deleteMany({ where: { courseId: { in: courseIds } } });

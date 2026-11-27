@@ -37,7 +37,7 @@ async function main() {
     const fx = { accounts: [] };
 
     try {
-        // ---------- Dữ liệu nền ----------
+        // Dữ liệu nền
         const mkAccount = async (name, role) => {
             const account = await prisma.account.create({
                 data: { fullName: name, email: `${name.replace(/\s/g, '').toLowerCase()}.${stamp}@example.com`, passwordHash: 'x', role, status: 'HOAT_DONG' },
@@ -72,7 +72,7 @@ async function main() {
         const S2 = { role: 'STUDENT', userId: otherAcc.id };
         const T = { role: 'TEACHER', userId: teacherAcc.id };
 
-        // ---------- Quyền và dữ liệu đầu vào ----------
+        // Quyền và dữ liệu đầu vào
         console.log('[Quyền và dữ liệu đầu vào]');
         let r = await call('POST', '/messages', { body: { content: 'xin chào' } });
         check('Không có token -> 401', r.status === 401, `status ${r.status}`);
@@ -92,7 +92,7 @@ async function main() {
         r = await call('POST', '/messages', { actor: S, body: { conversationId: 'khong-ton-tai', content: 'xin chào' } });
         check('Cuộc trò chuyện không tồn tại -> 404', r.status === 404, `status ${r.status}`);
 
-        // ---------- Gợi ý khóa học ----------
+        // Gợi ý khóa học
         console.log('\n[Gợi ý khóa học]');
         r = await call('POST', '/messages', { actor: S, body: { content: 'Mình muốn học lập trình Python cho người mới, ngân sách dưới 500 nghìn' } });
         check('Gửi tin nhắn đầu tiên -> 201', r.status === 201, `status ${r.status} ${r.json?.message}`);
@@ -119,7 +119,7 @@ async function main() {
             check('Khóa lưu trong CSDL đều DANG_MO', dbCourses.every((x) => x.status === 'DANG_MO'));
         }
 
-        // ---------- Hội thoại ----------
+        // Hội thoại
         console.log('\n[Lịch sử hội thoại]');
         const conversationId = first.conversation.id;
         r = await call('POST', '/messages', { actor: S, body: { conversationId, content: 'Còn khóa nào rẻ hơn không?' } });
@@ -144,7 +144,7 @@ async function main() {
         r = await call('GET', '/conversations', { actor: S2 });
         check('Học viên khác không thấy cuộc trò chuyện của mình', r.status === 200 && !(r.json?.data?.items || []).some((c) => c.id === conversationId));
 
-        // ---------- Giới hạn tốc độ ----------
+        // Giới hạn tốc độ
         console.log('\n[Giới hạn tốc độ]');
         const conv = await prisma.aiConversation.create({ data: { studentId: other.id } });
         await prisma.aiMessage.createMany({ data: Array.from({ length: 6 }, (_, i) => ({ senderType: 'STUDENT', content: `tin ${i}`, conversationId: conv.id })) });

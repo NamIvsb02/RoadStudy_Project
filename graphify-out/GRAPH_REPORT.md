@@ -1,17 +1,17 @@
 # Graph Report - RoadStudy  (2026-11-27)
 
 ## Corpus Check
-- 444 files · ~201,346 words
+- 441 files · ~200,122 words
 - Verdict: corpus is large enough that graph structure adds value.
-- Unclassified: 22 file(s) not represented in the graph (top: (none) 15, .example 2, .css 2)
+- Unclassified: 23 file(s) not represented in the graph (top: (none) 16, .example 2, .css 2)
 
 ## Summary
-- 2396 nodes · 7250 edges · 116 communities (99 shown, 17 thin omitted)
+- 2391 nodes · 7073 edges · 113 communities (105 shown, 8 thin omitted)
 - Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 439 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ec082779`
+- Built from commit: `89acb06c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -25,137 +25,136 @@
 - invoiceService.js
 - formatResponse
 - useFetch
-- courseController.js
-- ChatPanel.jsx
-- Button.jsx
-- openapi.js
 - courseService.js
+- ChatPanel.jsx
+- @prisma/client
+- openapi.js
+- examService.js
 - courseRepository.js
 - Review Repository
 - commentRoutes.js
 - Comment Repository
-- FormAlert
-- SessionDialog.jsx
-- ResourceBrowser.jsx
-- Coupon Repository
+- Button
+- sessionFormat.js
+- app.js
+- couponRepository.js
 - Category Controller & Repository
-- accountService.js
+- AppError
 - notificationService.js
 - storage.js
 - authService.js
-- PermissionsPage.jsx
-- cleanup-orphan-files.js
+- StatusBadge
+- DashboardPanel
 - ProfileForm.jsx
-- invoiceRoutes.js
+- ref_zod
 - PaymentPage.jsx
 - Administrator Management
 - teacherService.js
 - CourseExamTable.jsx
 - database.js
-- changeStatusByAdmin
+- ForYouSection.jsx
 - scripts.test.js
 - Learning Sessions Backend
 - Exam Submission Grading
-- BE_RStudy/package.json
+- TeacherShowcase.jsx
 - Course Routes & Validation
 - Exam Routes & Validation
 - deleteAccount.js
-- getMyList
+- getPagination
 - reportService.js
 - Learning Routes & Validation
 - motion.js
 - steps
-- react-router-dom
+- useAuth
 - Review Routes & Validation
-- examService.js
-- dependencies
+- examRepository.js
+- BE_RStudy/package.json
 - Auth Routes & Validation
-- sendOtp
+- couponService.js
 - Category Routes & Validation
 - Submission Routes & Validation
-- AppError
+- adminValidator.js
 - AppRoutes.jsx
 - backend
-- DashboardPanel
+- useFetch.js
 - useFetch
-- Button
-- uploadMiddleware.js
+- dependencies
+- AppError.js
 - Public Course Tests
 - Course Tests
 - react
-- CreateAdminForm.jsx
+- ExamForm.jsx
 - reviewController.js
-- morgan
+- swagger.test.js
 - Review Tests
-- nodemailer
+- HomePage.jsx
 - dashboardConfig.js
 - exam.test.js
-- TextField
+- CourseEditPage.jsx
 - axiosClient.js
-- swagger-ui-express
+- reportRepository.js
 - Test Auth Helpers
 - package.json
 - permissions
+- commentController.js
+- reportRoutes.js
+- storage.test.js
 - ExamRoom.jsx
-- signAccessToken
-- TextField
+- account.test.js
+- CouponForm.jsx
 - hash.js
 - comment.test.js
-- authController.js
+- authService.js
+- ExamCountdown.jsx
 - jwt.js
 - format.js
-- main
-- ratelimit.redis.test.js
+- @tanstack/react-query
+- vite.config.js
 - redis.test.js
 - hardening.p2.test.js
-- accountRepository.js
+- accountService.js
 - cloudinary.integration.test.js
 - invoice.test.js
+- coupon.test.js
 - scripts
 - enrollment.test.js
+- scripts
 - dotenv
-- prisma
-- App.jsx
-- recommendationRepository.js
-- cloudinary
-- cors
-- rateLimitMiddleware.js
-- helmet
-- ioredis
-- pg@^8.23.1
+- listManage
+- framer-motion
 
 ## God Nodes (most connected - your core abstractions)
-1. `AppError` - 169 edges
+1. `AppError` - 159 edges
 2. `formatResponse()` - 131 edges
 3. `react` - 117 edges
 4. `useFetch()` - 81 edges
-5. `react-router-dom` - 76 edges
+5. `react-router-dom` - 75 edges
 6. `Button()` - 70 edges
 7. `useAuth()` - 67 edges
-8. `ROUTES` - 63 edges
+8. `ROUTES` - 62 edges
 9. `AppRoutes()` - 53 edges
-10. `lucide-react` - 53 edges
+10. `lucide-react` - 52 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `listAccounts()` --calls--> `list()`  [EXTRACTED]
-  BE_RStudy/src/services/accountService.js → BE_RStudy/src/repositories/accountRepository.js
-- `getExistingOrThrow()` --calls--> `findById()`  [EXTRACTED]
-  BE_RStudy/src/services/resourceService.js → BE_RStudy/src/repositories/resourceRepository.js
-- `remove()` --calls--> `remove()`  [EXTRACTED]
-  BE_RStudy/src/services/resourceService.js → BE_RStudy/src/repositories/resourceRepository.js
-- `handle()` --calls--> `formatResponse()`  [EXTRACTED]
-  BE_RStudy/src/controllers/notificationController.js → BE_RStudy/src/utils/response.js
-- `SearchBox()` --calls--> `SearchSuggestions()`  [EXTRACTED]
-  FE_RStudy/src/components/common/SearchBox.jsx → FE_RStudy/src/components/common/SearchSuggestions.jsx
+- `listByCourse()` --calls--> `findManyByCourse()`  [EXTRACTED]
+  BE_RStudy/src/services/examService.js → BE_RStudy/src/repositories/examRepository.js
+- `loadExam()` --calls--> `findExamById()`  [EXTRACTED]
+  BE_RStudy/src/services/examService.js → BE_RStudy/src/repositories/examRepository.js
+- `create()` --calls--> `createExam()`  [EXTRACTED]
+  BE_RStudy/src/services/examService.js → BE_RStudy/src/repositories/examRepository.js
+- `remove()` --calls--> `deleteExam()`  [EXTRACTED]
+  BE_RStudy/src/services/examService.js → BE_RStudy/src/repositories/examRepository.js
+- `list()` --calls--> `list()`  [EXTRACTED]
+  BE_RStudy/src/controllers/couponController.js → BE_RStudy/src/services/couponService.js
 
 ## Import Cycles
 - None detected.
 
-## Communities (116 total, 17 thin omitted)
+## Communities (113 total, 8 thin omitted)
 
 ### Community 0 - "authMiddleware.js"
-Cohesion: 0.08
-Nodes (26): app, cors, corsOrigins, express, helmet, morgan, path, server (+18 more)
+Cohesion: 0.16
+Nodes (12): authenticate(), authorize(), optionalAuthenticate(), readToken(), router, router, router, verifyAccessToken() (+4 more)
 
 ### Community 1 - "Initial Database Migration"
 Cohesion: 0.05
@@ -163,59 +162,59 @@ Nodes (68): "Account", Account_email_key, "Administrator", Administrator_account
 
 ### Community 2 - "permissionMiddleware.js"
 Cohesion: 0.19
-Nodes (11): loadAdmin(), requireAdmin(), requireLeader(), router, router, base, changeStatusSchema, createCouponSchema (+3 more)
+Nodes (12): loadAdmin(), requireAdmin(), requireLeader(), requirePermission(), router, router, base, changeStatusSchema (+4 more)
 
 ### Community 3 - "FE_RStudy/package.json"
-Cohesion: 0.05
-Nodes (50): dependencies, axios@^1.20.0, dayjs@^1.11.23, framer-motion@^14.9.1, @hookform/resolvers@^6.0.2, lucide-react@^1.68.0, react@^19.2.8, react-dom@^19.2.8 (+42 more)
+Cohesion: 0.15
+Nodes (19): devDependencies, eslint@^10.10.0, @eslint/js@^10.0.1, eslint-plugin-react-hooks@^7.1.1, eslint-plugin-react-refresh@^0.5.6, globals@^17.12.0, @types/react@^19.2.18, @types/react-dom@^19.2.7 (+11 more)
 
 ### Community 4 - "recommendationService.js"
-Cohesion: 0.18
-Nodes (19): AiError, buildOpenAiBody(), callGemini(), callOpenAiCompatible(), describeConfig(), failIfNotOk(), generateJson(), getConfig() (+11 more)
+Cohesion: 0.07
+Nodes (47): AiError, buildOpenAiBody(), callGemini(), callOpenAiCompatible(), describeConfig(), failIfNotOk(), generateJson(), getConfig() (+39 more)
 
 ### Community 5 - "cache.js"
-Cohesion: 0.17
-Nodes (17): shutdown(), checkHealth(), close(), isEnabled(), key(), Redis, url, bump() (+9 more)
+Cohesion: 0.07
+Nodes (45): checkHealth(), isEnabled(), isReady(), key(), Redis, url, buildLimiter(), bump() (+37 more)
 
 ### Community 6 - "invoiceService.js"
-Cohesion: 0.05
-Nodes (81): hasSmtpConfig, nodemailer, sendMail(), cancel(), create(), getMine(), approve(), approveRefund() (+73 more)
+Cohesion: 0.11
+Nodes (44): hasSmtpConfig, nodemailer, sendMail(), countPendingRefundByRegistration(), createSupportRequest(), db(), findInvoiceById(), findInvoices() (+36 more)
 
 ### Community 7 - "formatResponse"
-Cohesion: 0.09
-Nodes (49): changeStatus(), list(), updateAvatar(), changeStatus(), create(), getAdminById(), getAdminList(), getPublicById() (+41 more)
+Cohesion: 0.08
+Nodes (50): getConversation(), listConversations(), sendMessage(), changeStatus(), create(), getById(), list(), remove() (+42 more)
 
 ### Community 8 - "useFetch"
-Cohesion: 0.19
-Nodes (19): submissionApi, ResultBadge(), AttemptHistory(), ExamDetailPage(), InfoItem(), durationBetween(), formatDuration(), formatScore() (+11 more)
+Cohesion: 0.21
+Nodes (18): examApi, ResultBadge(), AttemptHistory(), ExamDetailPage(), InfoItem(), durationBetween(), formatDuration(), formatScore() (+10 more)
 
-### Community 9 - "courseController.js"
-Cohesion: 0.19
-Nodes (12): approve(), create(), getPublicList(), parseListQuery(), pickCourseFields(), reject(), update(), uploadCover() (+4 more)
+### Community 9 - "courseService.js"
+Cohesion: 0.10
+Nodes (38): approve(), changeStatus(), create(), getAdminById(), getAdminList(), getMyById(), getMyList(), getPublicById() (+30 more)
 
 ### Community 10 - "ChatPanel.jsx"
 Cohesion: 0.22
-Nodes (12): ChatHistory(), ChatInput(), ChatPanel(), SUGGESTIONS, TypingIndicator(), ChatWidget(), GuestPrompt(), chatPanel (+4 more)
+Nodes (11): chatbotApi, ChatHistory(), ChatInput(), ChatPanel(), SUGGESTIONS, TypingIndicator(), MessageBubble(), typingDot() (+3 more)
 
-### Community 11 - "Button.jsx"
-Cohesion: 0.17
-Nodes (13): schema, StarRating(), STARS, SIZES, VARIANTS, FieldError(), MyReviewBox(), ReviewForm() (+5 more)
+### Community 11 - "@prisma/client"
+Cohesion: 0.13
+Nodes (27): countPendingRefundByCourse(), countPendingRefundByRegistration(), createInvoice(), createRegistration(), db(), findById(), findCourseById(), findMine() (+19 more)
 
 ### Community 12 - "openapi.js"
-Cohesion: 0.15
-Nodes (23): buildOpenApi(), buildOperation(), ERROR_TEXT, fs, inspect(), LIMITERS, listRoutes(), METHODS (+15 more)
+Cohesion: 0.16
+Nodes (14): version, buildOperation(), ERROR_TEXT, fs, inspect(), LIMITERS, METHODS, moduleOrder() (+6 more)
 
-### Community 13 - "courseService.js"
-Cohesion: 0.24
-Nodes (11): getPublicById(), findPublicById(), getRatingStats(), ADMIN_TRANSITIONS, attachRating(), { CourseStatus, CategoryStatus, ApprovalStatus, Prisma }, getPublicById(), getPublicList() (+3 more)
+### Community 13 - "examService.js"
+Cohesion: 0.21
+Nodes (20): countAttemptsByExams(), findCourseById(), findStudentIdByAccountId(), hasConfirmedRegistration(), updateExam(), assertCanManageCourse(), assertStudentCanAccess(), BOTH (+12 more)
 
 ### Community 14 - "courseRepository.js"
-Cohesion: 0.14
-Nodes (18): getMyById(), buildPublicWhere(), countActiveRegistrations(), courseInclude, create(), findOwnById(), findPublicAndCount(), findTeacherByAccountId() (+10 more)
+Cohesion: 0.12
+Nodes (9): buildPublicWhere(), buildWhere(), courseInclude, findAndCount(), findPublicAndCount(), PUBLIC_SORTS, publicBaseWhere, publicDetailSelect (+1 more)
 
 ### Community 15 - "Review Repository"
 Cohesion: 0.09
-Nodes (36): { ContentStatus, ReviewStatus, RegistrationStatus }, COUNTED_REGISTRATION, courseGuardSelect, createResponse(), createReview(), findActiveRegistration(), findAnyReviewByStudentAndCourse(), findCourseForReview() (+28 more)
+Nodes (7): { ContentStatus, ReviewStatus, RegistrationStatus }, COUNTED_REGISTRATION, courseGuardSelect, responderSelect, responseSelect, reviewerSelect, reviewSelect
 
 ### Community 16 - "commentRoutes.js"
 Cohesion: 0.25
@@ -225,101 +224,101 @@ Nodes (8): router, writers, content, contentBodySchema, courseIdParamSchema, idP
 Cohesion: 0.11
 Nodes (32): authorSelect, commentSelect, { ContentStatus, RegistrationStatus }, COUNTED_REGISTRATION, courseGuardSelect, createComment(), createReply(), findActiveRegistration() (+24 more)
 
-### Community 18 - "FormAlert"
-Cohesion: 0.15
-Nodes (24): authApi, AuthShell(), BENEFITS, stepSlide, useToast(), commonShape, forgotPasswordSchema, GENDERS (+16 more)
+### Community 18 - "Button"
+Cohesion: 0.06
+Nodes (72): authApi, AuthShell(), BENEFITS, NoteDialog(), NoteForm(), ReportDialog(), ReportForm(), schema (+64 more)
 
-### Community 19 - "SessionDialog.jsx"
+### Community 19 - "sessionFormat.js"
+Cohesion: 0.25
+Nodes (8): dayFormatter, formatSessionTime(), inputFormatter, sessionState(), timeFormatter, BADGES, DOTS, SessionList()
+
+### Community 20 - "app.js"
 Cohesion: 0.13
-Nodes (18): learningApi, dayFormatter, formatSessionTime(), fromInputValue(), inputFormatter, sessionState(), timeFormatter, toInputValue() (+10 more)
+Nodes (14): app, cors, corsOrigins, express, helmet, morgan, path, server (+6 more)
 
-### Community 20 - "ResourceBrowser.jsx"
-Cohesion: 0.50
-Nodes (4): resourceApi, ResourceBrowser(), ResourceListPage(), TeacherResourcesPage()
-
-### Community 21 - "Coupon Repository"
-Cohesion: 0.08
-Nodes (41): changeStatus(), create(), getById(), remove(), update(), validate(), countInvoices(), countStudentUsage() (+33 more)
+### Community 21 - "couponRepository.js"
+Cohesion: 0.18
+Nodes (7): countStudentUsage(), db(), decrementUsedCount(), findByCode(), findById(), incrementUsedCount(), RELEASED_INVOICE_STATUSES
 
 ### Community 22 - "Category Controller & Repository"
-Cohesion: 0.18
-Nodes (20): buildWhere(), countRelations(), create(), findAndCount(), findByName(), remove(), update(), assertNameAvailable() (+12 more)
+Cohesion: 0.16
+Nodes (21): changeStatus(), create(), getAdminById(), getAdminList(), getPublicById(), getPublicList(), remove(), update() (+13 more)
 
-### Community 23 - "accountService.js"
-Cohesion: 0.22
-Nodes (9): updateProfile(), updateProfile(), COMMON_FIELDS, pick(), ROLES, STATUSES, STUDENT_FIELDS, TEACHER_FIELDS (+1 more)
+### Community 23 - "AppError"
+Cohesion: 0.21
+Nodes (17): getProof(), getProof(), buildPagination(), { ContentStatus, CourseStatus, CategoryStatus, ReviewStatus }, createReview(), getCourseOrThrow(), getMyReview(), getPublicCourseOrThrow() (+9 more)
 
 ### Community 24 - "notificationService.js"
 Cohesion: 0.12
 Nodes (29): handle(), list, markAllRead, markRead, unreadCount, countUnread(), create(), createMany() (+21 more)
 
 ### Community 25 - "storage.js"
-Cohesion: 0.14
-Nodes (25): baseFolder(), crypto, driver(), EXTENSIONS, fs, getCloudinary(), isUrl(), ownCloudinaryAsset() (+17 more)
+Cohesion: 0.08
+Nodes (32): buildWhere(), findAndCount(), findById(), create(), findAndCount(), findById(), findTeacherByAccountId(), include (+24 more)
 
 ### Community 26 - "authService.js"
-Cohesion: 0.10
-Nodes (35): changePassword(), login(), logout(), me(), refresh(), resetPassword(), verifyEmail(), ACCOUNT_SAFE_SELECT (+27 more)
+Cohesion: 0.09
+Nodes (33): changePassword(), forgotPassword(), logout(), me(), refresh(), register(), resetPassword(), verifyEmail() (+25 more)
 
-### Community 27 - "PermissionsPage.jsx"
-Cohesion: 0.32
-Nodes (7): adminApi, AdminList(), CreateAdminDialog(), PermissionEditor(), fetchAdmins(), fetchFunctions(), PermissionsPage()
+### Community 27 - "StatusBadge"
+Cohesion: 0.19
+Nodes (13): StatusBadge(), AccountsTable(), AdminList(), PermissionEditor(), fetchAdmins(), fetchFunctions(), PermissionsPage(), getTarget() (+5 more)
 
-### Community 28 - "cleanup-orphan-files.js"
-Cohesion: 0.29
-Nodes (9): cleanup(), CLOUD_KINDS, FIELDS, fs, isStillReferenced(), listCloudinary(), loadReferences(), path (+1 more)
+### Community 28 - "DashboardPanel"
+Cohesion: 0.26
+Nodes (11): courseApi, CourseSelect(), DashboardPanel(), AdminExamsPage(), fetchCourses(), byNewest(), CourseExamTable(), fetchMyCourses() (+3 more)
 
 ### Community 29 - "ProfileForm.jsx"
 Cohesion: 0.16
-Nodes (15): StudentFields(), TeacherFields(), AvatarUploader(), ChangePasswordForm(), ProfileForm(), toFormValues(), toNull(), toPayload() (+7 more)
+Nodes (14): accountApi, TeacherFields(), AvatarUploader(), ProfileForm(), toFormValues(), toNull(), toPayload(), baseShape (+6 more)
 
-### Community 30 - "invoiceRoutes.js"
-Cohesion: 0.07
-Nodes (38): PERMISSIONS, authorize(), requirePermission(), contentWriteLimiter, validate(), express, manageAccounts, adminNeedsPermission() (+30 more)
+### Community 30 - "ref_zod"
+Cohesion: 0.11
+Nodes (17): PERMISSIONS, validate(), express, manageAccounts, router, router, express, router (+9 more)
 
 ### Community 31 - "PaymentPage.jsx"
-Cohesion: 0.15
-Nodes (17): invoiceApi, ProofImage(), useProofImage(), PaymentActions(), PaymentPage(), canRefundPaid(), getStage(), NOTICES (+9 more)
+Cohesion: 0.12
+Nodes (20): enrollmentApi, ProofImage(), ACTIVE, useMyRegistration(), useProofImage(), EnrollPanel(), PaymentActions(), PaymentPage() (+12 more)
 
 ### Community 32 - "Administrator Management"
-Cohesion: 0.10
-Nodes (34): createAdministrator(), getAdministrator(), getMe(), listAdministrators(), listSystemFunctions(), setAdministratorPermissions(), setAdministratorStatus(), administratorInclude (+26 more)
+Cohesion: 0.16
+Nodes (22): getMe(), listSystemFunctions(), administratorInclude, createAdministrator(), findAccessByAccountId(), findAdministratorById(), findFunctionsByIds(), listAdministrators() (+14 more)
 
 ### Community 33 - "teacherService.js"
 Cohesion: 0.14
 Nodes (21): getMyStats(), getPublic(), listForAdmin(), listPublic(), setApproval(), findByAccountId(), findPublicById(), getStats() (+13 more)
 
 ### Community 34 - "CourseExamTable.jsx"
-Cohesion: 0.17
-Nodes (24): TONES, STATUS_MAPS, TABS, AdminCourseActions(), CONFIRMS, runAction(), STEPS, ACTION_DANGER (+16 more)
+Cohesion: 0.25
+Nodes (16): TONES, ACTION_DANGER, ACTION_LINK, ACTIONS, TABLE, TBODY, TD, TD_ACTION (+8 more)
 
 ### Community 35 - "database.js"
-Cohesion: 0.14
-Nodes (17): buildDatasourceUrl(), client, { PrismaClient }, PUBLIC_ACCOUNT_FIELDS, PUBLIC_MODELS, setParam(), WRITE_OPERATIONS, { Prisma } (+9 more)
+Cohesion: 0.12
+Nodes (22): buildDatasourceUrl(), client, prisma, { PrismaClient }, PUBLIC_ACCOUNT_FIELDS, PUBLIC_MODELS, setParam(), WRITE_OPERATIONS (+14 more)
 
-### Community 36 - "changeStatusByAdmin"
-Cohesion: 0.27
-Nodes (10): changeStatus(), getAdminById(), submit(), findById(), findById(), transition(), assertCategoryUsable(), changeStatusByAdmin() (+2 more)
+### Community 36 - "ForYouSection.jsx"
+Cohesion: 0.23
+Nodes (9): recommendationApi, REVEAL_PRESETS, revealLeft, stagger, VIEWPORT, POINTS, CONTAINER, LINK_ON_DARK (+1 more)
 
 ### Community 37 - "scripts.test.js"
-Cohesion: 0.12
-Nodes (20): fs, migrate(), path, TARGETS, asset(), check(), cloudStorage, fakeCloudinary() (+12 more)
+Cohesion: 0.09
+Nodes (29): cleanup(), CLOUD_KINDS, FIELDS, fs, isStillReferenced(), listCloudinary(), loadReferences(), path (+21 more)
 
 ### Community 38 - "Learning Sessions Backend"
-Cohesion: 0.14
-Nodes (25): createSession(), get(), removeSession(), update(), updateSession(), createSession(), deleteSession(), findCourse() (+17 more)
+Cohesion: 0.18
+Nodes (19): createSession(), deleteSession(), findCourse(), findLearning(), findSession(), findSessions(), findStudentIdByAccountId(), hasPaidRegistration() (+11 more)
 
 ### Community 39 - "Exam Submission Grading"
-Cohesion: 0.14
-Nodes (36): start(), findTeacherByAccountId(), attemptInclude, closeAttempt(), countAttempts(), createAttempt(), db(), findAttemptById() (+28 more)
+Cohesion: 0.16
+Nodes (32): attemptInclude, closeAttempt(), countAttempts(), createAttempt(), db(), findAttemptById(), findExamForStart(), findInProgress() (+24 more)
 
-### Community 40 - "BE_RStudy/package.json"
-Cohesion: 0.18
-Nodes (11): author, description, devDependencies, nodemon@^3.1.14, keywords, license, main, name (+3 more)
+### Community 40 - "TeacherShowcase.jsx"
+Cohesion: 0.23
+Nodes (12): CourseCard(), COURSE_GRID_CLASS, CourseGrid(), Reveal(), RevealGroup(), SectionHeader(), staggerOf(), AiAdvisorSection() (+4 more)
 
 ### Community 41 - "Course Routes & Validation"
-Cohesion: 0.12
-Nodes (18): adminOnly, router, teacherOnly, categoryId, changeStatusSchema, courseName, { CourseStatus }, coverImageUrl (+10 more)
+Cohesion: 0.11
+Nodes (19): adminOnly, router, teacherOnly, categoryId, changeStatusSchema, courseName, { CourseStatus }, coverImageUrl (+11 more)
 
 ### Community 42 - "Exam Routes & Validation"
 Cohesion: 0.14
@@ -329,49 +328,49 @@ Nodes (18): adminNeedsPermission(), ALL, checkAdminPermission, MANAGER, router, 
 Cohesion: 0.39
 Nodes (7): collect(), delegateOf(), hasId(), main(), prisma, { PrismaClient, Prisma }, PROTECTED_EMAILS
 
-### Community 44 - "getMyList"
-Cohesion: 0.33
-Nodes (7): getAdminList(), getMyList(), buildWhere(), findAndCount(), buildPagination(), getAdminList(), getMyList()
+### Community 44 - "getPagination"
+Cohesion: 0.22
+Nodes (14): approve(), approveRefund(), completeRefund(), getById(), listAll(), listMine(), listMyRefundRequests(), listRefundRequests() (+6 more)
 
 ### Community 45 - "reportService.js"
-Cohesion: 0.12
-Nodes (28): create(), create(), findAndCount(), findById(), findOpenDuplicate(), findTarget(), include, OPEN_STATUSES (+20 more)
+Cohesion: 0.31
+Nodes (10): assertNotFinal(), conflict(), create(), FINAL, getById(), getExistingOrThrow(), getList(), process() (+2 more)
 
 ### Community 46 - "Learning Routes & Validation"
 Cohesion: 0.16
 Nodes (13): adminNeedsPermission(), checkAdminPermission, router, teacherOnly, courseIdParamSchema, createSessionSchema, httpsUrl, optionalUrl (+5 more)
 
 ### Community 47 - "motion.js"
-Cohesion: 0.06
-Nodes (58): Reveal(), RevealGroup(), SHAPES, ScrollProgress(), SectionHeader(), UPCOMING_EXAMS, FAQ_ITEMS, accordion (+50 more)
+Cohesion: 0.11
+Nodes (21): RoadPath(), SHAPES, chatPanel, DURATION, fadeUp, heroLine, imageReveal, listItem (+13 more)
 
 ### Community 48 - "steps"
 Cohesion: 0.08
 Nodes (30): defaults, env, runs-on, steps, run, DATABASE_URL, DIRECT_URL, VITE_API_URL (+22 more)
 
-### Community 49 - "react-router-dom"
-Cohesion: 0.13
-Nodes (22): AuthLayout(), BottomNav(), Footer(), Header(), MainNav(), getNavItems(), MY_COURSES_ITEM, NAV_ITEMS (+14 more)
+### Community 49 - "useAuth"
+Cohesion: 0.09
+Nodes (39): notificationApi, AuthLayout(), ChatWidget(), GuestPrompt(), BottomNav(), Footer(), Header(), MainNav() (+31 more)
 
 ### Community 50 - "Review Routes & Validation"
-Cohesion: 0.19
-Nodes (12): router, studentOnly, teacherOnly, courseIdParamSchema, createReviewSchema, idParamSchema, ratingValue, responseBodySchema (+4 more)
-
-### Community 51 - "examService.js"
-Cohesion: 0.07
-Nodes (47): addQuestion(), changeStatus(), create(), getById(), remove(), removeQuestion(), update(), updateQuestion() (+39 more)
-
-### Community 52 - "dependencies"
 Cohesion: 0.17
-Nodes (12): dependencies, express@^5.2.1, express-rate-limit@^8.7.5, jsonwebtoken@^9.0.3, multer@^2.4.0, npm@^11.21.1, @prisma/client@^6.19.3, zod@^4.6.7 (+4 more)
+Nodes (13): router, studentOnly, teacherOnly, courseIdParamSchema, createReviewSchema, idParamSchema, listQuerySchema, ratingValue (+5 more)
+
+### Community 51 - "examRepository.js"
+Cohesion: 0.12
+Nodes (20): CONFIRMED_REGISTRATION, createExam(), createQuestion(), deleteExam(), deleteQuestion(), findExamBasic(), findExamById(), findManyByCourse() (+12 more)
+
+### Community 52 - "BE_RStudy/package.json"
+Cohesion: 0.07
+Nodes (41): author, dependencies, bcrypt@^6.0.0, cloudinary@^2.11.0, cors@^2.8.6, express@^5.2.1, express-rate-limit@^8.7.5, helmet@^8.3.0 (+33 more)
 
 ### Community 53 - "Auth Routes & Validation"
-Cohesion: 0.21
-Nodes (13): express, router, changePasswordSchema, forgotPasswordSchema, loginSchema, refreshTokenSchema, registerSchema, resendOtpSchema (+5 more)
+Cohesion: 0.15
+Nodes (17): authCredentialLimiter, authIpLimiter, contentWriteLimiter, { rateLimit, ipKeyGenerator }, express, router, changePasswordSchema, forgotPasswordSchema (+9 more)
 
-### Community 54 - "sendOtp"
-Cohesion: 0.20
-Nodes (7): bcrypt@^6.0.0, crypto, bcrypt, compareOtp(), crypto, generateOtpCode(), bcrypt
+### Community 54 - "couponService.js"
+Cohesion: 0.24
+Nodes (14): assertRules(), calculateDiscount(), changeStatus(), create(), getById(), getUsabilityError(), getUsableCoupon(), list() (+6 more)
 
 ### Community 55 - "Category Routes & Validation"
 Cohesion: 0.21
@@ -381,33 +380,33 @@ Nodes (11): adminOnly, router, categoryName, { CategoryStatus }, changeStatusSch
 Cohesion: 0.22
 Nodes (11): adminNeedsPermission(), checkAdminPermission, router, answerSchema, answersField, saveAnswersSchema, startSchema, strictObject() (+3 more)
 
-### Community 57 - "AppError"
-Cohesion: 0.19
-Nodes (19): countRecentStudentMessages(), createAiMessage(), createConversation(), createStudentMessage(), db(), findConversationById(), findConversations(), findMessages() (+11 more)
+### Community 57 - "adminValidator.js"
+Cohesion: 0.20
+Nodes (12): createAdministrator(), getAdministrator(), listAdministrators(), setAdministratorPermissions(), setAdministratorStatus(), createAdminSchema, idParamSchema, listQuerySchema (+4 more)
 
 ### Community 58 - "AppRoutes.jsx"
-Cohesion: 0.09
-Nodes (39): LoadingState(), ExamLayout(), ProtectedRoute(), ExamTakePage(), ForbiddenPage(), AccountsPage, AdminCategoriesPage, AdminCouponsPage (+31 more)
+Cohesion: 0.08
+Nodes (40): LeaderRoute(), PermissionRoute(), ProtectedRoute(), ROLE_HOME, ForbiddenPage(), ResourceListPage(), AccountsPage, AdminCategoriesPage (+32 more)
 
 ### Community 59 - "backend"
 Cohesion: 0.06
 Nodes (33): VITE_API_URL, VITE_ASSET_URL, build, container_name, env_file, environment, ports, restart (+25 more)
 
-### Community 60 - "DashboardPanel"
-Cohesion: 0.16
-Nodes (27): ConfirmDialog(), DashboardPanel(), getPages(), Pagination(), AccountsFilterBar(), AccountsPage(), toParams(), AdminCategoriesPage() (+19 more)
+### Community 60 - "useFetch.js"
+Cohesion: 0.07
+Nodes (46): axiosClient, categoryApi, couponApi, invoiceApi, reportApi, resourceApi, teacherApi, ConfirmDialog() (+38 more)
 
 ### Community 61 - "useFetch"
-Cohesion: 0.08
-Nodes (42): courseApi, enrollmentApi, examApi, BackButton(), Card(), COURSE_GRID_CLASS, CourseCardSkeleton(), CourseSelect() (+34 more)
+Cohesion: 0.13
+Nodes (28): Card(), CourseCardSkeleton(), EmptyState(), ErrorState(), ListSkeleton(), LoadingState(), PageColumns(), Pagination() (+20 more)
 
-### Community 62 - "Button"
-Cohesion: 0.20
-Nodes (17): NoteDialog(), NoteForm(), ReportDialog(), ReportForm(), schema, Button(), FormAlert(), fadeIn (+9 more)
+### Community 62 - "dependencies"
+Cohesion: 0.15
+Nodes (13): dependencies, dayjs@^1.11.23, framer-motion@^14.9.1, @hookform/resolvers@^6.0.2, lucide-react@^1.68.0, react@^19.2.8, react-hook-form@^7.91.0, react-router-dom@^7.18.4 (+5 more)
 
-### Community 63 - "uploadMiddleware.js"
-Cohesion: 0.38
-Nodes (6): buildUploader(), DOC_MIMES, hasValidSignature(), IMAGE_MIMES, multer, SIGNATURES
+### Community 63 - "AppError.js"
+Cohesion: 0.12
+Nodes (19): buildUploader(), DOC_MIMES, hasValidSignature(), IMAGE_MIMES, multer, SIGNATURES, adminNeedsPermission(), canHandlePayment (+11 more)
 
 ### Community 64 - "Public Course Tests"
 Cohesion: 0.33
@@ -418,36 +417,44 @@ Cohesion: 0.31
 Nodes (9): ADMIN, call(), check(), ids(), main(), makeTeacher(), stamp, STUDENT (+1 more)
 
 ### Community 66 - "react"
-Cohesion: 0.09
-Nodes (40): commentApi, reviewApi, ContentForm(), InlineConfirmDelete(), NotificationBell(), SHAKE, ReportButton(), REPORTERS (+32 more)
+Cohesion: 0.12
+Nodes (25): commentApi, reviewApi, ContentForm(), schema, InlineConfirmDelete(), ReportButton(), REPORTERS, Sidebar() (+17 more)
 
-### Community 67 - "CreateAdminForm.jsx"
-Cohesion: 0.43
-Nodes (4): CreateAdminForm(), DEFAULT_VALUES, createAdminSchema, CommonRegisterFields()
+### Community 67 - "ExamForm.jsx"
+Cohesion: 0.30
+Nodes (9): ExamForm(), EMPTY_QUESTION(), examSchema, isNumber(), numberField(), optionSchema, questionSchema, toExamBody() (+1 more)
 
 ### Community 68 - "reviewController.js"
-Cohesion: 0.31
-Nodes (10): create(), currentUser(), getMine(), listByCourse(), parseListQuery(), removeResponse(), respond(), update() (+2 more)
+Cohesion: 0.36
+Nodes (9): create(), currentUser(), getMine(), listByCourse(), parseListQuery(), removeResponse(), respond(), update() (+1 more)
+
+### Community 69 - "swagger.test.js"
+Cohesion: 0.38
+Nodes (10): buildOpenApi(), listRoutes(), parseSpec(), routeKey(), check(), main(), path, sleep() (+2 more)
 
 ### Community 70 - "Review Tests"
 Cohesion: 0.39
 Nodes (8): authHeaders(), call(), check(), ids(), main(), sameOrder(), sleep(), stamp
 
+### Community 71 - "HomePage.jsx"
+Cohesion: 0.29
+Nodes (8): FAQ_ITEMS, accordion, FaqItem(), FaqSection(), LINK_PRIMARY, HomePage(), loadLatestCourse(), loadTeachers()
+
 ### Community 72 - "dashboardConfig.js"
-Cohesion: 0.15
-Nodes (17): accountApi, reportApi, teacherApi, StatCard(), PERMISSIONS, AdminDashboardPage(), CountCard(), fetchPendingPayments() (+9 more)
+Cohesion: 0.19
+Nodes (14): StatCard(), PERMISSIONS, AdminDashboardPage(), CountCard(), fetchPendingPayments(), fetchPendingTeachers(), PENDING_CARDS, TOTAL_CARDS (+6 more)
 
 ### Community 73 - "exam.test.js"
 Cohesion: 0.46
 Nodes (7): call(), check(), correctOf(), leaksAnswer(), main(), makeQ(), wrongOf()
 
-### Community 74 - "TextField"
+### Community 74 - "CourseEditPage.jsx"
 Cohesion: 0.16
-Nodes (18): FormField(), inputClass(), PasswordInput, GENDER_OPTIONS, useCategories(), CourseForm(), courseSchema, EMPTY_COURSE (+10 more)
+Nodes (14): learningApi, BackButton(), courseSchema, EDITABLE_STATUSES, EMPTY_COURSE, isNumber(), toFormValues(), CourseEditPage() (+6 more)
 
 ### Community 75 - "axiosClient.js"
-Cohesion: 0.15
-Nodes (10): AUTH_LOGOUT_EVENT, axiosClient, NO_REFRESH_URLS, categoryApi, chatbotApi, couponApi, notificationApi, recommendationApi (+2 more)
+Cohesion: 0.20
+Nodes (10): axios@^1.20.0, adminApi, AUTH_LOGOUT_EVENT, NO_REFRESH_URLS, App(), AuthProvider(), fetchAccount(), ToastProvider() (+2 more)
 
 ### Community 77 - "Test Auth Helpers"
 Cohesion: 0.48
@@ -461,17 +468,29 @@ Nodes (3): devDependencies, prettier@^3.10.1, prettier
 Cohesion: 0.22
 Nodes (8): hooks, PreToolUse, SessionStart, permissions, allow, ask, deny, $schema
 
+### Community 80 - "commentController.js"
+Cohesion: 0.42
+Nodes (8): create(), currentUser(), listByCourse(), remove(), removeReply(), reply(), update(), updateReply()
+
+### Community 81 - "reportRoutes.js"
+Cohesion: 0.33
+Nodes (7): adminOnly, router, createReportSchema, idParamSchema, processReportSchema, rejectReportSchema, { z }
+
+### Community 89 - "storage.test.js"
+Cohesion: 0.31
+Nodes (8): check(), exists(), fs, main(), path, PDF_MIN, png(), PNG_1X1
+
 ### Community 90 - "ExamRoom.jsx"
-Cohesion: 0.35
-Nodes (7): secondsLeft(), useCountdown(), ExamRoom(), toList(), QuestionCard(), pad(), SidePanel()
+Cohesion: 0.21
+Nodes (10): submissionApi, secondsLeft(), useCountdown(), ExamTakePage(), ExamRoom(), toList(), QuestionCard(), pad() (+2 more)
 
-### Community 91 - "signAccessToken"
-Cohesion: 0.22
-Nodes (14): jwt, signAccessToken(), call(), callBoth(), check(), expectAllowed(), expectBlocked(), main() (+6 more)
+### Community 91 - "account.test.js"
+Cohesion: 0.57
+Nodes (6): call(), callBoth(), check(), expectAllowed(), expectBlocked(), main()
 
-### Community 92 - "TextField"
-Cohesion: 0.15
-Nodes (19): TextField, CouponDialog(), CouponForm(), couponSchema, EMPTY_COUPON, isNumber(), toBody(), toFormValues() (+11 more)
+### Community 92 - "CouponForm.jsx"
+Cohesion: 0.32
+Nodes (9): CouponDialog(), CouponForm(), couponSchema, EMPTY_COUPON, isNumber(), toBody(), toFormValues(), toIso() (+1 more)
 
 ### Community 93 - "hash.js"
 Cohesion: 0.18
@@ -481,91 +500,95 @@ Nodes (12): CATEGORIES, getDates(), main(), prisma, { PrismaClient }, TEACHERS, 
 Cohesion: 0.48
 Nodes (6): call(), check(), ids(), main(), sleep(), stamp
 
-### Community 95 - "authController.js"
-Cohesion: 0.18
-Nodes (14): forgotPassword(), register(), resendOtp(), createOtp(), createStudentAccount(), createTeacherAccount(), findByEmail(), findLatestOtp() (+6 more)
+### Community 95 - "authService.js"
+Cohesion: 0.14
+Nodes (19): login(), resendOtp(), crypto, createOtp(), findByEmail(), findLatestOtp(), assertTeacherApproved(), crypto (+11 more)
+
+### Community 96 - "ExamCountdown.jsx"
+Cohesion: 0.33
+Nodes (6): UPCOMING_EXAMS, CountdownCard(), ExamCountdown(), getParts(), pad(), TONES
 
 ### Community 97 - "jwt.js"
-Cohesion: 0.26
-Nodes (11): sha256(), signRefreshToken(), bcrypt, call(), check(), countBy(), fs, main() (+3 more)
+Cohesion: 0.20
+Nodes (14): issueTokenPair(), sha256(), jwt, parseDurationToMs(), signRefreshToken(), bcrypt, call(), check() (+6 more)
 
 ### Community 98 - "format.js"
-Cohesion: 0.09
-Nodes (35): ChatCourseCard(), MessageBubble(), CourseCard(), CourseCover(), CourseGrid(), NotificationItem(), SearchSuggestions(), StatusRow() (+27 more)
+Cohesion: 0.12
+Nodes (22): ChatCourseCard(), CourseCover(), NotificationItem(), SearchBox(), SearchSuggestions(), StatusRow(), dropdown, useDebouncedValue() (+14 more)
 
-### Community 99 - "main"
-Cohesion: 0.29
-Nodes (13): check(), docker(), get(), main(), path, sleep(), { spawn, execFileSync }, STAMP (+5 more)
+### Community 99 - "@tanstack/react-query"
+Cohesion: 0.32
+Nodes (5): react-dom@^19.2.8, @tanstack/react-query@^5.107.1, queryClient, react-dom, @tanstack/react-query
 
-### Community 100 - "ratelimit.redis.test.js"
+### Community 100 - "vite.config.js"
 Cohesion: 0.29
-Nodes (13): check(), docker(), login(), main(), path, sleep(), { spawn, execFileSync }, STAMP (+5 more)
+Nodes (6): @tailwindcss/vite@^4.3.3, vite@^8.3.6, @vitejs/plugin-react@^6.1.1, @tailwindcss/vite, vite, @vitejs/plugin-react
 
 ### Community 101 - "redis.test.js"
-Cohesion: 0.31
+Cohesion: 0.35
 Nodes (11): check(), docker(), main(), path, ready(), sleep(), { spawn, execFileSync }, startServer() (+3 more)
 
 ### Community 102 - "hardening.p2.test.js"
 Cohesion: 0.29
 Nodes (9): AVATAR_DIR, avatarForm(), BASE, call(), check(), countBy(), fs, main() (+1 more)
 
-### Community 103 - "accountRepository.js"
-Cohesion: 0.24
-Nodes (9): findByIdSafe(), list(), LIST_SELECT, revokeAllRefreshTokens(), SAFE_SELECT, updateAvatarIfCurrent(), updateStatus(), changeStatus() (+1 more)
+### Community 103 - "accountService.js"
+Cohesion: 0.11
+Nodes (22): changeStatus(), list(), updateAvatar(), updateProfile(), findByIdSafe(), list(), LIST_SELECT, revokeAllRefreshTokens() (+14 more)
 
 ### Community 104 - "cloudinary.integration.test.js"
 Cohesion: 0.29
 Nodes (11): bodies, call(), check(), DOCX_MIN, formOf(), httpStatus(), main(), PDF_MIN (+3 more)
 
 ### Community 105 - "invoice.test.js"
-Cohesion: 0.25
-Nodes (10): call(), check(), crypto, fs, main(), path, png, pngForm() (+2 more)
+Cohesion: 0.16
+Nodes (18): signAccessToken(), call(), check(), main(), call(), check(), main(), sleep() (+10 more)
+
+### Community 106 - "coupon.test.js"
+Cohesion: 0.53
+Nodes (5): call(), check(), codes(), main(), valid
 
 ### Community 107 - "scripts"
 Cohesion: 0.25
 Nodes (8): scripts, db:generate, db:migrate, db:studio, dev, postinstall, start, test
 
 ### Community 108 - "enrollment.test.js"
-Cohesion: 0.33
+Cohesion: 0.29
 Nodes (8): call(), check(), fs, main(), path, PNG, proofForm(), tokenOf()
+
+### Community 109 - "scripts"
+Cohesion: 0.40
+Nodes (5): scripts, build, dev, lint, preview
 
 ### Community 110 - "dotenv"
 Cohesion: 0.40
 Nodes (4): dotenv@^18.0.3, prisma@^6.19.3, dotenv, prisma
 
-### Community 111 - "prisma"
-Cohesion: 0.21
-Nodes (10): prisma, findAndCount(), findById(), include, remove(), getList(), call(), check() (+2 more)
+### Community 111 - "listManage"
+Cohesion: 0.67
+Nodes (3): findTeacherByAccountId(), findManyForManage(), listManage()
 
-### Community 112 - "App.jsx"
-Cohesion: 0.26
-Nodes (8): App(), Toast(), TYPES, slideInRight, AuthProvider(), fetchAccount(), ToastProvider(), ToastContext
-
-### Community 114 - "recommendationRepository.js"
-Cohesion: 0.20
-Nodes (14): getMine(), courseSelect, findCandidates(), findOpenCourses(), findOpenForStudent(), findStudentCourseLinks(), findStudentIdByAccountId(), openWhere() (+6 more)
-
-### Community 118 - "rateLimitMiddleware.js"
-Cohesion: 0.18
-Nodes (8): isReady(), authCredentialLimiter, authIpLimiter, buildLimiter(), { rateLimit, ipKeyGenerator }, { MemoryStore }, RedisFallbackStore, express-rate-limit
+### Community 112 - "framer-motion"
+Cohesion: 0.15
+Nodes (10): ScrollProgress(), Switch(), Toast(), TYPES, EASE, slideInRight, ToastContext, FILTERS (+2 more)
 
 ## Knowledge Gaps
-- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `AppError` connect `reportService.js` to `authMiddleware.js`, `permissionMiddleware.js`, `recommendationService.js`, `invoiceService.js`, `formatResponse`, `courseController.js`, `courseService.js`, `courseRepository.js`, `Review Repository`, `Comment Repository`, `Coupon Repository`, `Category Controller & Repository`, `accountService.js`, `notificationService.js`, `storage.js`, `authService.js`, `invoiceRoutes.js`, `Administrator Management`, `teacherService.js`, `database.js`, `changeStatusByAdmin`, `Learning Sessions Backend`, `Exam Submission Grading`, `getMyList`, `examService.js`, `AppError`, `uploadMiddleware.js`, `reviewController.js`, `authController.js`, `accountRepository.js`, `recommendationRepository.js`?**
-  _High betweenness centrality (0.218) - this node is a cross-community bridge._
-- **Should `authMiddleware.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.07957957957957958 - nodes in this community are weakly interconnected._
-- **Why does `react` connect `react` to `FE_RStudy/package.json`, `useFetch`, `ChatPanel.jsx`, `Button.jsx`, `FormAlert`, `SessionDialog.jsx`, `ResourceBrowser.jsx`, `PermissionsPage.jsx`, `ProfileForm.jsx`, `PaymentPage.jsx`, `CourseExamTable.jsx`, `motion.js`, `react-router-dom`, `AppRoutes.jsx`, `DashboardPanel`, `useFetch`, `Button`, `CreateAdminForm.jsx`, `TextField`, `axiosClient.js`, `ExamRoom.jsx`, `TextField`, `format.js`, `App.jsx`?**
-  _High betweenness centrality (0.135) - this node is a cross-community bridge._
+- **Why does `AppError` connect `AppError` to `authMiddleware.js`, `permissionMiddleware.js`, `recommendationService.js`, `invoiceService.js`, `formatResponse`, `courseService.js`, `@prisma/client`, `examService.js`, `Comment Repository`, `Category Controller & Repository`, `notificationService.js`, `storage.js`, `authService.js`, `ref_zod`, `Administrator Management`, `teacherService.js`, `database.js`, `Learning Sessions Backend`, `Exam Submission Grading`, `reportService.js`, `examRepository.js`, `couponService.js`, `adminValidator.js`, `AppError.js`, `reviewController.js`, `authService.js`, `accountService.js`, `listManage`?**
+  _High betweenness centrality (0.210) - this node is a cross-community bridge._
 - **Should `Initial Database Migration` be split into smaller, more focused modules?**
   _Cohesion score 0.05263157894736842 - nodes in this community are weakly interconnected._
-- **Why does `@prisma/client` connect `database.js` to `invoiceService.js`, `Exam Submission Grading`, `BE_RStudy/package.json`, `Course Routes & Validation`, `deleteAccount.js`, `courseService.js`, `reportService.js`, `Review Repository`, `Comment Repository`, `examService.js`, `dependencies`, `Coupon Repository`, `Category Controller & Repository`, `Category Routes & Validation`, `hash.js`?**
-  _High betweenness centrality (0.081) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `FE_RStudy/package.json`, `useFetch`, `ChatPanel.jsx`, `Button`, `sessionFormat.js`, `StatusBadge`, `DashboardPanel`, `ProfileForm.jsx`, `PaymentPage.jsx`, `CourseExamTable.jsx`, `ForYouSection.jsx`, `TeacherShowcase.jsx`, `motion.js`, `useAuth`, `AppRoutes.jsx`, `useFetch.js`, `useFetch`, `dependencies`, `ExamForm.jsx`, `HomePage.jsx`, `CourseEditPage.jsx`, `axiosClient.js`, `ExamRoom.jsx`, `CouponForm.jsx`, `ExamCountdown.jsx`, `format.js`, `@tanstack/react-query`, `framer-motion`?**
+  _High betweenness centrality (0.145) - this node is a cross-community bridge._
 - **Should `FE_RStudy/package.json` be split into smaller, more focused modules?**
-  _Cohesion score 0.05194805194805195 - nodes in this community are weakly interconnected._
-- **Should `invoiceService.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.05034199726402189 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.14761904761904762 - nodes in this community are weakly interconnected._
+- **Why does `@prisma/client` connect `@prisma/client` to `database.js`, `invoiceService.js`, `formatResponse`, `Exam Submission Grading`, `courseService.js`, `Course Routes & Validation`, `deleteAccount.js`, `examService.js`, `reportService.js`, `Review Repository`, `Comment Repository`, `BE_RStudy/package.json`, `AppError`, `Category Controller & Repository`, `couponService.js`, `Category Routes & Validation`, `storage.js`, `hash.js`?**
+  _High betweenness centrality (0.088) - this node is a cross-community bridge._
+- **Should `recommendationService.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.07337526205450734 - nodes in this community are weakly interconnected._
+- **Should `cache.js` be split into smaller, more focused modules?**
+  _Cohesion score 0.06721215663354763 - nodes in this community are weakly interconnected._

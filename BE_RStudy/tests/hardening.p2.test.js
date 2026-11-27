@@ -49,7 +49,7 @@ async function main() {
         };
         let r;
 
-        // ========== 1. Request ID và health ready ==========
+        // 1. Request ID và health ready
         console.log('[1. Request ID và health/ready]');
         let res = await fetch(`${BASE}/health/ready`);
         check('GET /health/ready -> 200', res.status === 200, `${res.status}`);
@@ -61,7 +61,7 @@ async function main() {
         r = await call('GET', '/khong-co-route');
         check('Lỗi 404 vẫn có X-Request-Id', !!r.headers.get('x-request-id'));
 
-        // ========== 2. Magic bytes khi upload ==========
+        // 2. Magic bytes khi upload
         console.log('[2. Upload: kiểm tra nội dung thật của file]');
         const U = await mkStudent('HV Upload');
         const before = fs.readdirSync(AVATAR_DIR).length;
@@ -71,7 +71,7 @@ async function main() {
         check('File PDF đội lốt image/jpeg -> 400', r.status === 400, `${r.status} ${r.msg}`);
         check('File giả đã bị xóa khỏi đĩa', fs.readdirSync(AVATAR_DIR).length === before, `${before} -> ${fs.readdirSync(AVATAR_DIR).length}`);
 
-        // ========== 3. Account enumeration ==========
+        // 3. Account enumeration
         console.log('[3. verify-email không lộ email nào đã đăng ký]');
         const Verified = await mkStudent('HV Da Xac Minh');
         const ghost = await call('POST', '/auth/verify-email', { body: { email: `khong.ton.tai.${stamp}@example.com`, code: '123456' } });
@@ -79,7 +79,7 @@ async function main() {
         check('Email không tồn tại -> 400', ghost.status === 400, `${ghost.status} ${ghost.msg}`);
         check('Email đã xác minh -> cùng mã lỗi và cùng thông báo', verified.status === ghost.status && verified.msg === ghost.msg, `${verified.status} ${verified.msg} | ${ghost.status} ${ghost.msg}`);
 
-        // ========== Dữ liệu cho comment và bài thi ==========
+        // Dữ liệu cho comment và bài thi
         const tAcc = await mkAcc('GV P2', 'TEACHER');
         const teacher = await prisma.teacher.create({ data: { specialization: 'T', biography: 'T', teachingExperience: 'T', approvalStatus: 'DA_DUYET', accountId: tAcc.id } });
         fx.teachers.push(teacher.id);
@@ -87,7 +87,7 @@ async function main() {
         fx.categories.push(cat.id);
         const course = await prisma.course.create({ data: { courseName: `Khoa P2 ${stamp}`, description: 'p2', price: 0, status: 'DANG_MO', startDate: new Date('2030-01-01'), endDate: new Date('2030-06-01'), categoryId: cat.id, teacherId: teacher.id } });
 
-        // ========== 4. Rate limit ghi nội dung ==========
+        // 4. Rate limit ghi nội dung
         console.log('[4. Rate limit bình luận: 10 lần/phút/tài khoản]');
         const C = await mkStudent('HV Binh Luan');
         await prisma.courseRegistration.create({ data: { studentId: C.student.id, courseId: course.id, status: 'DA_THANH_TOAN' } });
@@ -102,7 +102,7 @@ async function main() {
         r = await call('POST', `/comment/course/${course.id}`, { ...C2.auth, body: { content: 'nguoi khac van gui duoc' } });
         check('Tài khoản khác không bị ảnh hưởng -> 201', r.status === 201, `${r.status} ${r.msg}`);
 
-        // ========== 5. Nộp bài đồng thời ==========
+        // 5. Nộp bài đồng thời
         console.log('[5. Nộp bài: điểm luôn khớp đáp án đã lưu]');
         const S = await mkStudent('HV Nop Bai');
         const exam = await prisma.exam.create({ data: { examName: `De P2 ${stamp}`, durationMinutes: 30, passingScore: 5, status: 'DANG_MO', maxAttempts: 10, courseId: course.id } });

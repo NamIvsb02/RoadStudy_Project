@@ -5,7 +5,6 @@ const { formatResponse } = require('../utils/response');
 // Khách chưa đăng nhập (API công khai) thì không có req.user
 const currentUser = (req) => (req.user ? { id: req.user.id, role: req.user.role } : null);
 
-//BÌNH LUẬN
 exports.listByCourse = async (req, res) => {
   const data = await commentService.listByCourse(
     currentUser(req),
@@ -34,7 +33,6 @@ exports.remove = async (req, res) => {
   res.json(formatResponse(true, null, 'Xóa bình luận thành công'));
 };
 
-//PHẢN HỒI
 exports.reply = async (req, res) => {
   const data = await commentService.createReply(currentUser(req), req.params.id, req.body.content);
   res.status(201).json(formatResponse(true, data, 'Gửi phản hồi thành công'));

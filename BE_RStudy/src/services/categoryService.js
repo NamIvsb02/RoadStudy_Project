@@ -21,7 +21,6 @@ const assertNameAvailable = async (name, excludeId) => {
   if (duplicated) throw new AppError('Tên danh mục đã tồn tại', 409);
 };
 
-//PUBLIC: chỉ danh mục đang hoạt động
 const getPublicList = (params) => (params.q ? loadPublicList(params) : cache.getOrSet("category:list", params, () => loadPublicList(params)));
 
 const loadPublicList = async ({ q, ...pg }) => {
@@ -44,7 +43,6 @@ const getPublicById = async (id) => {
   return category;
 };
 
-//ADMIN
 const getAdminList = async ({ q, status, ...pg }) => {
   if (status && !Object.values(CategoryStatus).includes(status)) {
     throw new AppError('Trạng thái lọc không hợp lệ', 400);

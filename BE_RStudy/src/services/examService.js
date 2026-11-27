@@ -56,7 +56,6 @@ async function loadExam(id) {
 
 const withTotal = (exam) => ({ ...exam, totalScore: totalOf(exam.questions).toFixed(2) });
 
-// ---------- Exam ----------
 async function create(user, data) {
   await assertCanManageCourse(user, data.courseId);
 
@@ -195,7 +194,7 @@ async function remove(user, id) {
   await repo.deleteExam(id);
 }
 
-// ---------- Question (đáp án được quản lý cùng câu hỏi) ----------
+// Đáp án được quản lý cùng câu hỏi
 async function addQuestion(user, examId, data) {
   const exam = await loadExam(examId);
   await assertCanManageCourse(user, exam.courseId);

@@ -3,6 +3,8 @@ node_modules/
 
 # Cache của graphify, chạy lại là có
 graphify-out/cache/
+# Bản chụp graph theo ngày, chỉ dùng graphify-out/graph.json mới nhất
+graphify-out/20*/
 
 # Cấu hình Claude Code riêng từng máy
 .claude/settings.local.json

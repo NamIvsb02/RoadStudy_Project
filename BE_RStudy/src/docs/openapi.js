@@ -17,7 +17,7 @@ const SPEC_FILE = path.join(__dirname, "..", "..", "docs", "api-spec.md");
 const LIMITERS = new Set(Object.values(limiters));
 const METHODS = ["get", "post", "put", "patch", "delete"];
 
-// ===== 1. Route thật =====
+// 1. Route thật
 const listRoutes = () => {
   const routes = [];
   for (const file of fs.readdirSync(ROUTES_DIR).filter((f) => f.endsWith("Routes.js")).sort()) {
@@ -40,7 +40,7 @@ const listRoutes = () => {
 };
 const routeKey = (method, p) => `${method.toUpperCase()} ${p.replace(/\/+$/, "") || "/"}`;
 
-// ===== 3. Mô tả từ api-spec.md =====
+// 3. Mô tả từ api-spec.md
 const parseSpec = () => {
   const result = { intro: "", modules: {}, endpoints: {} };
   if (!fs.existsSync(SPEC_FILE)) return result; // ví dụ image Docker không chép docs/: Swagger vẫn chạy, chỉ thiếu mô tả
@@ -110,7 +110,7 @@ const parseQuery = (text) => {
   return params.filter((p) => !seen.has(p.name) && seen.add(p.name));
 };
 
-// ===== 2. Schema và quyền từ middleware =====
+// 2. Schema và quyền từ middleware
 const toJsonSchema = (schema) => {
   try {
     const json = z.toJSONSchema(schema, { io: "input", unrepresentable: "any" });

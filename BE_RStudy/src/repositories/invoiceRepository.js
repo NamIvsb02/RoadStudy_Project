@@ -23,7 +23,6 @@ const findStudentIdByAccountId = async (accountId) => {
     return student ? student.id : null;
 };
 
-// ---------- Hóa đơn ----------
 const findInvoiceById = (id, tx) => db(tx).invoice.findUnique({ where: { id }, include: invoiceInclude });
 
 const findInvoices = (where, { skip, take }) =>
@@ -63,7 +62,6 @@ const cancelRegistrationRecords = async (tx, registrationId, invoiceId) => {
     return true;
 };
 
-// ---------- Yêu cầu hoàn tiền ----------
 const countPendingRefundByRegistration = (registrationId, tx) =>
     db(tx).supportRequest.count({
         where: { registrationId, status: { in: ["CHO_XU_LY", "CHO_HOAN_TIEN"] } },

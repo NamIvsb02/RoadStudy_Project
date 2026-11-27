@@ -72,6 +72,18 @@ Dạng: `<type>(<scope>): <subject>`, viết **bằng tiếng Anh**, chi tiết,
 
 Các commit cũ viết bằng tiếng Việt giữ nguyên, quy tắc này áp dụng cho commit mới.
 
+## Comment trong code
+
+Áp dụng cho mọi file code của FE, BE, test và script.
+
+- Không viết comment diễn giải lại những gì code đã thể hiện (`// gọi API lấy danh sách`, `// state loading`).
+- Chỉ comment khi cần giải thích quyết định kỹ thuật, nghiệp vụ phức tạp, thuật toán, bảo mật hoặc trường hợp đặc biệt: trả lời câu hỏi **vì sao**, không phải **làm gì**.
+- Comment ngắn gọn, chính xác, sửa code thì sửa comment đi kèm cho đồng bộ.
+- Không giữ code cũ dưới dạng comment; cần thì xem lại trong lịch sử Git.
+- Không viết comment trang trí hoặc chia mục không cần thiết (`// ===== HANDLERS =====`).
+- Không xóa comment có giá trị kỹ thuật chỉ để giảm số dòng.
+- Ngoại lệ được giữ: `// TODO: nối API` theo `frontend.md`, chỉ thị cho công cụ (`eslint-disable`, `@ts-...`) kèm lý do.
+
 ## Bí mật và dữ liệu
 
 - Không đọc, in, sao chép nội dung `.env` trừ khi thực sự cần và được phép. Không dán `DATABASE_URL`, `DIRECT_URL`, API key, mật khẩu vào chat, tài liệu, commit.

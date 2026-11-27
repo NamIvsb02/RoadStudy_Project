@@ -24,7 +24,6 @@ const parseListQuery = (query) => {
   return result.data;
 };
 
-//GIÁO VIÊN
 exports.create = async (req, res) => {
   const data = await courseService.createByTeacher(req.user.id, pickCourseFields(req.body));
   res.status(201).json(formatResponse(true, data, "Tạo khóa học thành công"));
@@ -54,7 +53,6 @@ exports.submit = async (req, res) => {
   res.json(formatResponse(true, data, "Đã gửi khóa học chờ duyệt"));
 };
 
-//QUẢN TRỊ VIÊN
 exports.getAdminList = async (req, res) => {
   const data = await courseService.getAdminList({
     ...getPagination(req.query),
@@ -86,7 +84,6 @@ exports.changeStatus = async (req, res) => {
   res.json(formatResponse(true, data, "Cập nhật trạng thái khóa học thành công"));
 };
 
-//CÔNG KHAI (khách xem, không cần đăng nhập)
 exports.getPublicList = async (req, res) => {
   const filters = parseListQuery(req.query);
   const data = await courseService.getPublicList({ ...getPagination(req.query), ...filters });

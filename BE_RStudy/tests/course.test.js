@@ -74,7 +74,7 @@ const validBody = (categoryId, extra = {}) => ({
 async function main() {
   console.log(`Kiểm tra API Course tại ${BASE}\n`);
 
-  // ----- Chuẩn bị dữ liệu tạm -----
+  // Chuẩn bị dữ liệu tạm
   const cat = await prisma.category.create({ data: { categoryName: `Cat test ${stamp}` } });
   const hiddenCat = await prisma.category.create({
     data: { categoryName: `Cat ẩn test ${stamp}`, status: 'AN' },
@@ -282,7 +282,7 @@ async function main() {
     r = await call('PATCH', `/${hCourse.id}/status`, { ...ADMIN, body: { status: 'DANG_MO' } });
     check('Mở khóa thuộc danh mục đang ẩn -> 400', r.status === 400, `status ${r.status}`);
   } finally {
-    // ----- Dọn dữ liệu tạm -----
+    // Dọn dữ liệu tạm
     try {
       await prisma.course.deleteMany({ where: { categoryId: { in: [cat.id, hiddenCat.id] } } });
       await prisma.teacher.deleteMany({

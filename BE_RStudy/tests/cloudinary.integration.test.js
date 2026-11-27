@@ -80,7 +80,7 @@ async function main() {
     let r;
 
     try {
-        // ---------- Dữ liệu tạm ----------
+        // Dữ liệu tạm
         const leader = await prisma.account.findUnique({ where: { email: 'leader@roadstudy.vn' } });
         const LEADER = { id: leader.id, role: 'ADMINISTRATOR' };
         const mkAcc = async (name, role) => {
@@ -107,7 +107,7 @@ async function main() {
         const S1 = await mkStudent('HV Cloud Mot');
         const S2 = await mkStudent('HV Cloud Hai');
 
-        // ========== 1. Upload / remove trực tiếp qua utils/storage ==========
+        // 1. Upload / remove trực tiếp qua utils/storage
         console.log('[1. Upload và xóa: ảnh công khai, ảnh riêng tư, PDF, DOCX]');
         const pub = await storage.save({ buffer: PNG_1X1, mimetype: 'image/png' }, 'avatars');
         check('Ảnh công khai: URL https trong thư mục test', pub.startsWith('https://res.cloudinary.com/') && pub.includes(`/${folder}/avatars/`), pub);
@@ -130,7 +130,7 @@ async function main() {
         await storage.remove(`https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/v1/ngoai-thu-muc/abc.jpg`);
         check('remove file ngoài thư mục môi trường: bỏ qua, không ném lỗi', true);
 
-        // ========== 2. Minh chứng thanh toán: không lộ dù biết URL ==========
+        // 2. Minh chứng thanh toán: không lộ dù biết URL
         console.log('[2. Minh chứng thanh toán: chỉ xem qua API có kiểm tra quyền]');
         const reg = await prisma.courseRegistration.create({ data: { studentId: S1.student.id, courseId: course.id, status: 'CHO_THANH_TOAN' } });
         const inv = await prisma.invoice.create({ data: { subtotal: 1000000, totalAmount: 1000000, paymentMethod: 'CHUYEN_KHOAN', status: 'CHO_THANH_TOAN', studentId: S1.student.id, registrationId: reg.id } });
@@ -176,7 +176,7 @@ async function main() {
             check(`GET ${path.replace(inv.id, ':id')} không trả URL Cloudinary của minh chứng`, r.status === 200 && !r.text.includes('/image/authenticated/'), `${r.status}`);
         }
 
-        // ========== 3. Đồng thời ==========
+        // 3. Đồng thời
         console.log('[3. Đồng thời: nhiều request đổi cùng một ảnh]');
         const C = await mkStudent('HV Cloud Dong Thoi');
         const before = new Set((await listAssets()).map((a) => a.public_id));
@@ -202,7 +202,7 @@ async function main() {
         const newProofs = (await listAssets()).filter((a) => a.public_id.includes('/proofs/') && !beforeProofs.has(a.public_id));
         check('Không để lại minh chứng mồ côi', newProofs.length === 1 && storage.parseCloudinaryUrl(finalProof).publicId === newProofs[0].public_id, `${newProofs.length} file mới`);
 
-        // ========== 4. Sự cố: DB lỗi sau khi upload, xóa trên Cloudinary lỗi ==========
+        // 4. Sự cố: DB lỗi sau khi upload, xóa trên Cloudinary lỗi
         console.log('[4. Sự cố giữa chừng]');
         const origFind = accountRepository.findByIdSafe;
         const origUpdate = accountRepository.updateAvatarIfCurrent;
@@ -235,7 +235,7 @@ async function main() {
             cloudinary.uploader.destroy = origDestroy;
         }
 
-        // ========== 5. Giới hạn dung lượng ==========
+        // 5. Giới hạn dung lượng
         console.log('[5. Giới hạn dung lượng]');
         const beforeBig = (await listAssets()).length;
         r = await call('POST', '/account/avatar', { auth: S2.auth, form: formOf('avatar', Buffer.concat([PNG_1X1, Buffer.alloc(2 * 1024 * 1024)]), 'image/png') });
@@ -249,7 +249,7 @@ async function main() {
         console.log(`  INFO  8 upload 1,9MB đồng thời xong sau ${Date.now() - t0} ms: ${heavy.map((x) => x.status).join(',')}`);
         check('8 upload 1,9MB đồng thời: không có lỗi 500', heavy.every((x) => x.status !== 500), heavy.map((x) => `${x.status}`).join(','));
 
-        // ========== 6. Secret không xuất hiện trong response ==========
+        // 6. Secret không xuất hiện trong response
         console.log('[6. API secret không lộ trong response]');
         check('Không response nào chứa CLOUDINARY_API_SECRET', SECRET.length > 0 && bodies.every((b) => !b.includes(SECRET)), `${bodies.length} response`);
         check('Không response nào chứa chuỗi "api_secret"', bodies.every((b) => !/api_secret/i.test(b)));

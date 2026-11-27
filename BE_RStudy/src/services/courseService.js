@@ -23,7 +23,6 @@ const buildPagination = ({ page, limit }, total) => ({
   totalPages: Math.ceil(total / limit) || 1,
 });
 
-// ---------- hàm dùng chung ----------
 const getTeacherOrThrow = async (accountId) => {
   const teacher = await courseRepository.findTeacherByAccountId(accountId);
   if (!teacher) throw new AppError("Tài khoản này không phải giáo viên", 403);
@@ -47,7 +46,6 @@ const assertCategoryUsable = async (categoryId) => {
   }
 };
 
-//GIÁO VIÊN
 const createByTeacher = async (accountId, data) => {
   const teacher = await getTeacherOrThrow(accountId);
   await assertCategoryUsable(data.categoryId);
@@ -126,7 +124,6 @@ const submitForApproval = async (accountId, id) => {
   return courseRepository.findById(id);
 };
 
-//QUẢN TRỊ VIÊN
 const getAdminList = async ({ q, status, categoryId, teacherId, ...pg }) => {
   if (status && !Object.values(CourseStatus).includes(status)) {
     throw new AppError("Trạng thái lọc không hợp lệ", 400);
@@ -179,7 +176,6 @@ const changeStatusByAdmin = async (id, toStatus, reason) => {
   return courseRepository.findById(id);
 };
 
-//CÔNG KHAI (khách xem)
 const attachRating = (course, stats) => {
   const s = stats.get(course.id);
   return {

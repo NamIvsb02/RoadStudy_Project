@@ -11,7 +11,6 @@ const fullInclude = {
   _count: { select: { attempts: true } },
 };
 
-// ---------- Người dùng / khóa học ----------
 const findTeacherByAccountId = (accountId) => prisma.teacher.findUnique({ where: { accountId }, select: { id: true, approvalStatus: true } });
 
 const findStudentIdByAccountId = async (accountId) => {
@@ -26,7 +25,6 @@ const hasConfirmedRegistration = async (studentId, courseId) =>
     where: { studentId, courseId, status: { in: CONFIRMED_REGISTRATION } },
   })) > 0;
 
-// ---------- Exam ----------
 const findManyByCourse = (where, { skip, take }) =>
   Promise.all([
     prisma.exam.findMany({
@@ -82,7 +80,6 @@ const countAttemptsByExams = async (studentId, examIds) => {
   return new Map(rows.map((r) => [r.examId, r._count._all]));
 };
 
-// ---------- Question / Option ----------
 const findQuestionById = (id) => prisma.examQuestion.findUnique({ where: { id }, include: { options: { orderBy: { id: "asc" } } } });
 
 const findQuestionOrder = (examId, questionOrder, excludeId) =>

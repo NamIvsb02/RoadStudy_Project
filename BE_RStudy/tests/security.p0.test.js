@@ -53,7 +53,7 @@ async function main() {
             return { account, student };
         };
 
-        // ========== 1. OTP ==========
+        // 1. OTP
         console.log('[1. OTP: giới hạn lần nhập sai và thời gian chờ gửi lại]');
         const V = await mkStudent('HV Otp', { status: 'CHO_XAC_MINH' });
         const otp = await prisma.otpCode.create({ data: { accountId: V.account.id, purpose: 'XAC_MINH_EMAIL', codeHash: await bcrypt.hash('123456', 4), expiresAt: new Date(Date.now() + 600000) } });
@@ -83,7 +83,7 @@ async function main() {
         check('forgot-password lần 1 -> 200', first.status === 200, `${first.status} ${first.msg}`);
         check('forgot-password lần 2 trong 60 giây vẫn -> 200 (không lộ email)', second.status === 200 && second.msg === ghost.msg && ghost.status === 200, `${second.status} ${second.msg} | ${ghost.status} ${ghost.msg}`);
 
-        // ========== 2. Rate limit đăng nhập ==========
+        // 2. Rate limit đăng nhập
         console.log('[2. Rate limit đăng nhập theo IP + email]');
         const L1 = await mkStudent('HV Dang Nhap Mot');
         const L2 = await mkStudent('HV Dang Nhap Hai');
@@ -94,7 +94,7 @@ async function main() {
         r = await call('POST', '/auth/login', { body: { email: L2.account.email, password: 'Password123!' } });
         check('Email khác cùng IP vẫn đăng nhập được -> 200', r.status === 200, `${r.status} ${r.msg}`);
 
-        // ========== 3. Refresh token ==========
+        // 3. Refresh token
         console.log('[3. Refresh token: xoay vòng nguyên tử, phát hiện dùng lại]');
         const RT = await mkStudent('HV Refresh');
         const issue = async () => {
@@ -123,7 +123,7 @@ async function main() {
         r = await refresh(t3);
         check('Phát hiện dùng lại: token mới nhất cũng bị thu hồi -> 401', r.status === 401, `${r.status} ${r.msg}`);
 
-        // ========== Dữ liệu cho hoàn tiền / hóa đơn ==========
+        // Dữ liệu cho hoàn tiền / hóa đơn
         const tAcc = await mkAcc('GV P0', 'TEACHER');
         const teacher = await prisma.teacher.create({ data: { specialization: 'T', biography: 'T', teachingExperience: 'T', approvalStatus: 'DA_DUYET', accountId: tAcc.id } });
         fx.teachers.push(teacher.id);
@@ -131,7 +131,7 @@ async function main() {
         fx.categories.push(cat.id);
         const course = await prisma.course.create({ data: { courseName: `Khoa P0 ${stamp}`, description: 'p0', price: 1000000, status: 'DANG_MO', startDate: new Date('2030-01-01'), endDate: new Date('2030-06-01'), categoryId: cat.id, teacherId: teacher.id } });
 
-        // ========== 4. Hoàn tiền đồng thời ==========
+        // 4. Hoàn tiền đồng thời
         console.log('[4. Yêu cầu hoàn tiền gửi đồng thời]');
         const RF = await mkStudent('HV Hoan Tien');
         const regPaid = await prisma.courseRegistration.create({ data: { studentId: RF.student.id, courseId: course.id, status: 'DA_THANH_TOAN', amountPaid: 1000000 } });
@@ -141,7 +141,7 @@ async function main() {
         check('5 yêu cầu hoàn tiền song song: đúng 1 lần 201, 4 lần 409', countBy(refunds, 201) === 1 && countBy(refunds, 409) === 4, refunds.map((x) => x.status).join(','));
         check('DB chỉ có 1 yêu cầu chờ xử lý', (await prisma.supportRequest.count({ where: { registrationId: regPaid.id } })) === 1);
 
-        // ========== 5. Gửi minh chứng song song với admin duyệt ==========
+        // 5. Gửi minh chứng song song với admin duyệt
         console.log('[5. Hóa đơn: gửi minh chứng song song với admin duyệt]');
         const IV = await mkStudent('HV Hoa Don');
         const regWait = await prisma.courseRegistration.create({ data: { studentId: IV.student.id, courseId: course.id, status: 'CHO_THANH_TOAN' } });
@@ -166,7 +166,7 @@ async function main() {
         }
         check('10 vòng upload + approve: hóa đơn và đơn luôn cùng trạng thái hợp lệ', lệch === 0, `lệch ${lệch} vòng; kết quả upload/approve: ${outcomes.join(' ')}`);
 
-        // ========== 6. Chatbot: giới hạn khi gửi dồn và hạn mức ngày ==========
+        // 6. Chatbot: giới hạn khi gửi dồn và hạn mức ngày
         console.log('[6. Chatbot: gửi dồn và hạn mức 50 tin/24 giờ]');
         const CB = await mkStudent('HV Chatbot');
         const STU_CB = { id: CB.account.id, role: 'STUDENT' };

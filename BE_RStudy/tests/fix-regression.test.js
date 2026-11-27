@@ -66,7 +66,7 @@ async function main() {
         const NOPERM = { id: adAcc.id, role: 'ADMINISTRATOR' };
         const LEADER = { id: leader.id, role: 'ADMINISTRATOR' };
 
-        // ========== 1. Report phân quyền ==========
+        // 1. Report phân quyền
         console.log('[1. Report: phân quyền]');
         const cmtForReport = await prisma.comment.create({ data: { content: 'bl bao cao', commenterAccountId: S2.account.id, courseId: (await mkCourse('Khoa BC')).id } });
         const mkReport = (extra = {}) => prisma.violationReport.create({ data: { content: 'nd', reason: 'ly do', reporterAccountId: S1.account.id, reportedAccountId: S2.account.id, commentId: cmtForReport.id, ...extra } });
@@ -86,7 +86,7 @@ async function main() {
         check('Leader GET /report -> 200', r.status === 200, `${r.status} ${r.msg}`);
         check('Không token GET /report -> 401', (await call('GET', '/report')).status === 401);
 
-        // ========== 5. Thông báo báo cáo ==========
+        // 5. Thông báo báo cáo
         console.log('[5. Report: thông báo cho người gửi]');
         const notifs = (accountId, type) => prisma.notification.findMany({ where: { accountId, ...(type && { type }) } });
         const before = (await notifs(S1.account.id)).length;
@@ -117,7 +117,7 @@ async function main() {
         check('REPORT_REJECTED body = lý do, link rỗng', n[0]?.body === `Khong vi pham ${stamp}` && !n[0]?.link, JSON.stringify(n[0]));
         check('Người bị báo cáo không nhận thông báo REPORT_*', (await prisma.notification.count({ where: { accountId: S2.account.id, type: { startsWith: 'REPORT_' } } })) === 0);
 
-        // ========== 5b. Report: xử lý đồng thời ==========
+        // 5b. Report: xử lý đồng thời
         console.log('[5b. Report: 2 admin xử lý cùng lúc]');
         const fire = (path, body) => call('PATCH', path, { ...LEADER, body });
         const bodyOf = (kind, i) => (kind === 'resolve' ? { status: 'DA_XU_LY', resolutionResult: `Dong thoi ${stamp} ${i}` } : { resolutionResult: `Dong thoi ${stamp} ${i}` });
@@ -148,7 +148,7 @@ async function main() {
         const starts = await Promise.all([fire(`/report/${rrStart.id}/process`, { status: 'DANG_XU_LY' }), fire(`/report/${rrStart.id}/process`, { status: 'DANG_XU_LY' })]);
         check('2 lần DANG_XU_LY cùng lúc: 1 thành công, 1 từ chối 409', starts.map((x) => x.status).sort().join() === '200,409', JSON.stringify(starts.map((x) => [x.status, x.msg])));
 
-        // ========== 2. Comment công khai ==========
+        // 2. Comment công khai
         console.log('[2. Comment công khai]');
         const cOpen = await mkCourse('Khoa BL mo');
         const c1 = await prisma.comment.create({ data: { content: 'bl cua S1', commenterAccountId: S1.account.id, courseId: cOpen.id } });
@@ -171,7 +171,7 @@ async function main() {
         r = await call('POST', `/comment/course/${cOpen.id}`, { body: { content: 'x' } });
         check('POST bình luận không token -> 401', r.status === 401, `${r.status}`);
 
-        // ========== 3. PUT /course ==========
+        // 3. PUT /course
         console.log('[3. Course PUT: khóa có học viên]');
         const MSG = 'Khóa học đã có học viên đăng ký nên không thể đổi học phí hoặc thời gian học';
         for (const st of ['DA_THANH_TOAN', 'CHO_THANH_TOAN']) {
@@ -198,7 +198,7 @@ async function main() {
         r = await call('PUT', `/course/${cOld.id}`, { ...TEACHER, body: { price: 1700000, startDate: '2030-03-01T00:00:00.000Z' } });
         check('Chỉ đơn DA_HUY/HOAN_TIEN đổi giá/ngày -> 200', r.status === 200 && Number(r.json?.data?.price) === 1700000, `${r.status} ${r.msg}`);
 
-        // ========== 4. Từ chối khóa ==========
+        // 4. Từ chối khóa
         console.log('[4. Từ chối khóa học]');
         const mkPending = () => mkCourse('Khoa cho duyet', { status: 'CHO_DUYET' });
         const rej = (id, body) => call('POST', `/course/${id}/reject`, { ...LEADER, body });
@@ -242,7 +242,7 @@ async function main() {
         r = await st(cA.id, { status: 'DANG_MO' });
         check('DA_PHE_DUYET -> DANG_MO -> 200 (chuyển khác không cần reason)', r.status === 200, `${r.status} ${r.msg}`);
 
-        // ========== 6. Chatbot repository ==========
+        // 6. Chatbot repository
         console.log('[6. Chatbot: findOpenCourses bỏ khóa danh mục AN]');
         const cands = await recoRepo.findOpenCourses({ maxPrice: null, limit: 100000 });
         const ids = new Set(cands.map((c) => c.id));

@@ -54,7 +54,7 @@ async function main() {
     const fx = {};
 
     try {
-        // ---------- Dữ liệu nền ----------
+        // Dữ liệu nền
         // Admin mặc định trong test là Leader (có mọi quyền); admin thường (không có quyền) để kiểm tra bị chặn
         const leader = await prisma.account.findUnique({ where: { email: 'leader@roadstudy.vn' } });
         const adminNoPerm = await prisma.account.findUnique({ where: { email: 'admin@roadstudy.vn' } });
@@ -105,7 +105,7 @@ async function main() {
             ...over,
         });
 
-        // ---------- Tạo đề ----------
+        // Tạo đề
         console.log('[Tạo đề]');
         let r = await call('POST', '/exam', { actor: T, body: examBody() });
         check('Giáo viên tạo đề -> 201', r.status === 201, `status ${r.status} ${r.json?.message}`);
@@ -159,7 +159,7 @@ async function main() {
         check('Admin tạo đề -> 201', r.status === 201, `status ${r.status}`);
         const exam2 = r.json?.data;
 
-        // ---------- Học viên chưa thấy đề nháp ----------
+        // Học viên chưa thấy đề nháp
         console.log('\n[Đề nháp bị ẩn với học viên]');
         r = await call('GET', `/exam/course/${courseId}`, { actor: S });
         check('Học viên xem danh sách -> 200', r.status === 200, `status ${r.status}`);
@@ -174,7 +174,7 @@ async function main() {
         r = await call('GET', `/exam/course/${courseId}`, { actor: S2 });
         check('Học viên chưa xác nhận đăng ký xem danh sách -> 403', r.status === 403, `status ${r.status}`);
 
-        // ---------- Sửa câu hỏi khi còn nháp ----------
+        // Sửa câu hỏi khi còn nháp
         console.log('\n[Quản lý câu hỏi / đáp án khi đề còn nháp]');
         const q2a = exam2.questions[0];
         r = await call('POST', `/exam/${exam2.id}/questions`, { actor: T, body: makeQ('Câu thêm', 3, 1) });
@@ -207,7 +207,7 @@ async function main() {
         r = await call('DELETE', `/exam/questions/${added.id}`, { actor: T });
         check('Xóa câu hỏi -> 200', r.status === 200, `status ${r.status}`);
 
-        // ---------- Luồng trạng thái ----------
+        // Luồng trạng thái
         console.log('\n[Luồng trạng thái đề thi]');
         r = await call('PATCH', `/exam/${exam1.id}/status`, { actor: T, body: { status: 'DA_PHE_DUYET' } });
         check('Giáo viên tự phê duyệt -> 403', r.status === 403, `status ${r.status}`);
@@ -233,7 +233,7 @@ async function main() {
         r = await call('PATCH', `/exam/${exam3.id}/status`, { actor: ADMIN, body: { status: 'DA_PHE_DUYET' } });
         check('Duyệt đề không còn câu hỏi nào -> 400', r.status === 400, `status ${r.status}`);
 
-        // ---------- Học viên xem đề đang mở ----------
+        // Học viên xem đề đang mở
         console.log('\n[Học viên xem đề đang mở]');
         r = await call('GET', `/exam/course/${courseId}`, { actor: S });
         const listed = (r.json?.data?.items || []).find((e) => e.id === exam1.id);
@@ -257,7 +257,7 @@ async function main() {
         r = await call('GET', '/exam/khong-ton-tai', { actor: ADMIN });
         check('Xem đề không tồn tại -> 404', r.status === 404, `status ${r.status}`);
 
-        // ---------- Làm bài ----------
+        // Làm bài
         console.log('\n[Làm bài và nộp bài]');
         r = await call('POST', '/submission/start', { actor: S2, body: { examId: exam1.id } });
         check('Học viên chưa xác nhận đăng ký làm bài -> 403', r.status === 403, `status ${r.status}`);
@@ -328,7 +328,7 @@ async function main() {
         r = await call('GET', '/submission/me', { actor: T });
         check('Giáo viên xem lịch sử của học viên -> 403', r.status === 403, `status ${r.status}`);
 
-        // ---------- Giới hạn 3 lần ----------
+        // Giới hạn 3 lần
         console.log('\n[Giới hạn 3 lần làm bài]');
         r = await call('POST', '/submission/start', { actor: S, body: { examId: exam1.id } });
         check('Lần 2: bắt đầu -> 200, bài mới', r.status === 200 && r.json?.data?.attempt?.id !== a1.id, `status ${r.status}`);
@@ -348,7 +348,7 @@ async function main() {
         r = await call('GET', `/exam/course/${courseId}`, { actor: S });
         check('attemptsUsed = 3', (r.json?.data?.items || []).find((e) => e.id === exam1.id)?.attemptsUsed === 3);
 
-        // ---------- Giáo viên xem bài làm ----------
+        // Giáo viên xem bài làm
         console.log('\n[Giáo viên / admin xem các bài làm]');
         r = await call('GET', `/submission/exam/${exam1.id}`, { actor: T });
         check('Giáo viên xem danh sách bài làm -> 200, đủ 3 bài', r.status === 200 && r.json?.data?.pagination?.total === 3, `status ${r.status}`);
@@ -360,7 +360,7 @@ async function main() {
         r = await call('GET', `/submission/exam/${exam1.id}`, { actor: S });
         check('Học viên -> 403', r.status === 403, `status ${r.status}`);
 
-        // ---------- Hết giờ ----------
+        // Hết giờ
         console.log('\n[Hết giờ làm bài]');
         r = await call('POST', '/exam', { actor: T, body: examBody({ examName: `Đề 1 phút ${stamp}`, durationMinutes: 1, passingScore: 5, questions: [makeQ('A', 5, 0), makeQ('B', 5, 1)] }) });
         const exam4 = r.json?.data;
@@ -385,7 +385,7 @@ async function main() {
         r = await call('GET', `/submission/${b2.id}`, { actor: S });
         check('Bài quá hạn được tự động nộp (DA_CHAM, điểm 0.00)', r.json?.data?.status === 'DA_CHAM' && r.json?.data?.score === '0.00', JSON.stringify(r.json?.data?.status));
 
-        // ---------- Quy tắc sau khi đã có bài làm ----------
+        // Quy tắc sau khi đã có bài làm
         console.log('\n[Quy tắc khi đề đã có bài làm]');
         r = await call('DELETE', `/exam/${exam1.id}`, { actor: T });
         check('Xóa đề đã có bài làm -> 409', r.status === 409, `status ${r.status}`);

@@ -21,7 +21,6 @@ const assertNotFinal = (report) => {
 // Trạng thái bị người khác đổi giữa lúc kiểm tra và lúc ghi
 const conflict = () => new AppError("Báo cáo vừa được người khác xử lý, vui lòng tải lại", 409);
 
-// NGƯỜI DÙNG
 const create = async (accountId, { reason, content, reviewId, commentId, replyId }) => {
   const target = { reviewId, commentId, replyId };
   const found = await reportRepository.findTarget(target);
@@ -42,7 +41,6 @@ const create = async (accountId, { reason, content, reviewId, commentId, replyId
   return report;
 };
 
-// ADMIN
 const getList = async ({ status, page, limit, skip, take }) => {
   if (status && !Object.values(ReportStatus).includes(status)) {
     throw new AppError("Trạng thái lọc không hợp lệ", 400);

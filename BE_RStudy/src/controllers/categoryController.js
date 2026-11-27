@@ -3,7 +3,6 @@ const { getPagination } = require('../utils/pagination');
 const { formatResponse } = require('../utils/response');
 
 
-//PUBLIC
 exports.getPublicList = async (req, res) => {
   const data = await categoryService.getPublicList({ ...getPagination(req.query), q: req.query.q });
   res.json(formatResponse(true, data, 'Lấy danh sách danh mục thành công'));
@@ -14,7 +13,6 @@ exports.getPublicById = async (req, res) => {
   res.json(formatResponse(true, data, 'Lấy thông tin danh mục thành công'));
 };
 
-//ADMIN
 exports.getAdminList = async (req, res) => {
   const data = await categoryService.getAdminList({
     ...getPagination(req.query),

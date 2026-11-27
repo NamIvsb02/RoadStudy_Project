@@ -1,1 +1,0 @@
-“bản gốc, KHÔNG sửa nữa”
