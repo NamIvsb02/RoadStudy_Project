@@ -12,7 +12,6 @@ router.use(authenticate);
 const checkAdminPermission = requirePermission(PERMISSIONS.QUAN_LY_BAI_THI);
 const adminNeedsPermission = (req, res, next) => (req.user.role === "ADMINISTRATOR" ? checkAdminPermission(req, res, next) : next());
 
-// Học viên làm bài
 router.post("/start", authorize("STUDENT"), validate(startSchema), controller.start);
 router.get("/me", authorize("STUDENT"), controller.myAttempts);
 router.put("/:id/answers", authorize("STUDENT"), validate(saveAnswersSchema), controller.saveAnswers);

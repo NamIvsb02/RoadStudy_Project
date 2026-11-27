@@ -85,7 +85,7 @@ async function main() {
         let r;
         const uuid = () => crypto.randomUUID();
 
-        // ========== 1. Gửi minh chứng ==========
+        // 1. Gửi minh chứng
         console.log('[1. Gửi ảnh minh chứng]');
         const A = await mkInvoice(S1);
         r = await call('POST', `/invoice/${A.inv.id}/proof`);
@@ -112,7 +112,7 @@ async function main() {
         r = await call('POST', `/invoice/${Free.inv.id}/proof`, { ...S1.auth, form: pngForm() });
         check('Hóa đơn đã thanh toán gửi thêm minh chứng -> 400', r.status === 400, `${r.status} ${r.msg}`);
 
-        // ========== 2. Admin duyệt / từ chối thanh toán ==========
+        // 2. Admin duyệt / từ chối thanh toán
         console.log('[2. Admin duyệt và từ chối thanh toán]');
         const NoProof = await mkInvoice(S1);
         r = await call('PATCH', `/invoice/${NoProof.inv.id}/approve`, LEADER);
@@ -138,7 +138,7 @@ async function main() {
         const approved = await state(A);
         check('Sau duyệt: hóa đơn và đơn cùng DA_THANH_TOAN, có paidAt', approved.inv.status === 'DA_THANH_TOAN' && approved.reg === 'DA_THANH_TOAN' && !!approved.inv.paidAt, `${approved.inv.status}/${approved.reg}`);
 
-        // ========== 3. Yêu cầu hoàn tiền: học viên ==========
+        // 3. Yêu cầu hoàn tiền: học viên
         console.log('[3. Yêu cầu hoàn tiền của học viên]');
         const P = await mkInvoice(S1, { status: 'DA_THANH_TOAN', paidAgoHours: 1 });
         const body = { description: `Muon hoan tien ${stamp}` };
@@ -168,7 +168,7 @@ async function main() {
         r = await call('GET', '/invoice/refund-requests/me', S1.auth);
         check('Học viên xem yêu cầu của mình -> 200', r.status === 200 && r.json?.data?.items?.length >= 2, `${r.status} ${r.msg}`);
 
-        // ========== 4. Yêu cầu hoàn tiền: admin ==========
+        // 4. Yêu cầu hoàn tiền: admin
         console.log('[4. Admin xử lý yêu cầu hoàn tiền]');
         r = await call('GET', '/invoice/refund-requests', S1.auth);
         check('Học viên xem danh sách yêu cầu của admin -> 403', r.status === 403, `${r.status} ${r.msg}`);

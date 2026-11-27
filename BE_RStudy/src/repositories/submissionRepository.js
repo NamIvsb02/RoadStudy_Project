@@ -7,7 +7,7 @@ const attemptInclude = {
   details: { select: { questionId: true, answerOptionId: true } },
 };
 
-// ---------- Đề (cho học viên: KHÔNG lấy isCorrect) ----------
+// Đề cho học viên: KHÔNG lấy isCorrect
 const findExamForStart = (id) =>
   prisma.exam.findUnique({
     where: { id },
@@ -34,7 +34,6 @@ const findQuestionsWithOptions = (examId) =>
     include: { options: { orderBy: { id: "asc" } } },
   });
 
-// ---------- Bài làm ----------
 const findAttemptById = (id, tx) => db(tx).examAttempt.findUnique({ where: { id }, include: attemptInclude });
 
 const findInProgress = (studentId, examId) =>

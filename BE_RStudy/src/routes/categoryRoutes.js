@@ -7,7 +7,7 @@ const { PERMISSIONS } = require("../constants/permissions");
 const { idParamSchema, createCategorySchema, updateCategorySchema, changeStatusSchema } = require("../validators/categoryValidator");
 
 const adminOnly = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC)];
-//ADMIN (đặt TRƯỚC '/:id' để '/manage' không bị coi là id)
+// Đặt TRƯỚC '/:id' để '/manage' không bị coi là id
 router.get("/manage", ...adminOnly, categoryController.getAdminList);
 router.get("/manage/:id", ...adminOnly, validate(idParamSchema, "params"), categoryController.getAdminById);
 
@@ -16,7 +16,6 @@ router.put("/:id", ...adminOnly, validate(idParamSchema, "params"), validate(upd
 router.patch("/:id/status", ...adminOnly, validate(idParamSchema, "params"), validate(changeStatusSchema), categoryController.changeStatus);
 router.delete("/:id", ...adminOnly, validate(idParamSchema, "params"), categoryController.remove);
 
-//PUBLIC
 router.get("/", categoryController.getPublicList);
 router.get("/:id", validate(idParamSchema, "params"), categoryController.getPublicById);
 

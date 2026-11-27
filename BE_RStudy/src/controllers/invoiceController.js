@@ -8,7 +8,6 @@ const page = (req, items, total, message, res) => {
     res.json(formatResponse(true, { items, pagination: buildPaginationMeta(total, p, limit) }, message));
 };
 
-// ----- Học viên -----
 exports.listMine = asyncHandler(async (req, res) => {
     const { items, total } = await service.listMine(req.user.id, req.query, getPagination(req.query));
     page(req, items, total, "Lấy danh sách hóa đơn thành công", res);
@@ -40,7 +39,6 @@ exports.listMyRefundRequests = asyncHandler(async (req, res) => {
     page(req, items, total, "Lấy danh sách yêu cầu hoàn tiền thành công", res);
 });
 
-// ----- Admin: duyệt thanh toán -----
 exports.listAll = asyncHandler(async (req, res) => {
     const { items, total } = await service.listAll(req.query, getPagination(req.query));
     page(req, items, total, "Lấy danh sách hóa đơn thành công", res);
@@ -54,7 +52,6 @@ exports.reject = asyncHandler(async (req, res) => {
     res.json(formatResponse(true, await service.reject(req.params.id, req.body.reason), "Đã từ chối thanh toán"));
 });
 
-// ----- Admin: yêu cầu hoàn tiền -----
 exports.listRefundRequests = asyncHandler(async (req, res) => {
     const { items, total } = await service.listRefundRequests(req.query, getPagination(req.query));
     page(req, items, total, "Lấy danh sách yêu cầu hoàn tiền thành công", res);

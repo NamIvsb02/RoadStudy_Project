@@ -8,14 +8,12 @@ const notificationService = require("./notificationService");
 const { Decimal } = Prisma;
 const GRACE_MS = 10 * 1000; // cho phép trễ nhẹ do mạng khi lưu/nộp bài
 
-// ---------- Thời gian ----------
 const deadlineOf = (attempt) => new Date(attempt.startTime.getTime() + attempt.exam.durationMinutes * 60 * 1000);
 const isExpired = (attempt, now = new Date()) => now.getTime() > deadlineOf(attempt).getTime() + GRACE_MS;
 const remainingSeconds = (attempt, now = new Date()) => Math.max(0, Math.floor((deadlineOf(attempt).getTime() - now.getTime()) / 1000));
 
 const fixed = (value) => (value == null ? null : new Decimal(value).toFixed(2));
 
-// ---------- Chấm điểm ----------
 // Chấm theo đáp án đã lưu trên server, đóng bài. Trả false nếu bài đã được đóng bởi request khác.
 async function gradeAndClose(attempt, endTime, tx) {
   const questions = await repo.findQuestionsWithOptions(attempt.examId);
@@ -38,7 +36,6 @@ async function autoSubmitIfExpired(attempt) {
   return attempt;
 }
 
-// ---------- Định dạng dữ liệu trả về ----------
 function toAttemptDto(attempt, totalScore) {
   const finished = attempt.status !== "DANG_LAM";
   const dto = {
@@ -86,7 +83,6 @@ async function buildQuestionDetails(attempt, { staff }) {
   });
 }
 
-// ---------- Truy cập bài làm ----------
 async function requireStudentId(accountId) {
   const studentId = await examRepo.findStudentIdByAccountId(accountId);
   if (!studentId) throw new AppError("Chỉ học viên mới được làm bài thi", 403);
@@ -125,7 +121,6 @@ async function persistAnswers(attempt, answers, tx) {
   await repo.upsertAnswers(attempt.id, [...latest.values()], tx);
 }
 
-// ---------- Học viên làm bài ----------
 async function start(accountId, examId) {
   const studentId = await requireStudentId(accountId);
 
@@ -205,7 +200,6 @@ async function myAttempts(accountId, query, { skip, take }) {
   return { items: attempts.map((a) => toAttemptDto(a)), total };
 }
 
-// ---------- Xem kết quả ----------
 async function getById(user, attemptId) {
   if (user.role === "STUDENT") {
     let attempt = await loadOwnAttempt(user.id, attemptId);

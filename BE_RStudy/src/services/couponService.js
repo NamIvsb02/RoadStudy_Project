@@ -18,7 +18,6 @@ function assertRules(d) {
     }
 }
 
-// ================= CRUD =================
 async function list(query, { skip, take }) {
     const where = {};
     if (STATUSES.includes(query.status)) where.status = query.status;
@@ -75,7 +74,6 @@ async function remove(id) {
     await repo.remove(id);
 }
 
-// ================= VALIDATE / ÁP MÃ =================
 function getUsabilityError(coupon, now = new Date()) {
     if (coupon.status !== "HOAT_DONG") return "Mã giảm giá đang tạm ngưng hoặc đã hết hạn";
     if (now < coupon.startDate) return "Mã giảm giá chưa có hiệu lực";

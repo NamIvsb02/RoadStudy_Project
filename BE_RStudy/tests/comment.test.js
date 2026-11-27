@@ -41,7 +41,7 @@ const ids = (r) => (r.json?.data?.items || []).map((i) => i.id);
 async function main() {
   console.log(`Kiểm tra API Comment/Reply tại ${BASE}\n`);
 
-  // ----- Chuẩn bị dữ liệu tạm -----
+  // Chuẩn bị dữ liệu tạm
   const cat = await prisma.category.create({ data: { categoryName: `Cm cat ${stamp}` } });
 
   const makeAccount = (tag, role) =>
@@ -279,7 +279,7 @@ async function main() {
     const row = await prisma.comment.findUnique({ where: { id: cm1.id } });
     check('Chỉ ẩn, không xóa cứng (status AN trong database)', row?.status === 'AN', row?.status);
   } finally {
-    // ----- Dọn dữ liệu tạm -----
+    // Dọn dữ liệu tạm
     try {
       await prisma.reply.deleteMany({ where: { comment: { courseId: { in: courseIds } } } });
       await prisma.comment.deleteMany({ where: { courseId: { in: courseIds } } });

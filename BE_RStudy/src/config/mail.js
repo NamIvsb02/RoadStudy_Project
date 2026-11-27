@@ -16,7 +16,7 @@ const transporter = hasSmtpConfig
 
 const sendMail = async ({ to, subject, text }) => {
   if (!transporter) {
-    // Chưa chốt SMTP thật — in ra console để test không bị chặn
+    // Không cấu hình SMTP (dev, test): in mail ra console thay vì gửi
     console.log(`[DEV MAIL] To: ${to} | Subject: ${subject}\n${text}`);
     return;
   }

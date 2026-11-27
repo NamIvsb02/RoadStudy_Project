@@ -10,7 +10,6 @@ const { uploadCover } = require("../middlewares/uploadMiddleware");
 
 const teacherOnly = [authenticate, authorize("TEACHER")];
 const adminOnly = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC)];
-//GIÁO VIÊN
 router.post("/", ...teacherOnly, validate(createCourseSchema), courseController.create);
 router.post("/cover", ...teacherOnly, contentWriteLimiter, uploadCover, courseController.uploadCover);
 router.get("/mine", ...teacherOnly, courseController.getMyList);
@@ -18,7 +17,6 @@ router.get("/mine/:id", ...teacherOnly, validate(idParamSchema, "params"), cours
 router.put("/:id", ...teacherOnly, validate(idParamSchema, "params"), validate(updateCourseSchema), courseController.update);
 router.post("/:id/submit", ...teacherOnly, validate(idParamSchema, "params"), courseController.submit);
 
-//QUẢN TRỊ VIÊN
 router.get("/manage", ...adminOnly, courseController.getAdminList);
 router.get("/manage/:id", ...adminOnly, validate(idParamSchema, "params"), courseController.getAdminById);
 router.post("/:id/approve", ...adminOnly, validate(idParamSchema, "params"), courseController.approve);

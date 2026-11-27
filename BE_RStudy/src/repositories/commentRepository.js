@@ -36,7 +36,6 @@ const courseGuardSelect = {
   teacher: { select: { accountId: true } },
 };
 
-// ---------- khóa học và quyền ----------
 const findCourseForComment = (courseId) =>
   prisma.course.findUnique({ where: { id: courseId }, select: courseGuardSelect });
 

@@ -9,10 +9,8 @@ const { requirePermission } = require("../middlewares/permissionMiddleware");
 const { PERMISSIONS } = require("../constants/permissions");
 
 const adminOnly = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.XU_LY_BAO_CAO_VI_PHAM)];
-// HỌC VIÊN / GIÁO VIÊN gửi báo cáo
 router.post("/", authenticate, authorize("STUDENT", "TEACHER"), contentWriteLimiter, validate(createReportSchema), reportController.create);
 
-// ADMIN
 router.get("/", ...adminOnly, reportController.getList);
 router.get("/:id", ...adminOnly, validate(idParamSchema, "params"), reportController.getById);
 router.patch("/:id/process", ...adminOnly, validate(idParamSchema, "params"), validate(processReportSchema), reportController.process);

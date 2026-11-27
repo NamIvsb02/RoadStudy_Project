@@ -40,7 +40,7 @@ const list = (qs) => call('GET', `?q=${KEY}&limit=50${qs ? `&${qs}` : ''}`);
 async function main() {
   console.log(`Kiểm tra API Course công khai tại ${BASE}\n`);
 
-  // ----- Chuẩn bị dữ liệu tạm -----
+  // Chuẩn bị dữ liệu tạm
   const catA = await prisma.category.create({ data: { categoryName: `Pub A ${stamp}` } });
   const catB = await prisma.category.create({ data: { categoryName: `Pub B ${stamp}` } });
   const catHidden = await prisma.category.create({
@@ -221,7 +221,7 @@ async function main() {
     r = await call('GET', '/mine', { role: 'STUDENT' });
     check('/mine không bị /:id nuốt -> 403', r.status === 403, `status ${r.status}`);
   } finally {
-    // ----- Dọn dữ liệu tạm -----
+    // Dọn dữ liệu tạm
     try {
       await prisma.review.deleteMany({ where: { courseId: { in: allCourseIds } } });
       await prisma.course.deleteMany({ where: { id: { in: allCourseIds } } });

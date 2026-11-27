@@ -57,7 +57,6 @@ const getVisibleReplyOrThrow = async (id) => {
   return reply;
 };
 
-// BÌNH LUẬN
 const listByCourse = async (user, courseId, pg) => {
   const course = await commentRepository.findCourseForComment(courseId);
   assertCourseOpen(course);
@@ -102,7 +101,6 @@ const removeComment = async (user, id) => {
   if (!changed) throw new AppError("Bình luận không tồn tại", 404);
 };
 
-//PHẢN HỒI
 const createReply = async (user, commentId, content) => {
   const comment = await getVisibleCommentOrThrow(commentId);
   assertCourseOpen(comment.course);

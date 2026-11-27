@@ -28,7 +28,7 @@ async function main() {
     const track = (ref) => { created.push(ref); return ref; };
 
     try {
-        // ========== 1. Phân tích URL Cloudinary ==========
+        // 1. Phân tích URL Cloudinary
         console.log('[1. parseCloudinaryUrl]');
         const img = storage.parseCloudinaryUrl('https://res.cloudinary.com/demo/image/upload/v1700000000/roadstudy/dev/avatars/abc.jpg');
         check('Ảnh công khai: tách đúng publicId, version, format', img?.publicId === 'roadstudy/dev/avatars/abc' && img.version === '1700000000' && img.format === 'jpg' && img.type === 'upload' && img.resourceType === 'image', JSON.stringify(img));
@@ -41,7 +41,7 @@ async function main() {
         check('Đường dẫn local -> null', storage.parseCloudinaryUrl('/uploads/avatars/a.jpg') === null);
         check('URL không phải Cloudinary -> null', storage.parseCloudinaryUrl('https://evil.example.com/image/upload/v1/a.jpg') === null);
 
-        // ========== 2. Driver local ==========
+        // 2. Driver local
         console.log('[2. Driver local: lưu, xóa, đường dẫn an toàn]');
         if (storage.driver() === 'local') {
             const pub = track(await storage.save(png(), 'avatars'));
@@ -71,7 +71,7 @@ async function main() {
             console.log('  (bỏ qua: driver không phải local)');
         }
 
-        // ========== 3. Thứ tự lưu mới -> DB -> xóa cũ khi có sự cố ==========
+        // 3. Thứ tự lưu mới -> DB -> xóa cũ khi có sự cố
         console.log('[3. Avatar: sự cố giữa chừng không làm mất ảnh đang dùng]');
         if (storage.driver() === 'local') {
             const oldRef = track(await storage.save(png(), 'avatars'));
@@ -120,7 +120,7 @@ async function main() {
             console.log('  (bỏ qua: driver không phải local)');
         }
 
-        // ========== 4. Qua HTTP (cần server) ==========
+        // 4. Qua HTTP (cần server)
         console.log('[4. HTTP: đổi avatar hai lần và xem minh chứng]');
         const alive = await fetch(API.replace(/\/api$/, '') + '/health').then((r) => r.ok).catch(() => false);
         if (!alive) {
@@ -159,7 +159,7 @@ async function main() {
             }
         }
 
-        // ========== 5. Cloudinary thật ==========
+        // 5. Cloudinary thật
         console.log('[5. Cloudinary thật]');
         if (storage.driver() !== 'cloudinary') {
             console.log('  (bỏ qua: cần STORAGE_DRIVER=cloudinary và 3 biến CLOUDINARY_*)');

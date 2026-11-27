@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 async function main() {
   const defaultPassword = await hashPassword("Password123!");
 
-  // ===== Admin Leader =====
   const leaderAccount = await prisma.account.create({
     data: {
       fullName: "Nam - Leader Admin",
@@ -19,7 +18,6 @@ async function main() {
     },
   });
 
-  // ===== Admin thường =====
   const adminAccount = await prisma.account.create({
     data: {
       fullName: "Khang - Admin",
@@ -61,7 +59,6 @@ async function main() {
     ],
   });
 
-  // ===== Giáo viên =====
   const teacherAccount = await prisma.account.create({
     data: {
       fullName: "Huynh - Giáo viên",
@@ -81,7 +78,6 @@ async function main() {
     include: { teacher: true },
   });
 
-  // ===== Học viên =====
   await prisma.account.create({
     data: {
       fullName: "Học viên Demo",
@@ -99,12 +95,10 @@ async function main() {
     },
   });
 
-  // ===== Category =====
   const category = await prisma.category.create({
     data: { categoryName: "Lập trình Web", description: "Các khóa học về lập trình web" },
   });
 
-  // ===== Course =====
   const course = await prisma.course.create({
     data: {
       courseName: "React cơ bản cho người mới bắt đầu",
@@ -118,7 +112,6 @@ async function main() {
     },
   });
 
-  // ===== Mã giảm giá =====
   await prisma.discountCode.create({
     data: {
       code: "ROADSTUDY10",

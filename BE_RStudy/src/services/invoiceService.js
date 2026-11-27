@@ -13,7 +13,6 @@ const REFUND_WINDOW_MS = 24 * 60 * 60 * 1000;
 const INVOICE_STATUSES = ["CHO_THANH_TOAN", "DA_THANH_TOAN", "THAT_BAI", "HOAN_TIEN", "DA_HUY"];
 const REFUND_STATUSES = ["CHO_XU_LY", "CHO_HOAN_TIEN", "DA_XU_LY", "TU_CHOI"];
 
-// ---------- Hiển thị ----------
 // Ảnh minh chứng là dữ liệu nhạy cảm nên không mở công khai: FE lấy qua API có đăng nhập
 function toInvoiceDto(invoice) {
   const { paymentProofUrl, ...rest } = invoice;
@@ -48,7 +47,6 @@ function notify(email, subject, text) {
   sendMail({ to: email, subject, text }).catch((err) => console.error("Gửi email thất bại:", err.message));
 }
 
-// ---------- Dùng chung với module enrollment ----------
 // Hủy đơn + hóa đơn và trả lại lượt mã giảm giá. Gọi TRONG transaction.
 async function cancelRegistrationTx(tx, registration, invoice) {
   const ok = await repo.cancelRegistrationRecords(tx, registration.id, invoice.id);
@@ -56,7 +54,6 @@ async function cancelRegistrationTx(tx, registration, invoice) {
   if (invoice.discountCodeId) await couponService.releaseCoupon(tx, invoice.discountCodeId);
 }
 
-// ---------- Truy cập ----------
 async function loadInvoiceFor(user, id) {
   const invoice = await repo.findInvoiceById(id);
   if (!invoice) throw new AppError("Hóa đơn không tồn tại", 404);
@@ -73,7 +70,6 @@ async function requireStudentId(accountId) {
   return studentId;
 }
 
-// ---------- Hóa đơn: học viên ----------
 async function listMine(accountId, query, { skip, take }) {
   const studentId = await requireStudentId(accountId);
   const where = { studentId };
@@ -134,7 +130,6 @@ async function getProof(user, id) {
   return storage.readPrivate(invoice.paymentProofUrl, "proofs");
 }
 
-// ---------- Hóa đơn: admin duyệt thanh toán ----------
 async function listAll(query, { skip, take }) {
   const where = {};
   if (INVOICE_STATUSES.includes(query.status)) where.status = query.status;
@@ -210,7 +205,6 @@ async function reject(id, reason) {
   return toInvoiceDto(await repo.findInvoiceById(id));
 }
 
-// ---------- Yêu cầu hoàn tiền: học viên ----------
 const toRequestDto = (request) => {
   const { registration, ...rest } = request;
   const { invoices, ...reg } = registration;
@@ -256,7 +250,6 @@ async function listMyRefundRequests(accountId, { skip, take }) {
   return { items: rows.map(toRequestDto), total };
 }
 
-// ---------- Yêu cầu hoàn tiền: admin ----------
 async function listRefundRequests(query, { skip, take }) {
   const where = {};
   if (REFUND_STATUSES.includes(query.status)) where.status = query.status;

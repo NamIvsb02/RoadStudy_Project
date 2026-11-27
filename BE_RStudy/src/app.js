@@ -9,7 +9,6 @@ const notFound = require("./middlewares/notFound");
 const errorHandler = require("./middlewares/errorHandler");
 const requestId = require("./middlewares/requestId");
 
-// ===== Routes - 17 module =====
 const authRoutes = require("./routes/authRoutes");
 const accountRoutes = require("./routes/accountRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
@@ -84,7 +83,6 @@ app.use("/api/notification", notificationRoutes);
 app.use("/api/learning", learningRoutes);
 app.use("/api/report", reportRoutes);
 
-// ===== Static Uploads =====
 ["avatars", "covers", "resources"].forEach((folder) => {
   app.use(
     `/uploads/${folder}`,
@@ -96,7 +94,6 @@ app.use("/api/report", reportRoutes);
   );
 });
 
-// ===== Swagger UI (/api-docs) =====
 // Mặc định bật khi dev, tắt khi NODE_ENV=production (không công khai toàn bộ API admin). Ghi đè bằng SWAGGER_ENABLED=true|false.
 const swaggerEnabled = process.env.SWAGGER_ENABLED ? process.env.SWAGGER_ENABLED === "true" : process.env.NODE_ENV !== "production";
 if (swaggerEnabled) {

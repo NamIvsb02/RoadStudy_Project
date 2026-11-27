@@ -26,7 +26,6 @@ router.post(
   reviewController.create
 );
 
-//câu trả lời của giáo viên
 router.put(
   '/responses/:responseId',
   ...teacherOnly,
@@ -41,7 +40,6 @@ router.delete(
   reviewController.removeResponse
 );
 
-//theo đánh giá
 router.post(
   '/:id/responses',
   ...teacherOnly,
