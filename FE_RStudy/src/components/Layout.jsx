@@ -8,7 +8,6 @@ import Footer from "./common/Footer";
 import Header from "./common/Header";
 import PageSkeleton from "./common/PageSkeleton";
 import ScrollToTop from "./common/ScrollToTop";
-import Sidebar from "./common/Sidebar";
 import ChatWidget from "./chatbot/ChatWidget";
 
 export default function Layout() {
@@ -30,10 +29,7 @@ export default function Layout() {
       {isHome ? (
         <main className="min-w-0 flex-1">{page}</main>
       ) : (
-        <div className="mx-auto flex w-full max-w-[1440px] flex-1 gap-6 px-4 py-6 lg:px-6">
-          <Sidebar />
-          <main className="min-w-0 flex-1">{page}</main>
-        </div>
+        <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 px-4 py-6 lg:px-6">{page}</main>
       )}
       <Footer />
       <BottomNav />

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import Button from "../../../components/ui/Button";
-import FormAlert from "../../../components/ui/FormAlert";
-import FormField from "../../../components/ui/FormField";
-import TextField from "../../../components/ui/TextField";
-import { inputClass } from "../../../components/ui/inputClass";
-import { useCategories } from "../../resource/useCategories";
+import Button from "../ui/Button";
+import FormAlert from "../ui/FormAlert";
+import FormField from "../ui/FormField";
+import TextField from "../ui/TextField";
+import { inputClass } from "../ui/inputClass";
+import { useCategories } from "../../hooks/useCategories";
 import { courseSchema, toCourseBody } from "./courseSchema";
 import CoverUploader from "./CoverUploader";
 

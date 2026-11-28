@@ -10,12 +10,14 @@ import PasswordInput from "../../components/ui/PasswordInput";
 import TextField from "../../components/ui/TextField";
 import { ROLE_HOME, ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
+import { useGlobalLoading } from "../../hooks/useGlobalLoading";
 import { loginSchema } from "./authSchemas";
 
 const linkClass = "rounded-sm font-medium text-primary transition-colors hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const loading = useGlobalLoading();
   const navigate = useNavigate();
   const location = useLocation();
   const [serverError, setServerError] = useState("");
@@ -33,7 +35,7 @@ export default function LoginPage() {
     setServerError("");
     setUnverifiedEmail("");
     try {
-      const account = await login(values);
+      const account = await loading.run(() => login(values), "Đang đăng nhập...");
       navigate(location.state?.from ?? ROLE_HOME[account.role] ?? ROUTES.HOME, {
         replace: true,
       });

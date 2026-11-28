@@ -1359,7 +1359,7 @@ Lỗi chung của API giáo viên: 403 `Tài khoản này không phải giáo vi
 
 ### POST /course/cover
 
-- Quyền: `TEACHER`
+- Quyền: `TEACHER`, hoặc `ADMINISTRATOR` có quyền `QUAN_LY_KHOA_HOC`
 - Body: `multipart/form-data`, trường file tên `cover`. Chỉ nhận jpg, png, webp, tối đa 3MB.
 - 201: message `Tải ảnh bìa thành công`, `data: { "coverImageUrl": "/uploads/covers/abc.jpg" }`
 - Lỗi: 400 `Vui lòng chọn ảnh bìa (trường "cover")` | 400 `Chỉ chấp nhận: .jpg, .png, .webp` | 400 `Tệp tối đa 3MB`
@@ -1382,11 +1382,11 @@ Lỗi chung của API giáo viên: 403 `Tài khoản này không phải giáo vi
 
 ### PUT /course/:id
 
-- Quyền: `TEACHER` (khóa của mình)
+- Quyền: `TEACHER` (khóa của mình), hoặc `ADMINISTRATOR` có quyền `QUAN_LY_KHOA_HOC` (mọi khóa)
 - Body: một hay nhiều trường của `CourseBody`. Không gửi được `status`, `teacherId`.
 - 200: message `Cập nhật khóa học thành công`, `data` là `Course`
-- Lỗi: 400 `Cần ít nhất một trường để cập nhật` | 400 `Ngày kết thúc phải sau ngày bắt đầu` | 400 `Danh mục không tồn tại` | 400 `Danh mục đang bị ẩn, không thể dùng cho khóa học` | 404 `Khóa học không tồn tại` | 409 `Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa` | 409 `Khóa học đã có học viên đăng ký nên không thể đổi học phí hoặc thời gian học`
-- Ghi chú: sửa được khi khóa ở `BAN_NHAP`, `DA_PHE_DUYET`, `DANG_MO`, `TAM_NGUNG`. Sửa không làm đổi trạng thái. Khi khóa có đơn `CHO_THANH_TOAN` hoặc `DA_THANH_TOAN`, không đổi được `price`, `startDate`, `endDate` (gửi lại đúng giá trị cũ thì vẫn được); `courseName`, `description`, `coverImageUrl`, `categoryId` vẫn sửa được.
+- Lỗi: 400 `Cần ít nhất một trường để cập nhật` | 400 `Ngày kết thúc phải sau ngày bắt đầu` | 400 `Danh mục không tồn tại` | 400 `Danh mục đang bị ẩn, không thể dùng cho khóa học` | 403 (admin thiếu quyền) | 404 `Khóa học không tồn tại` | 409 `Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa` (giáo viên) | 409 `Khóa học đã kết thúc nên không thể sửa` (admin) | 409 `Khóa học đã có học viên đăng ký nên không thể đổi học phí hoặc thời gian học`
+- Ghi chú: giáo viên sửa được khi khóa ở `BAN_NHAP`, `DA_PHE_DUYET`, `DANG_MO`, `TAM_NGUNG`; admin sửa được mọi trạng thái trừ `DA_KET_THUC` (kể cả `CHO_DUYET`). Admin sửa thì giáo viên phụ trách nhận thông báo `COURSE_UPDATED_BY_ADMIN`. Sửa không làm đổi trạng thái. Khi khóa có đơn `CHO_THANH_TOAN` hoặc `DA_THANH_TOAN`, không đổi được `price`, `startDate`, `endDate` (gửi lại đúng giá trị cũ thì vẫn được); `courseName`, `description`, `coverImageUrl`, `categoryId` vẫn sửa được.
 
 ### POST /course/:id/submit
 
@@ -1447,15 +1447,15 @@ Lỗi chung của API giáo viên: 403 `Tài khoản này không phải giáo vi
 - Quyền: công khai
 - Query:
 
-| Tham số     | Ghi chú                                                              |
-| ----------- | -------------------------------------------------------------------- |
-| page, limit | Phân trang                                                           |
-| q           | Tìm trong tên và mô tả, tối đa 100 ký tự                             |
-| categoryId  | Lọc theo danh mục                                                    |
-| teacherId   | Lọc theo giáo viên (`Teacher.id`)                                    |
-| minPrice    | Học phí tối thiểu, ≥ 0                                               |
-| maxPrice    | Học phí tối đa, ≥ 0, không nhỏ hơn `minPrice`                        |
-| sort        | `newest` (mặc định), `price_asc`, `price_desc`, `start_soon`, `name` |
+| Tham số     | Ghi chú                                                                                       |
+| ----------- | --------------------------------------------------------------------------------------------- |
+| page, limit | Phân trang                                                                                    |
+| q           | Tìm trong tên khóa học, tên danh mục, tên giáo viên (không tìm trong mô tả), tối đa 100 ký tự |
+| categoryId  | Lọc theo danh mục                                                                             |
+| teacherId   | Lọc theo giáo viên (`Teacher.id`)                                                             |
+| minPrice    | Học phí tối thiểu, ≥ 0                                                                        |
+| maxPrice    | Học phí tối đa, ≥ 0, không nhỏ hơn `minPrice`                                                 |
+| sort        | `newest` (mặc định), `price_asc`, `price_desc`, `start_soon`, `name`                          |
 
 - 200: message `Lấy danh sách khóa học thành công`, `data` phân trang, item:
 

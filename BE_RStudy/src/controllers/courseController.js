@@ -44,7 +44,11 @@ exports.getMyById = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const data = await courseService.updateByTeacher(req.user.id, req.params.id, pickCourseFields(req.body));
+  const fields = pickCourseFields(req.body);
+  const data =
+    req.user.role === "ADMINISTRATOR"
+      ? await courseService.updateByAdmin(req.params.id, fields)
+      : await courseService.updateByTeacher(req.user.id, req.params.id, fields);
   res.json(formatResponse(true, data, "Cập nhật khóa học thành công"));
 };
 

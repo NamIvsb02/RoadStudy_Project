@@ -6,8 +6,8 @@ import FormAlert from "../../components/ui/FormAlert";
 import ListSkeleton from "../../components/common/ListSkeleton";
 import { ROUTES } from "../../constants/routes";
 import { useFetch } from "../../hooks/useFetch";
-import CourseForm from "./course/CourseForm";
-import { EDITABLE_STATUSES, toFormValues } from "./course/courseSchema";
+import CourseForm from "../../components/common/CourseForm";
+import { EDITABLE_STATUSES, toFormValues } from "../../components/common/courseSchema";
 
 export default function CourseEditPage() {
   const { id } = useParams();

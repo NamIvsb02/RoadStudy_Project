@@ -137,7 +137,10 @@ async function main() {
     r = await call('GET', `?q=${encodeURIComponent(`alpha ${stamp}`)}`);
     check('Tìm theo tên, không phân biệt hoa thường', sameSet(ids(r), [c1.id]), JSON.stringify(ids(r)));
     r = await call('GET', `?q=tukhoamo${stamp}`);
-    check('Tìm theo nội dung mô tả', sameSet(ids(r), [c3.id]), JSON.stringify(ids(r)));
+    check('Không tìm theo nội dung mô tả', ids(r).length === 0, JSON.stringify(ids(r)));
+    r = await call('GET', `?q=${encodeURIComponent(`Pub B ${stamp}`)}`);
+    const byCategory = r.json?.data?.items ?? [];
+    check('Tìm theo tên danh mục', byCategory.length > 0 && byCategory.every((c) => c.category?.categoryName === `Pub B ${stamp}`), JSON.stringify(ids(r)));
     r = await call('GET', `?q=${encodeURIComponent(`Nhap ${stamp}`)}`);
     check('Tìm tên khóa nháp -> không thấy', ids(r).length === 0);
 

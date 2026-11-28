@@ -214,29 +214,30 @@ Chỉ tin `AI` mới có `recommendations` (khóa được gợi ý kèm `recomm
 
 Trong schema, `type` là chuỗi (`VarChar(50)`), **không phải enum Prisma**. Bảng dưới là các giá trị BE đang tạo; thêm loại mới thì cập nhật bảng này.
 
-| Giá trị          | Người nhận                             | Khi nào                                 |
-| ---------------- | -------------------------------------- | --------------------------------------- |
-| TEACHER_PENDING  | Admin có quyền `DUYET_GIAO_VIEN`       | Giáo viên mới xác minh email, chờ duyệt |
-| TEACHER_APPROVED | Giáo viên                              | Hồ sơ được duyệt                        |
-| TEACHER_REJECTED | Giáo viên                              | Hồ sơ bị từ chối                        |
-| COURSE_PENDING   | Admin có quyền `QUAN_LY_KHOA_HOC`      | Giáo viên gửi duyệt khóa học            |
-| COURSE_APPROVED  | Giáo viên                              | Khóa học được duyệt                     |
-| COURSE_REJECTED  | Giáo viên                              | Khóa học bị từ chối (kèm lý do)         |
-| EXAM_PENDING     | Admin có quyền `QUAN_LY_BAI_THI`       | Giáo viên tạo đề thi mới                |
-| EXAM_APPROVED    | Giáo viên                              | Đề thi được phê duyệt                   |
-| EXAM_OPENED      | Học viên đã thanh toán của khóa        | Đề thi chuyển sang `DANG_MO`            |
-| EXAM_SUBMITTED   | Giáo viên của khóa                     | Học viên nộp bài                        |
-| PAYMENT_PENDING  | Admin có quyền `QUAN_LY_THANH_TOAN`    | Học viên gửi minh chứng thanh toán      |
-| PAYMENT_APPROVED | Học viên                               | Thanh toán được xác nhận                |
-| PAYMENT_REJECTED | Học viên                               | Thanh toán bị từ chối (kèm lý do)       |
-| REFUND_APPROVED  | Học viên                               | Yêu cầu hoàn tiền được chấp thuận       |
-| REFUND_COMPLETED | Học viên                               | Đã hoàn tiền xong                       |
-| REFUND_REJECTED  | Học viên                               | Yêu cầu hoàn tiền bị từ chối            |
-| REPORT_PENDING   | Admin có quyền `XU_LY_BAO_CAO_VI_PHAM` | Có báo cáo vi phạm mới                  |
-| SESSION_CREATED  | Học viên đã thanh toán của khóa        | Giáo viên thêm buổi học                 |
-| SESSION_UPDATED  | Học viên đã thanh toán của khóa        | Giáo viên đổi buổi học                  |
-| COMMENT_REPLIED  | Người viết bình luận                   | Bình luận của mình được trả lời         |
-| REPORT_RESOLVED  | Người gửi báo cáo vi phạm              | Báo cáo được chốt vi phạm (`DA_XU_LY`)  |
-| REPORT_REJECTED  | Người gửi báo cáo vi phạm              | Báo cáo bị từ chối (kèm lý do)          |
+| Giá trị                 | Người nhận                             | Khi nào                                 |
+| ----------------------- | -------------------------------------- | --------------------------------------- |
+| TEACHER_PENDING         | Admin có quyền `DUYET_GIAO_VIEN`       | Giáo viên mới xác minh email, chờ duyệt |
+| TEACHER_APPROVED        | Giáo viên                              | Hồ sơ được duyệt                        |
+| TEACHER_REJECTED        | Giáo viên                              | Hồ sơ bị từ chối                        |
+| COURSE_PENDING          | Admin có quyền `QUAN_LY_KHOA_HOC`      | Giáo viên gửi duyệt khóa học            |
+| COURSE_APPROVED         | Giáo viên                              | Khóa học được duyệt                     |
+| COURSE_REJECTED         | Giáo viên                              | Khóa học bị từ chối (kèm lý do)         |
+| COURSE_UPDATED_BY_ADMIN | Giáo viên phụ trách                    | Admin chỉnh sửa khóa học                |
+| EXAM_PENDING            | Admin có quyền `QUAN_LY_BAI_THI`       | Giáo viên tạo đề thi mới                |
+| EXAM_APPROVED           | Giáo viên                              | Đề thi được phê duyệt                   |
+| EXAM_OPENED             | Học viên đã thanh toán của khóa        | Đề thi chuyển sang `DANG_MO`            |
+| EXAM_SUBMITTED          | Giáo viên của khóa                     | Học viên nộp bài                        |
+| PAYMENT_PENDING         | Admin có quyền `QUAN_LY_THANH_TOAN`    | Học viên gửi minh chứng thanh toán      |
+| PAYMENT_APPROVED        | Học viên                               | Thanh toán được xác nhận                |
+| PAYMENT_REJECTED        | Học viên                               | Thanh toán bị từ chối (kèm lý do)       |
+| REFUND_APPROVED         | Học viên                               | Yêu cầu hoàn tiền được chấp thuận       |
+| REFUND_COMPLETED        | Học viên                               | Đã hoàn tiền xong                       |
+| REFUND_REJECTED         | Học viên                               | Yêu cầu hoàn tiền bị từ chối            |
+| REPORT_PENDING          | Admin có quyền `XU_LY_BAO_CAO_VI_PHAM` | Có báo cáo vi phạm mới                  |
+| SESSION_CREATED         | Học viên đã thanh toán của khóa        | Giáo viên thêm buổi học                 |
+| SESSION_UPDATED         | Học viên đã thanh toán của khóa        | Giáo viên đổi buổi học                  |
+| COMMENT_REPLIED         | Người viết bình luận                   | Bình luận của mình được trả lời         |
+| REPORT_RESOLVED         | Người gửi báo cáo vi phạm              | Báo cáo được chốt vi phạm (`DA_XU_LY`)  |
+| REPORT_REJECTED         | Người gửi báo cáo vi phạm              | Báo cáo bị từ chối (kèm lý do)          |
 
 Leader luôn nhận các thông báo gửi cho admin. Hiện học viên gửi yêu cầu hoàn tiền thì admin **chưa** nhận thông báo. `body` thông báo được cắt còn tối đa 500 ký tự. Không gian học (`CourseLearning`, `CourseSession`) không có enum riêng.

@@ -3,6 +3,7 @@ import { motion, useScroll } from "framer-motion";
 import Reveal from "../../components/common/Reveal";
 import SectionHeader from "../../components/common/SectionHeader";
 import { revealLeft, VIEWPORT } from "../../constants/motion";
+import journeyIllustration from "../../assets/images/journey-illustration.webp";
 import { CONTAINER } from "./homeLayout";
 
 const STEPS = [
@@ -23,6 +24,9 @@ export default function LearningJourney() {
           <div className="lg:sticky lg:top-28">
             <Reveal>
               <SectionHeader eyebrow="Hành trình học" title="Bốn bước từ tìm khóa đến hoàn thành" description="Mọi bước đều nằm trong một nơi, bằng tiếng Việt." />
+            </Reveal>
+            <Reveal delay={0.1} className="mt-4 hidden lg:block">
+              <img src={journeyIllustration} alt="" width={1100} height={678} loading="lazy" decoding="async" className="h-auto max-h-[50vh] w-full object-contain" />
             </Reveal>
           </div>
         </div>

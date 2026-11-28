@@ -14,7 +14,7 @@ import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { formatVND } from "../../utils/format";
 import { CONTAINER, LINK_PRIMARY, LINK_SECONDARY } from "./homeLayout";
 
-const TITLE_LINES = ["Tìm đúng khóa học,", "bắt đầu hành trình", "học tập của bạn"];
+const TITLE_LINES = ["Bạn chỉ cần học", "còn lại để RoadStudy lo"];
 const floatCard = "rounded-xl border border-line bg-white p-4 shadow-raised";
 
 function LatestCourseCard({ latest }) {
@@ -69,7 +69,7 @@ export default function HomeHero({ latest }) {
             ))}
           </h1>
           <motion.p variants={fadeUp} className="mt-5 max-w-xl text-base text-muted">
-            Tìm khóa học đang mở, đăng ký và thanh toán chuyển khoản, vào lớp học trực tuyến và làm bài thi ngay trên RoadStudy.
+            Tìm đúng khóa học, bắt đầu hành trình học tập của bạn
           </motion.p>
           <motion.div variants={fadeUp} className="mt-6 max-w-xl">
             <SearchBox className="[&_input]:h-12 [&_input]:text-base" />

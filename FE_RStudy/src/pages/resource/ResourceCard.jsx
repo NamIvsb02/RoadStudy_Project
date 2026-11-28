@@ -1,4 +1,5 @@
 import { Download, FileText } from "lucide-react";
+import pdfIcon from "../../assets/icons/pdf_icon.png";
 import { assetUrl, formatDate } from "../../utils/format";
 
 export default function ResourceCard({ resource, canDelete = false, onDelete }) {
@@ -6,11 +7,17 @@ export default function ResourceCard({ resource, canDelete = false, onDelete }) 
   const teacherName = resource.uploadedBy?.account?.fullName;
 
   return (
-    <article className="flex flex-col gap-3 rounded-xl border border-line bg-white p-4 transition-[transform,box-shadow,border-color] duration-200 ease-out-soft hover:-translate-y-0.5 hover:border-line-strong hover:shadow-card-hover">
+    // article đứng yên nhận hover, lớp bên trong nâng lên (tránh giật ở mép dưới); bóng ở after: chỉ đổi opacity.
+    <article className="group h-full">
+      <div className="relative flex h-full flex-col gap-3 rounded-xl border border-line bg-white p-4 transition-[transform,border-color] duration-200 ease-out-soft after:pointer-events-none after:absolute after:-inset-px after:rounded-xl after:opacity-0 after:shadow-card-hover after:transition-opacity after:duration-200 after:ease-out-soft group-hover:border-line-strong group-hover:after:opacity-100 motion-safe:group-hover:-translate-y-0.5">
       <div className="flex items-start gap-3">
-        <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary">
-          <FileText size={22} />
-        </span>
+        {extension === "PDF" ? (
+          <img src={pdfIcon} alt="" width={44} height={44} className="size-11 shrink-0 object-contain" />
+        ) : (
+          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary">
+            <FileText size={22} />
+          </span>
+        )}
         <div className="min-w-0 flex-1">
           <p className="line-clamp-2 font-semibold text-ink-strong">{resource.resourceName}</p>
           <p className="text-sm text-muted">{[resource.category.categoryName, teacherName].filter(Boolean).join(" · ")}</p>
@@ -35,6 +42,7 @@ export default function ResourceCard({ resource, canDelete = false, onDelete }) 
             Xóa
           </button>
         )}
+      </div>
       </div>
     </article>
   );

@@ -65,6 +65,7 @@ const TeacherCoursesPage = lazy(
 const CourseNewPage = lazy(() => import("../pages/teacher/CourseNewPage"));
 const CourseEditPage = lazy(() => import("../pages/teacher/CourseEditPage"));
 const AdminCoursesPage = lazy(() => import("../pages/admin/AdminCoursesPage"));
+const AdminCourseEditPage = lazy(() => import("../pages/admin/AdminCourseEditPage"));
 const AdminCouponsPage = lazy(() => import("../pages/admin/AdminCouponsPage"));
 const PaymentPage = lazy(() => import("../pages/payment/PaymentPage"));
 const AdminPaymentsPage = lazy(
@@ -211,6 +212,7 @@ export default function AppRoutes() {
                 path={ROUTES.ADMIN.COURSES}
                 element={<AdminCoursesPage />}
               />
+              <Route path={ROUTES.ADMIN.COURSE_EDIT} element={<AdminCourseEditPage />} />
               <Route
                 path={ROUTES.ADMIN.CATEGORIES}
                 element={<AdminCategoriesPage />}

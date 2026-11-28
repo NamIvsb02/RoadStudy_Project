@@ -3,12 +3,14 @@ import { invoiceApi } from "../../api/invoiceApi";
 import ProofImage from "../../components/common/ProofImage";
 import Button from "../../components/ui/Button";
 import FormAlert from "../../components/ui/FormAlert";
+import { useGlobalLoading } from "../../hooks/useGlobalLoading";
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED = ["image/jpeg", "image/png", "image/webp"];
 
 export default function ProofSection({ invoice, version, onUploaded }) {
   const inputRef = useRef(null);
+  const loading = useGlobalLoading();
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -27,7 +29,7 @@ export default function ProofSection({ invoice, version, onUploaded }) {
     setUploading(true);
     setError("");
     try {
-      await invoiceApi.uploadProof(invoice.id, file);
+      await loading.run(() => invoiceApi.uploadProof(invoice.id, file), "Đang xử lý thanh toán...");
       setFile(null);
       if (inputRef.current) inputRef.current.value = "";
       onUploaded();

@@ -9,12 +9,16 @@ const { PERMISSIONS } = require("../constants/permissions");
 const { uploadCover } = require("../middlewares/uploadMiddleware");
 
 const teacherOnly = [authenticate, authorize("TEACHER")];
-const adminOnly = [authenticate, authorize("ADMINISTRATOR"), requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC)];
+const checkCoursePermission = requirePermission(PERMISSIONS.QUAN_LY_KHOA_HOC);
+const adminOnly = [authenticate, authorize("ADMINISTRATOR"), checkCoursePermission];
+// Giáo viên sửa khóa của mình (service kiểm tra sở hữu); admin phải có QUAN_LY_KHOA_HOC
+const adminNeedsPermission = (req, res, next) => (req.user.role === "ADMINISTRATOR" ? checkCoursePermission(req, res, next) : next());
+const courseEditor = [authenticate, authorize("TEACHER", "ADMINISTRATOR"), adminNeedsPermission];
 router.post("/", ...teacherOnly, validate(createCourseSchema), courseController.create);
-router.post("/cover", ...teacherOnly, contentWriteLimiter, uploadCover, courseController.uploadCover);
+router.post("/cover", ...courseEditor, contentWriteLimiter, uploadCover, courseController.uploadCover);
 router.get("/mine", ...teacherOnly, courseController.getMyList);
 router.get("/mine/:id", ...teacherOnly, validate(idParamSchema, "params"), courseController.getMyById);
-router.put("/:id", ...teacherOnly, validate(idParamSchema, "params"), validate(updateCourseSchema), courseController.update);
+router.put("/:id", ...courseEditor, validate(idParamSchema, "params"), validate(updateCourseSchema), courseController.update);
 router.post("/:id/submit", ...teacherOnly, validate(idParamSchema, "params"), courseController.submit);
 
 router.get("/manage", ...adminOnly, courseController.getAdminList);

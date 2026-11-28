@@ -122,10 +122,12 @@ const buildPublicWhere = ({ q, categoryId, teacherId, minPrice, maxPrice }) => {
         ...(maxPrice !== undefined && { lte: maxPrice }),
       },
     }),
+    // Không tìm trong mô tả: mô tả dài dễ khớp nhầm (gõ "toán" ra khóa Hóa vì có cụm "bài toán").
     ...(q && {
       OR: [
         { courseName: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } },
+        { category: { categoryName: { contains: q, mode: 'insensitive' } } },
+        { teacher: { account: { fullName: { contains: q, mode: 'insensitive' } } } },
       ],
     }),
   };

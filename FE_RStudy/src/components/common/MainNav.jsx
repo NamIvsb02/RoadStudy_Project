@@ -5,11 +5,11 @@ import { ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
 import { getNavItems } from "./navItems";
 
-export default function MainNav() {
+export default function MainNav({ className = "" }) {
   const { account } = useAuth();
 
   return (
-    <nav aria-label="Điều hướng chính" className="hidden flex-1 justify-center gap-1 lg:flex">
+    <nav aria-label="Điều hướng chính" className={`hidden flex-1 justify-center gap-1 lg:flex ${className}`}>
       {getNavItems(account).map(({ label, to, icon: Icon }) => (
         <NavLink
           key={to}

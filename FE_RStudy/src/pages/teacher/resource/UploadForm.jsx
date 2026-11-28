@@ -8,7 +8,7 @@ import FormAlert from "../../../components/ui/FormAlert";
 import FormField from "../../../components/ui/FormField";
 import TextField from "../../../components/ui/TextField";
 import { inputClass } from "../../../components/ui/inputClass";
-import { useCategories } from "../../resource/useCategories";
+import { useCategories } from "../../../hooks/useCategories";
 
 const MAX_SIZE = 10 * 1024 * 1024;
 const ALLOWED = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];

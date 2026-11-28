@@ -12,7 +12,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useToast } from "../../hooks/useToast";
 import { changePasswordSchema } from "./profileSchemas";
 
-export default function ChangePasswordForm() {
+export default function ChangePasswordForm({ onCancel }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
@@ -39,9 +39,9 @@ export default function ChangePasswordForm() {
   };
 
   return (
-    <section className="rounded-xl border border-line bg-white p-5 shadow-card sm:p-6">
-      <h2 className="text-lg font-semibold text-ink">Đổi mật khẩu</h2>
-      <p className="mb-4 text-sm text-muted">Sau khi đổi, bạn sẽ được đăng xuất và cần đăng nhập lại.</p>
+    <>
+      <h2 className="text-lg font-semibold text-ink-strong">Đổi mật khẩu</h2>
+      <p className="mb-6 text-sm text-muted">Sau khi đổi, bạn sẽ được đăng xuất và cần đăng nhập lại.</p>
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormField label="Mật khẩu hiện tại" htmlFor="oldPassword" error={errors.oldPassword?.message} required>
           <PasswordInput id="oldPassword" placeholder="Mật khẩu hiện tại" autoComplete="current-password" hasError={Boolean(errors.oldPassword)} {...register("oldPassword")} />
@@ -53,12 +53,15 @@ export default function ChangePasswordForm() {
           <PasswordInput id="confirmPassword" placeholder="Xác nhận mật khẩu mới" autoComplete="new-password" hasError={Boolean(errors.confirmPassword)} {...register("confirmPassword")} />
         </FormField>
         <FormAlert message={serverError} />
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+            Hủy
+          </Button>
           <Button type="submit" loading={isSubmitting}>
             Đổi mật khẩu
           </Button>
         </div>
       </form>
-    </section>
+    </>
   );
 }

@@ -1,8 +1,8 @@
 import { useRef, useState } from "react";
-import { courseApi } from "../../../api/courseApi";
-import CourseCover from "../../../components/common/CourseCover";
-import Button from "../../../components/ui/Button";
-import FormField from "../../../components/ui/FormField";
+import { courseApi } from "../../api/courseApi";
+import CourseCover from "./CourseCover";
+import Button from "../ui/Button";
+import FormField from "../ui/FormField";
 import { toCoverFile } from "./coverImage";
 
 const MAX_SIZE = 10 * 1024 * 1024;

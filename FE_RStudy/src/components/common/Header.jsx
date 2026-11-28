@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "../../assets/images/logo_text-blue.png";
-import { dropdown } from "../../constants/motion";
+import { dropdown, fadeIn, tabIndicator } from "../../constants/motion";
 import { ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
 import MainNav from "./MainNav";
@@ -16,6 +17,7 @@ const iconButton = "inline-flex size-11 items-center justify-center rounded-full
 export default function Header() {
   const { account } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchActive, setSearchActive] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { scrollY } = useScroll();
 
@@ -27,8 +29,13 @@ export default function Header() {
         <Link to={ROUTES.HOME} className="shrink-0" aria-label="RoadStudy">
           <img src={logo} alt="RoadStudy" className="h-11 w-auto" />
         </Link>
-        <SearchBox className="hidden w-56 lg:block" />
-        <MainNav />
+        {/* Khung giữ chỗ cố định w-56 để bố cục header không xô lệch; thanh tìm kiếm nằm đè lên và dài ra khi đang nhập. */}
+        <div className="relative hidden h-10 w-56 shrink-0 lg:block">
+          <motion.div layout transition={tabIndicator} className={`absolute inset-y-0 left-0 z-20 ${searchActive ? "w-[min(40rem,calc(100vw-24rem))]" : "w-full"}`}>
+            <SearchBox className="w-full" inputClassName={searchActive ? "bg-white hover:bg-white" : ""} onActiveChange={setSearchActive} />
+          </motion.div>
+        </div>
+        <MainNav className={`transition-opacity duration-150 ease-out-soft ${searchActive ? "pointer-events-none opacity-0" : ""}`} />
         <div className="ml-auto flex items-center gap-2 lg:ml-0">
           <button type="button" aria-label="Tìm kiếm" onClick={() => setSearchOpen((value) => !value)} className={`${iconButton} lg:hidden`}>
             <Search size={20} />
@@ -50,6 +57,16 @@ export default function Header() {
           )}
         </div>
       </div>
+      {/* Lớp phủ gồm hai phần cùng màu: một phần trong header (để thanh tìm kiếm nổi trên nó) và một phần phủ trang qua portal. */}
+      <AnimatePresence>
+        {searchActive && <motion.div variants={fadeIn} initial="hidden" animate="visible" exit="exit" aria-hidden="true" className="absolute inset-x-0 top-0 -bottom-px z-10 hidden bg-black/40 lg:block" />}
+      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {searchActive && <motion.div variants={fadeIn} initial="hidden" animate="visible" exit="exit" aria-hidden="true" className="fixed inset-0 z-30 hidden bg-black/40 lg:block" />}
+        </AnimatePresence>,
+        document.body,
+      )}
       <AnimatePresence>
         {searchOpen && (
           <motion.div variants={dropdown} initial="hidden" animate="visible" exit="exit" className="border-t border-line p-3 lg:hidden">

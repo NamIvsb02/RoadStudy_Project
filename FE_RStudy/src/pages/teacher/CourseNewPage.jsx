@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { courseApi } from "../../api/courseApi";
 import BackButton from "../../components/common/BackButton";
 import { ROUTES } from "../../constants/routes";
-import CourseForm from "./course/CourseForm";
-import { EMPTY_COURSE } from "./course/courseSchema";
+import CourseForm from "../../components/common/CourseForm";
+import { EMPTY_COURSE } from "../../components/common/courseSchema";
 
 export default function CourseNewPage() {
   const navigate = useNavigate();

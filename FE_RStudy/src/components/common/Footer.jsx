@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ROUTES } from "../../constants/routes";
 import { SITE_INFO } from "../../constants/siteInfo";
 import { useAuth } from "../../hooks/useAuth";
-import { NAV_ITEMS } from "./navItems";
+import { getMenuItems } from "./navItems";
 import RoadPath from "./RoadPath";
 import { SOCIAL_ICONS } from "./socialIcons";
 
@@ -49,7 +49,7 @@ export default function Footer() {
         <nav aria-label="Khám phá">
           <h3 className={headingClass}>Khám phá</h3>
           <ul className="space-y-2">
-            {NAV_ITEMS.map(({ label, to }) => (
+            {getMenuItems(account).map(({ label, to }) => (
               <li key={to}>
                 <Link to={to} className={linkClass}>
                   {label}

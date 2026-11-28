@@ -9,10 +9,11 @@ export default function CourseCard({ course }) {
   const { id, courseName, price, coverImageUrl, category, teacher, averageRating, reviewCount } = course;
 
   return (
-    <Link
-      to={generatePath(ROUTES.COURSE_DETAIL, { id })}
-      className="group flex h-full flex-col overflow-hidden rounded-xl border border-line bg-white transition-[transform,box-shadow,border-color] duration-200 ease-out-soft hover:-translate-y-1 hover:border-line-strong hover:shadow-card-hover focus-visible:-translate-y-1 focus-visible:shadow-card-hover"
-    >
+    // Link đứng yên làm vùng nhận hover; chỉ lớp bên trong nâng lên, tránh giật khi chuột ở mép dưới thẻ.
+    // Bóng nằm ở after: và chỉ đổi opacity để không phải vẽ lại box-shadow mỗi khung hình.
+    <Link to={generatePath(ROUTES.COURSE_DETAIL, { id })} className="group block h-full rounded-xl">
+      <div className="relative h-full rounded-xl transition-transform duration-200 ease-out-soft after:pointer-events-none after:absolute after:inset-0 after:rounded-xl after:opacity-0 after:shadow-card-hover after:transition-opacity after:duration-200 after:ease-out-soft group-hover:after:opacity-100 group-focus-visible:after:opacity-100 motion-safe:group-hover:-translate-y-1 motion-safe:group-focus-visible:-translate-y-1">
+      <div className="isolate flex h-full flex-col overflow-hidden rounded-xl border border-line bg-white transition-colors duration-200 ease-out-soft group-hover:border-line-strong">
       <div className="relative">
         <CourseCover src={coverImageUrl} alt={courseName} />
         {category && <span className="absolute top-3 left-3 rounded-full bg-white/95 px-2.5 py-0.5 text-xs font-semibold text-accent-strong">{category.categoryName}</span>}
@@ -35,6 +36,8 @@ export default function CourseCard({ course }) {
             </span>
           )}
         </div>
+      </div>
+      </div>
       </div>
     </Link>
   );

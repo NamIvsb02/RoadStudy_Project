@@ -15,6 +15,7 @@ import { studentSchema, teacherSchema } from "./authSchemas";
 import CommonRegisterFields from "./CommonRegisterFields";
 import StudentFields from "./StudentFields";
 import TeacherFields from "./TeacherFields";
+import { useGlobalLoading } from "../../hooks/useGlobalLoading";
 
 const ROLE_TABS = [
   { value: ROLES.STUDENT, label: "Học viên" },
@@ -44,6 +45,7 @@ const buildPayload = (role, values) => {
 export default function RegisterPage() {
   const navigate = useNavigate();
   const toast = useToast();
+  const loading = useGlobalLoading();
   const [role, setRole] = useState(ROLES.STUDENT);
   const roleRefs = useRef([]);
   const [serverError, setServerError] = useState("");
@@ -76,7 +78,7 @@ export default function RegisterPage() {
   const onSubmit = async (values) => {
     setServerError("");
     try {
-      const res = await authApi.register(buildPayload(role, values));
+      const res = await loading.run(() => authApi.register(buildPayload(role, values)), "Đang đăng ký...");
       toast.success(res.message);
       navigate(ROUTES.VERIFY_EMAIL, { state: { email: values.email } });
     } catch (error) {

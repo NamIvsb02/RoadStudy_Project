@@ -22,7 +22,7 @@ function TeacherPhoto({ account }) {
 
   if (url && failedUrl !== url) {
     return (
-      <img src={url} alt={account.fullName} loading="lazy" onError={() => setFailedUrl(url)} className="size-full object-cover transition-transform duration-300 ease-out-soft group-hover:scale-105" />
+      <img src={url} alt={account.fullName} loading="lazy" onError={() => setFailedUrl(url)} className="size-full object-cover transition-transform duration-300 ease-out-soft motion-safe:group-hover:scale-105" />
     );
   }
   return (
@@ -61,7 +61,7 @@ export default function TeacherShowcase({ teachers }) {
       <RevealGroup ref={trackRef} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2" itemClassName="w-56 shrink-0 snap-start">
         {data.items.map(({ id, specialization, account }) => (
           <Link key={id} to={generatePath(ROUTES.TEACHER_PROFILE, { id })} className="group block">
-            <div className="aspect-square overflow-hidden rounded-xl border border-line">
+            <div className="isolate aspect-square overflow-hidden rounded-xl border border-line">
               <TeacherPhoto account={account} />
             </div>
             <p className="mt-3 line-clamp-1 font-semibold text-ink-strong">{account.fullName}</p>
@@ -77,7 +77,7 @@ export default function TeacherShowcase({ teachers }) {
       <div className={CONTAINER}>
         <Reveal className="flex items-end justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <SectionHeader eyebrow="Giáo viên" title="Giáo viên tiêu biểu" description="Những giáo viên đã được quản trị viên duyệt." />
+            <SectionHeader eyebrow="Giáo viên của RoadStudy" title="Giáo viên tiêu biểu"  />
           </div>
           {data?.items.length > 0 && (
             <div className="mb-5 flex gap-2">

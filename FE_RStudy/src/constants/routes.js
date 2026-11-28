@@ -42,6 +42,7 @@ export const ROUTES = {
     COUPONS: "/admin/coupons",
     EXAMS: "/admin/exams",
     COURSES: "/admin/courses",
+    COURSE_EDIT: "/admin/courses/:id/edit",
     PERMISSIONS: "/admin/permissions",
     CATEGORIES: "/admin/categories",
   },

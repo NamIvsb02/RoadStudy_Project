@@ -6,6 +6,7 @@ export const courseApi = {
   getMine: (params) => axiosClient.get("/course/mine", { params }),
   getAdminList: (params) => axiosClient.get("/course/manage", { params }),
   getMyById: (id) => axiosClient.get(`/course/mine/${id}`),
+  getAdminById: (id) => axiosClient.get(`/course/manage/${id}`),
   create: (body) => axiosClient.post("/course", body),
   update: (id, body) => axiosClient.put(`/course/${id}`, body),
   submit: (id) => axiosClient.post(`/course/${id}/submit`),

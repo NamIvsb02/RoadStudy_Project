@@ -77,14 +77,9 @@ const getMyById = async (accountId, id) => {
   return getOwnCourseOrThrow(id, teacher.id);
 };
 
-const updateByTeacher = async (accountId, id, data) => {
-  const teacher = await getTeacherOrThrow(accountId);
-  const course = await getOwnCourseOrThrow(id, teacher.id);
-
-  if (!TEACHER_EDITABLE.includes(course.status)) {
-    throw new AppError("Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa", 409);
-  }
-
+// Quy tắc chung khi sửa khóa học, áp dụng cho cả giáo viên và admin
+const applyUpdate = async (course, data) => {
+  const { id } = course;
   if (data.categoryId !== undefined && data.categoryId !== course.categoryId) {
     await assertCategoryUsable(data.categoryId);
   }
@@ -102,6 +97,31 @@ const updateByTeacher = async (accountId, id, data) => {
   }
 
   return courseRepository.update(id, data);
+};
+
+const updateByTeacher = async (accountId, id, data) => {
+  const teacher = await getTeacherOrThrow(accountId);
+  const course = await getOwnCourseOrThrow(id, teacher.id);
+  if (!TEACHER_EDITABLE.includes(course.status)) {
+    throw new AppError("Khóa học đang chờ duyệt hoặc đã kết thúc nên không thể sửa", 409);
+  }
+  return applyUpdate(course, data);
+};
+
+// Admin có QUAN_LY_KHOA_HOC sửa được mọi khóa, kể cả đang chờ duyệt (để sửa lỗi nhỏ trước khi duyệt); khóa đã kết thúc là trạng thái cuối nên không sửa
+const updateByAdmin = async (id, data) => {
+  const course = await getAdminById(id);
+  if (course.status === CourseStatus.DA_KET_THUC) {
+    throw new AppError("Khóa học đã kết thúc nên không thể sửa", 409);
+  }
+  const updated = await applyUpdate(course, data);
+  await notificationService.notifyTeacher(course.teacherId, {
+    type: "COURSE_UPDATED_BY_ADMIN",
+    title: "Quản trị viên đã chỉnh sửa khóa học của bạn",
+    body: updated.courseName,
+    link: "/teacher/courses",
+  });
+  return updated;
 };
 
 const submitForApproval = async (accountId, id) => {
@@ -227,6 +247,7 @@ module.exports = {
   getMyList,
   getMyById,
   updateByTeacher,
+  updateByAdmin,
   submitForApproval,
   getAdminList,
   getAdminById,

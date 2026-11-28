@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { categoryApi } from '../api/categoryApi';
 import { courseApi } from '../api/courseApi';
@@ -9,10 +9,11 @@ import ErrorState from '../components/common/ErrorState';
 import PageColumns from '../components/common/PageColumns';
 import Pagination from '../components/common/Pagination';
 import { useFetch } from '../hooks/useFetch';
-import CourseFilterBar from './courseList/CourseFilterBar';
+import CourseFilterSidebar from './courseList/CourseFilterSidebar';
 
 const PAGE_SIZE = 9;
 const loadCategories = () => categoryApi.getPublicList({ limit: 100 });
+const FILTER_KEYS = ['q', 'categoryId', 'sort', 'minPrice', 'maxPrice'];
 
 export default function CourseListPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,34 +26,32 @@ export default function CourseListPage() {
   const courses = useFetch(request);
   const categories = useFetch(loadCategories);
 
-  const updateParams = (patch) => {
-    const next = new URLSearchParams(searchParams);
-    Object.entries(patch).forEach(([key, value]) => {
-      if (value) next.set(key, value);
-      else next.delete(key);
-    });
-    if (!('page' in patch)) next.delete('page');
-    setSearchParams(next);
-  };
+  const updateParams = useCallback(
+    (patch) =>
+      setSearchParams((current) => {
+        const next = new URLSearchParams(current);
+        Object.entries(patch).forEach(([key, value]) => {
+          if (value) next.set(key, value);
+          else next.delete(key);
+        });
+        if (!('page' in patch)) next.delete('page');
+        return next;
+      }),
+    [setSearchParams],
+  );
 
-  const filterValues = {
-    q: searchParams.get('q') ?? '',
-    categoryId: searchParams.get('categoryId') ?? '',
-    sort: searchParams.get('sort') ?? 'newest',
-    minPrice: searchParams.get('minPrice') ?? '',
-    maxPrice: searchParams.get('maxPrice') ?? '',
-  };
+  const filterValues = useMemo(() => {
+    const params = new URLSearchParams(query);
+    return {
+      q: params.get('q') ?? '',
+      categoryId: params.get('categoryId') ?? '',
+      sort: params.get('sort') ?? 'newest',
+      minPrice: params.get('minPrice') ?? '',
+      maxPrice: params.get('maxPrice') ?? '',
+    };
+  }, [query]);
 
-  const handleSubmit = (values) =>
-    updateParams({
-      q: values.q,
-      categoryId: values.categoryId,
-      sort: values.sort === 'newest' ? '' : values.sort,
-      minPrice: values.minPrice,
-      maxPrice: values.maxPrice,
-    });
-
-  const handleReset = () => updateParams({ q: '', categoryId: '', sort: '', minPrice: '', maxPrice: '' });
+  const handleReset = useCallback(() => updateParams(Object.fromEntries(FILTER_KEYS.map((key) => [key, '']))), [updateParams]);
 
   const { items = [], pagination } = courses.data ?? {};
 
@@ -63,7 +62,7 @@ export default function CourseListPage() {
     content = (
       <EmptyState
         title="Không tìm thấy khóa học phù hợp"
-        description="Thử bỏ bớt từ khóa, mở rộng khoảng giá hoặc chọn danh mục Tất cả."
+        description="Thử bỏ bớt từ khóa, mở rộng khoảng học phí hoặc chọn danh mục Tất cả."
       />
     );
   else
@@ -75,16 +74,15 @@ export default function CourseListPage() {
     );
 
   return (
-    <PageColumns>
+    <PageColumns
+      left={<CourseFilterSidebar values={filterValues} categories={categories.data?.items} onChange={updateParams} onReset={handleReset} />}
+    >
       <header className="mb-5">
         <p className="mb-1 text-xs font-semibold tracking-wider text-primary uppercase">Khám phá</p>
         <h1 className="text-headline font-bold text-ink-strong">Khóa học</h1>
         {pagination && <p className="mt-1 text-sm text-muted">{pagination.total} khóa học phù hợp</p>}
       </header>
-      <div className="space-y-4">
-        <CourseFilterBar values={filterValues} categories={categories.data?.items} onSubmit={handleSubmit} onReset={handleReset} />
-        {content}
-      </div>
+      {content}
     </PageColumns>
   );
 }

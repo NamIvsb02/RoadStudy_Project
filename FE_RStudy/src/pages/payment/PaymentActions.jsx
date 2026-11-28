@@ -6,9 +6,11 @@ import NoteDialog from "../../components/common/NoteDialog";
 import Button from "../../components/ui/Button";
 import FormAlert from "../../components/ui/FormAlert";
 import { canRefundPaid } from "./paymentState";
+import { useGlobalLoading } from "../../hooks/useGlobalLoading";
 
 export default function PaymentActions({ registration, stage, onChanged }) {
   const [dialog, setDialog] = useState("");
+  const loading = useGlobalLoading();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sent, setSent] = useState(false);
@@ -23,7 +25,7 @@ export default function PaymentActions({ registration, stage, onChanged }) {
     setBusy(true);
     setError("");
     try {
-      await enrollmentApi.cancel(registration.id);
+      await loading.run(() => enrollmentApi.cancel(registration.id), "Đang gửi yêu cầu...");
       onChanged();
     } catch (err) {
       setError(err.message);
@@ -33,7 +35,7 @@ export default function PaymentActions({ registration, stage, onChanged }) {
   };
 
   const handleRefund = async (description) => {
-    await invoiceApi.requestRefund(registration.invoice.id, description);
+    await loading.run(() => invoiceApi.requestRefund(registration.invoice.id, description), "Đang gửi yêu cầu...");
     setDialog("");
     setSent(true);
   };

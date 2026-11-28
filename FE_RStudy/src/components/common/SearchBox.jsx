@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search } from "lucide-react";
@@ -14,7 +14,8 @@ const MAX_LENGTH = 100;
 const SUGGESTION_LIMIT = 6;
 const DEBOUNCE_MS = 300;
 
-export default function SearchBox({ className = "", autoFocus = false, onSubmitted }) {
+export default function SearchBox({ className = "", inputClassName = "", autoFocus = false, onSubmitted, onActiveChange }) {
+  const inputRef = useRef(null);
   const [keyword, setKeyword] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -45,6 +46,7 @@ export default function SearchBox({ className = "", autoFocus = false, onSubmitt
     setOpen(false);
     setActiveIndex(-1);
     setKeyword("");
+    inputRef.current?.blur();
     onSubmitted?.();
   };
 
@@ -74,6 +76,8 @@ export default function SearchBox({ className = "", autoFocus = false, onSubmitt
       event.preventDefault();
       setOpen(false);
       setActiveIndex(-1);
+    } else if (event.key === "Escape") {
+      inputRef.current?.blur();
     }
   };
 
@@ -84,12 +88,16 @@ export default function SearchBox({ className = "", autoFocus = false, onSubmitt
         event.preventDefault();
         showAll();
       }}
+      onFocus={() => onActiveChange?.(true)}
       onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+        if (event.currentTarget.contains(event.relatedTarget)) return;
+        setOpen(false);
+        onActiveChange?.(false);
       }}
       className={`relative ${className}`}
     >
       <input
+        ref={inputRef}
         type="search"
         role="combobox"
         value={keyword}
@@ -108,7 +116,7 @@ export default function SearchBox({ className = "", autoFocus = false, onSubmitt
         aria-controls={listId}
         aria-activedescendant={panelOpen && activeIndex >= 0 ? optionId(activeIndex) : undefined}
         autoFocus={autoFocus}
-        className="h-10 w-full rounded-full bg-surface pr-10 pl-4 text-sm text-ink outline-none transition-[box-shadow,background-color] duration-150 placeholder:text-muted hover:bg-primary-50 focus:ring-2 focus:ring-primary-light"
+        className={`h-10 w-full rounded-full bg-surface pr-10 pl-4 text-sm text-ink outline-none transition-[box-shadow,background-color] duration-150 placeholder:text-muted hover:bg-primary-50 focus:ring-2 focus:ring-primary-light ${inputClassName}`}
       />
       <button type="submit" aria-label="Tìm kiếm" className="absolute top-1/2 right-1 inline-flex size-8 -translate-y-1/2 items-center justify-center rounded-full text-primary">
         <Search size={16} />

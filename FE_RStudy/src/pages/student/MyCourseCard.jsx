@@ -16,7 +16,7 @@ export default function MyCourseCard({ registration }) {
   const paymentPath = generatePath(ROUTES.PAYMENT, { id: registration.id });
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-line bg-white transition-shadow duration-200 ease-out-soft hover:shadow-card-hover sm:flex-row">
+    <article className="group isolate flex flex-col overflow-hidden rounded-xl border border-line bg-white transition-shadow duration-200 ease-out-soft hover:shadow-card-hover sm:flex-row">
       <CourseCover src={course.coverImageUrl} alt={course.courseName} className="sm:w-60 sm:shrink-0 sm:self-stretch" />
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex flex-wrap items-start justify-between gap-2">

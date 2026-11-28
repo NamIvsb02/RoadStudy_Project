@@ -83,6 +83,13 @@ export const STATUS_MAPS = {
   },
 };
 
+export const GENDER_LABELS = {
+  NAM: "Nam",
+  NU: "Nữ",
+  KHAC: "Khác",
+  KHONG_TIET_LO: "Không tiết lộ",
+};
+
 export const ROLE_LABELS = {
   [ROLES.STUDENT]: "Học viên",
   [ROLES.TEACHER]: "Giáo viên",

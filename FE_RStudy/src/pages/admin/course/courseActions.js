@@ -23,6 +23,9 @@ export const CONFIRMS = {
   DA_KET_THUC: { title: "Kết thúc khóa học?", message: "Khóa học đã kết thúc không thể mở lại.", label: "Kết thúc", danger: true },
 };
 
+// Admin sửa được mọi trạng thái trừ khóa đã kết thúc (khớp PUT /course/:id ở BE)
+export const canAdminEdit = (course) => course.status !== "DA_KET_THUC";
+
 export const runAction = (course, key, reason) => {
   if (key === "approve") return courseApi.approve(course.id);
   if (key === "reject") return courseApi.reject(course.id, reason);

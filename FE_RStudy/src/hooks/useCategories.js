@@ -1,5 +1,5 @@
-import { categoryApi } from "../../api/categoryApi";
-import { useFetch } from "../../hooks/useFetch";
+import { categoryApi } from "../api/categoryApi";
+import { useFetch } from "./useFetch";
 
 const fetchCategories = () => categoryApi.getPublicList({ limit: 100 });
 

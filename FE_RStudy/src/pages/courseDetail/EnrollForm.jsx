@@ -9,12 +9,14 @@ import { ROLES } from "../../constants/roles";
 import { ROUTES } from "../../constants/routes";
 import { useAuth } from "../../hooks/useAuth";
 import { formatVND } from "../../utils/format";
+import { useGlobalLoading } from "../../hooks/useGlobalLoading";
 
 export default function EnrollForm({ course }) {
   const { account } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
+  const loading = useGlobalLoading();
   const [code, setCode] = useState("");
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState("");
@@ -51,7 +53,7 @@ export default function EnrollForm({ course }) {
     setEnrolling(true);
     setError("");
     try {
-      const res = await enrollmentApi.create({ courseId: course.id, ...(preview && { discountCode: preview.code }) });
+      const res = await loading.run(() => enrollmentApi.create({ courseId: course.id, ...(preview && { discountCode: preview.code }) }), "Đang gửi yêu cầu...");
       await queryClient.invalidateQueries({ queryKey: ["enrollment"] });
       navigate(generatePath(ROUTES.PAYMENT, { id: res.data.registration.id }));
     } catch (err) {

@@ -1,13 +1,9 @@
 import FormField from "../../components/ui/FormField";
 import TextField from "../../components/ui/TextField";
 import { inputClass } from "../../components/ui/inputClass";
+import { GENDER_LABELS } from "../../constants/statuses";
 
-const GENDER_OPTIONS = [
-  { value: "NAM", label: "Nam" },
-  { value: "NU", label: "Nữ" },
-  { value: "KHAC", label: "Khác" },
-  { value: "KHONG_TIET_LO", label: "Không tiết lộ" },
-];
+const GENDER_OPTIONS = Object.entries(GENDER_LABELS).map(([value, label]) => ({ value, label }));
 
 export default function StudentFields({ register, errors }) {
   return (

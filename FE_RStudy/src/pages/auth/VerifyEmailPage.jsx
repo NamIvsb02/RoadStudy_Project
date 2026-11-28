@@ -11,6 +11,7 @@ import { ROUTES } from "../../constants/routes";
 import { useToast } from "../../hooks/useToast";
 import { verifyEmailSchema } from "./authSchemas";
 import { otpInputClass } from "./otpInputClass";
+import { useGlobalLoading } from "../../hooks/useGlobalLoading";
 
 const OTP_PURPOSE = "XAC_MINH_EMAIL";
 const linkClass = "rounded-sm font-medium text-primary transition-colors hover:text-primary-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-light";
@@ -19,6 +20,7 @@ export default function VerifyEmailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const toast = useToast();
+  const loading = useGlobalLoading();
   const [serverError, setServerError] = useState("");
   const [resending, setResending] = useState(false);
   const {
@@ -35,7 +37,7 @@ export default function VerifyEmailPage() {
   const onSubmit = async (values) => {
     setServerError("");
     try {
-      const res = await authApi.verifyEmail(values);
+      const res = await loading.run(() => authApi.verifyEmail(values), "Đang xác thực...");
       toast.success(res.message);
       navigate(ROUTES.LOGIN, { replace: true });
     } catch (error) {

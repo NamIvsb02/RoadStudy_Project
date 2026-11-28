@@ -12,10 +12,12 @@ import StudentFields from "../auth/StudentFields";
 import TeacherFields from "../auth/TeacherFields";
 import { toFormValues, toPayload } from "./profileMapper";
 import { getProfileSchema } from "./profileSchemas";
+import { useGlobalLoading } from "../../hooks/useGlobalLoading";
 
-export default function ProfileForm() {
+export default function ProfileForm({ onCancel, onSaved }) {
   const { account, updateAccount } = useAuth();
   const toast = useToast();
+  const loading = useGlobalLoading();
   const [serverError, setServerError] = useState("");
   const {
     register,
@@ -30,18 +32,19 @@ export default function ProfileForm() {
   const onSubmit = async (values) => {
     setServerError("");
     try {
-      const res = await accountApi.updateProfile(toPayload(account.role, values));
+      const res = await loading.run(() => accountApi.updateProfile(toPayload(account.role, values)), "Đang lưu thay đổi...");
       updateAccount(res.data);
       reset(toFormValues(res.data));
       toast.success(res.message);
+      onSaved?.();
     } catch (error) {
       setServerError(error.message);
     }
   };
 
   return (
-    <section className="rounded-xl border border-line bg-white p-5 shadow-card sm:p-6">
-      <h2 className="mb-4 text-lg font-semibold text-ink">Hồ sơ</h2>
+    <>
+      <h2 className="mb-6 text-lg font-semibold text-ink-strong">Chỉnh sửa thông tin</h2>
       <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <TextField id="email" label="Email" defaultValue={account.email} disabled hint="Email không thể thay đổi." />
         <TextField id="fullName" label="Họ và tên" placeholder="Họ và tên" required error={errors.fullName?.message} {...register("fullName")} />
@@ -49,12 +52,15 @@ export default function ProfileForm() {
         {account.role === ROLES.STUDENT && <StudentFields register={register} errors={errors} />}
         {account.role === ROLES.TEACHER && <TeacherFields register={register} errors={errors} />}
         <FormAlert message={serverError} />
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onCancel} disabled={isSubmitting}>
+            Hủy
+          </Button>
           <Button type="submit" loading={isSubmitting} disabled={!isDirty}>
             Lưu thay đổi
           </Button>
         </div>
       </form>
-    </section>
+    </>
   );
 }

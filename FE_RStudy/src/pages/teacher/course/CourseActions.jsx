@@ -1,7 +1,7 @@
 import { Link, generatePath } from "react-router-dom";
 import { ROUTES } from "../../../constants/routes";
 import { ACTION_LINK, ACTIONS } from "../../manage/tableStyles";
-import { EDITABLE_STATUSES } from "./courseSchema";
+import { EDITABLE_STATUSES } from "../../../components/common/courseSchema";
 
 const HINTS = {
   CHO_DUYET: "Đang chờ admin duyệt",
